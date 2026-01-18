@@ -34,11 +34,13 @@ import {
   Clock,
   HardDrive,
   Plus,
+  FolderOpen,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
+import Loading from "./loading"
 
 interface Document {
   id: string
@@ -91,8 +93,6 @@ const mockDocuments: Document[] = [
     uploadedAt: new Date(Date.now() - 432000000),
   },
 ]
-
-const Loading = () => null
 
 export default function DocumentsPage() {
   const searchParams = useSearchParams()
@@ -195,222 +195,224 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-background">
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-6 py-4">
-        <div className="flex items-center gap-4">
-          <Link href="/">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">Documents</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your uploaded documents
-            </p>
+    <Suspense fallback={<Loading />}>
+      <div className="flex h-screen flex-col bg-background">
+        {/* Header */}
+        <header className="flex items-center justify-between border-b border-border/50 px-6 py-4">
+          <div className="flex items-center gap-4">
+            <Link href="/">
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted/50">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">Documents</h1>
+              <p className="text-sm text-muted-foreground">
+                Upload and manage your knowledge base
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Upload Document
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".md,.txt"
-            multiple
-            className="hidden"
-            onChange={(e) => handleFileUpload(e.target.files)}
-          />
-        </div>
-      </header>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Upload
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".md,.txt"
+              multiple
+              className="hidden"
+              onChange={(e) => handleFileUpload(e.target.files)}
+            />
+          </div>
+        </header>
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 overflow-hidden">
-        <div className="max-w-5xl mx-auto h-full flex flex-col">
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <FileText className="h-5 w-5 text-primary" />
+        {/* Main Content */}
+        <div className="flex-1 p-6 overflow-hidden">
+          <div className="max-w-5xl mx-auto h-full flex flex-col">
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="rounded-2xl bg-muted/30 p-5">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-semibold text-foreground">{documents.length}</p>
+                    <p className="text-sm text-muted-foreground">Documents</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-semibold text-foreground">{documents.length}</p>
-                  <p className="text-sm text-muted-foreground">Total Documents</p>
+              </div>
+              <div className="rounded-2xl bg-muted/30 p-5">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10">
+                    <HardDrive className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-semibold text-foreground">{formatFileSize(totalSize)}</p>
+                    <p className="text-sm text-muted-foreground">Total size</p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-2xl bg-muted/30 p-5">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10">
+                    <Clock className="h-5 w-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-semibold text-foreground">
+                      {documents.length > 0 ? formatDate(documents[0].uploadedAt) : "N/A"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Last upload</p>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-chart-1/10">
-                  <HardDrive className="h-5 w-5 text-chart-1" />
+
+            {/* Upload Area */}
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={cn(
+                "rounded-2xl border-2 border-dashed p-8 mb-6 text-center transition-all",
+                isDragging
+                  ? "border-primary bg-primary/5"
+                  : "border-muted-foreground/20 hover:border-muted-foreground/40"
+              )}
+            >
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted/50">
+                  <Upload className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-2xl font-semibold text-foreground">{formatFileSize(totalSize)}</p>
-                  <p className="text-sm text-muted-foreground">Total Size</p>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-chart-3/10">
-                  <Clock className="h-5 w-5 text-chart-3" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold text-foreground">
-                    {documents.length > 0 ? formatDate(documents[0].uploadedAt) : "N/A"}
+                  <p className="font-medium text-foreground">
+                    Drop files here or click to browse
                   </p>
-                  <p className="text-sm text-muted-foreground">Last Upload</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Supports .md and .txt files
+                  </p>
                 </div>
+                <Button
+                  variant="outline"
+                  className="mt-2 bg-transparent"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Select files
+                </Button>
               </div>
             </div>
-          </div>
 
-          {/* Upload Area */}
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={cn(
-              "rounded-xl border-2 border-dashed p-8 mb-6 text-center transition-all",
-              isDragging
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-muted-foreground/50"
-            )}
-          >
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                <Upload className="h-6 w-6 text-muted-foreground" />
+            {/* Search */}
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search documents..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 bg-muted/30 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
+                />
               </div>
-              <div>
-                <p className="font-medium text-foreground">
-                  Drag and drop your files here
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Supports .md and .txt files
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                className="mt-2 bg-transparent"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Browse Files
-              </Button>
             </div>
-          </div>
 
-          {/* Search */}
-          <div className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search documents..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-card border-border"
-              />
-            </div>
-          </div>
-
-          {/* Documents List */}
-          <ScrollArea className="flex-1">
-            {filteredDocuments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 mb-4">
-                  <FileText className="h-8 w-8 text-muted-foreground" />
+            {/* Documents List */}
+            <ScrollArea className="flex-1">
+              {filteredDocuments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 mb-4">
+                    <FolderOpen className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-lg font-medium text-foreground">
+                    {searchQuery ? "No documents found" : "No documents yet"}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {searchQuery
+                      ? "Try a different search term"
+                      : "Upload your first document to get started"}
+                  </p>
                 </div>
-                <p className="text-lg font-medium text-foreground">
-                  {searchQuery ? "No documents found" : "No documents yet"}
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {searchQuery
-                    ? "Try a different search term"
-                    : "Upload your first document to get started"}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {filteredDocuments.map((doc) => (
-                  <DocumentRow
-                    key={doc.id}
-                    document={doc}
-                    onPreview={handlePreview}
-                    onDownload={handleDownload}
-                    onDelete={(doc) => {
-                      setDocumentToDelete(doc)
-                      setDeleteDialogOpen(true)
-                    }}
-                    formatFileSize={formatFileSize}
-                    formatDate={formatDate}
-                  />
-                ))}
-              </div>
-            )}
-          </ScrollArea>
+              ) : (
+                <div className="space-y-1">
+                  {filteredDocuments.map((doc) => (
+                    <DocumentRow
+                      key={doc.id}
+                      document={doc}
+                      onPreview={handlePreview}
+                      onDownload={handleDownload}
+                      onDelete={(doc) => {
+                        setDocumentToDelete(doc)
+                        setDeleteDialogOpen(true)
+                      }}
+                      formatFileSize={formatFileSize}
+                      formatDate={formatDate}
+                    />
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
         </div>
-      </div>
 
-      {/* Preview Dialog */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              {selectedDocument?.name}
-            </DialogTitle>
-            <DialogDescription>
-              {selectedDocument && formatFileSize(selectedDocument.size)} • Uploaded{" "}
-              {selectedDocument && formatDate(selectedDocument.uploadedAt)}
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="max-h-[50vh] mt-4">
-            <pre className="whitespace-pre-wrap text-sm text-foreground font-mono bg-muted/30 rounded-lg p-4">
-              {selectedDocument?.content}
-            </pre>
-          </ScrollArea>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPreviewOpen(false)} className="bg-transparent">
-              Close
-            </Button>
-            {selectedDocument && (
-              <Button onClick={() => handleDownload(selectedDocument)}>
-                <Download className="h-4 w-4 mr-2" />
-                Download
+        {/* Preview Dialog */}
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                {selectedDocument?.name}
+              </DialogTitle>
+              <DialogDescription>
+                {selectedDocument && formatFileSize(selectedDocument.size)} • Uploaded{" "}
+                {selectedDocument && formatDate(selectedDocument.uploadedAt)}
+              </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="max-h-[50vh] mt-4">
+              <pre className="whitespace-pre-wrap text-sm text-foreground font-mono bg-muted/30 rounded-xl p-4">
+                {selectedDocument?.content}
+              </pre>
+            </ScrollArea>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setPreviewOpen(false)} className="bg-transparent">
+                Close
               </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              {selectedDocument && (
+                <Button onClick={() => handleDownload(selectedDocument)}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Document</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{documentToDelete?.name}"? This action
-              cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="bg-transparent">
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete document</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete "{documentToDelete?.name}"? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="bg-transparent">
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDelete}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </Suspense>
   )
 }
 
@@ -434,15 +436,15 @@ function DocumentRow({
   const Icon = document.type === "md" ? FileText : File
 
   const typeColors = {
-    md: "bg-chart-1/10 text-chart-1",
-    txt: "bg-chart-3/10 text-chart-3",
+    md: "bg-blue-500/10 text-blue-500",
+    txt: "bg-emerald-500/10 text-emerald-500",
   }
 
   return (
-    <div className="flex items-center gap-4 p-3 rounded-xl border border-border bg-card hover:shadow-sm transition-all group">
+    <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/30 transition-colors group">
       <div
         className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
           typeColors[document.type]
         )}
       >
@@ -451,17 +453,13 @@ function DocumentRow({
 
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm text-foreground truncate">{document.name}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+        <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-muted/50 border-0">
             {document.type.toUpperCase()}
           </Badge>
-          <span className="text-xs text-muted-foreground">
-            {formatFileSize(document.size)}
-          </span>
-          <span className="text-border">•</span>
-          <span className="text-xs text-muted-foreground">
-            {formatDate(document.uploadedAt)}
-          </span>
+          <span>{formatFileSize(document.size)}</span>
+          <span className="text-muted-foreground/50">•</span>
+          <span>{formatDate(document.uploadedAt)}</span>
         </div>
       </div>
 
@@ -469,7 +467,7 @@ function DocumentRow({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
           onClick={() => onPreview(document)}
         >
           <Eye className="h-4 w-4" />
@@ -477,7 +475,7 @@ function DocumentRow({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
           onClick={() => onDownload(document)}
         >
           <Download className="h-4 w-4" />
@@ -487,7 +485,7 @@ function DocumentRow({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
             >
               <MoreVertical className="h-4 w-4" />
             </Button>
@@ -514,5 +512,3 @@ function DocumentRow({
     </div>
   )
 }
-
-export { Loading }

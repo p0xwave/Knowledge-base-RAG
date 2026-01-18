@@ -63,8 +63,8 @@ export function ChatSidebar({
   return (
     <div
       className={cn(
-        "flex flex-col border-r border-border bg-sidebar transition-all duration-300",
-        isOpen ? "w-72" : "w-0 overflow-hidden",
+        "flex flex-col border-r border-border bg-sidebar transition-all duration-300 h-full overflow-hidden shrink-0",
+        isOpen ? "w-72" : "w-0",
       )}
     >
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">

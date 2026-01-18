@@ -261,7 +261,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       <ChatSidebar
         conversations={conversations}
         activeConversation={activeConversation}

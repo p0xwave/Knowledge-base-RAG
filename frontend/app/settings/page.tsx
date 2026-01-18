@@ -6,16 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +26,7 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
+  Trash2,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
@@ -116,17 +108,17 @@ export default function SettingsPage() {
   return (
     <div className="flex h-screen flex-col bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-6 py-4">
+      <header className="flex items-center justify-between border-b border-border/50 px-6 py-4">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted/50">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
           <div>
             <h1 className="text-xl font-semibold text-foreground">Settings</h1>
             <p className="text-sm text-muted-foreground">
-              Manage your account settings
+              Manage your account
             </p>
           </div>
         </div>
@@ -135,22 +127,18 @@ export default function SettingsPage() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-2xl mx-auto space-y-8">
           {/* Profile Section */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <CardTitle>Profile</CardTitle>
-              </div>
-              <CardDescription>
-                Manage your personal information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <User className="h-5 w-5 text-muted-foreground" />
+              <h2 className="text-lg font-semibold text-foreground">Profile</h2>
+            </div>
+            
+            <div className="rounded-2xl bg-muted/30 p-6 space-y-6">
               {/* Avatar */}
               <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
+                <Avatar className="h-16 w-16">
                   <AvatarImage src="/placeholder.svg" alt={name} />
                   <AvatarFallback className="text-lg bg-primary/10 text-primary">
                     {getInitials(name)}
@@ -162,11 +150,11 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <Separator />
+              <div className="h-px bg-border/50" />
 
               {/* Name Field */}
               <div className="space-y-2">
-                <Label htmlFor="name">Display Name</Label>
+                <Label htmlFor="name" className="text-sm text-muted-foreground">Display Name</Label>
                 {isEditingName ? (
                   <div className="flex gap-2">
                     <Input
@@ -174,11 +162,11 @@ export default function SettingsPage() {
                       value={tempName}
                       onChange={(e) => setTempName(e.target.value)}
                       placeholder="Enter your name"
-                      className="flex-1"
+                      className="flex-1 bg-background/50 border-border/50"
                       autoFocus
                     />
-                    <Button onClick={handleSaveName}>Save</Button>
-                    <Button variant="outline" onClick={handleCancelNameEdit} className="bg-transparent">
+                    <Button onClick={handleSaveName} size="sm">Save</Button>
+                    <Button variant="ghost" size="sm" onClick={handleCancelNameEdit}>
                       Cancel
                     </Button>
                   </div>
@@ -186,10 +174,10 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <p className="text-foreground">{name}</p>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={() => setIsEditingName(true)}
-                      className="bg-transparent"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       Edit
                     </Button>
@@ -199,162 +187,153 @@ export default function SettingsPage() {
 
               {/* Email Field (Read-only) */}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
                 <div className="flex items-center justify-between">
                   <p className="text-foreground">{email}</p>
                   <span className="text-xs text-muted-foreground">Cannot be changed</span>
                 </div>
               </div>
-            </CardContent>
-            {profileSaved && (
-              <CardFooter>
-                <div className="flex items-center gap-2 text-sm text-chart-5">
+
+              {profileSaved && (
+                <div className="flex items-center gap-2 text-sm text-emerald-500">
                   <Check className="h-4 w-4" />
                   Profile saved successfully
                 </div>
-              </CardFooter>
-            )}
-          </Card>
+              )}
+            </div>
+          </section>
 
           {/* Password Section */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Lock className="h-5 w-5 text-muted-foreground" />
-                <CardTitle>Change Password</CardTitle>
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Lock className="h-5 w-5 text-muted-foreground" />
+              <h2 className="text-lg font-semibold text-foreground">Change Password</h2>
+            </div>
+            
+            <form onSubmit={handleChangePassword} className="rounded-2xl bg-muted/30 p-6 space-y-5">
+              {/* Current Password */}
+              <div className="space-y-2">
+                <Label htmlFor="current-password" className="text-sm text-muted-foreground">Current Password</Label>
+                <div className="relative">
+                  <Input
+                    id="current-password"
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Enter current password"
+                    className="pr-10 bg-background/50 border-border/50"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
-              <CardDescription>
-                Update your password to keep your account secure
-              </CardDescription>
-            </CardHeader>
-            <form onSubmit={handleChangePassword}>
-              <CardContent className="space-y-4">
-                {/* Current Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="current-password">Current Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="current-password"
-                      type={showCurrentPassword ? "text" : "password"}
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="Enter current password"
-                      className="pr-10"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    >
-                      {showCurrentPassword ? (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </Button>
-                  </div>
+
+              {/* New Password */}
+              <div className="space-y-2">
+                <Label htmlFor="new-password" className="text-sm text-muted-foreground">New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="new-password"
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="pr-10 bg-background/50 border-border/50"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Must be at least 8 characters
+                </p>
+              </div>
 
-                {/* New Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="new-password">New Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="new-password"
-                      type={showNewPassword ? "text" : "password"}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new password"
-                      className="pr-10"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                    >
-                      {showNewPassword ? (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Must be at least 8 characters
-                  </p>
+              {/* Confirm Password */}
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password" className="text-sm text-muted-foreground">Confirm New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    className={cn(
+                      "pr-10 bg-background/50 border-border/50",
+                      confirmPassword && newPassword !== confirmPassword && "border-destructive"
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
+              </div>
 
-                {/* Confirm Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="confirm-password"
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm new password"
-                      className={cn(
-                        "pr-10",
-                        confirmPassword && newPassword !== confirmPassword && "border-destructive"
-                      )}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </Button>
-                  </div>
+              {/* Error Message */}
+              {passwordError && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  {passwordError}
                 </div>
+              )}
 
-                {/* Error Message */}
-                {passwordError && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    {passwordError}
-                  </div>
-                )}
+              {/* Success Message */}
+              {passwordSuccess && (
+                <div className="flex items-center gap-2 text-sm text-emerald-500">
+                  <Check className="h-4 w-4" />
+                  Password changed successfully
+                </div>
+              )}
 
-                {/* Success Message */}
-                {passwordSuccess && (
-                  <div className="flex items-center gap-2 text-sm text-chart-5">
-                    <Check className="h-4 w-4" />
-                    Password changed successfully
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button
-                  type="submit"
-                  disabled={!currentPassword || !newPassword || !confirmPassword}
-                >
-                  Change Password
-                </Button>
-              </CardFooter>
+              <Button
+                type="submit"
+                disabled={!currentPassword || !newPassword || !confirmPassword}
+              >
+                Update password
+              </Button>
             </form>
-          </Card>
+          </section>
 
           {/* Danger Zone */}
-          <Card className="border-destructive/50">
-            <CardHeader>
-              <CardTitle className="text-destructive">Danger Zone</CardTitle>
-              <CardDescription>
-                Irreversible and destructive actions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              <h2 className="text-lg font-semibold text-destructive">Danger Zone</h2>
+            </div>
+            
+            <div className="rounded-2xl bg-destructive/5 border border-destructive/20 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-foreground">Delete Account</p>
@@ -383,8 +362,8 @@ export default function SettingsPage() {
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </section>
         </div>
       </div>
     </div>
