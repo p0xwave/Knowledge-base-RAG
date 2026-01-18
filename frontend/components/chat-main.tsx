@@ -19,6 +19,7 @@ import {
   Database,
   Globe,
   Copy,
+  Check,
   ThumbsUp,
   ThumbsDown,
   RefreshCw,
@@ -114,22 +115,22 @@ export function ChatMain({
 
   return (
     <div className="flex flex-1 flex-col bg-gradient-to-b from-background to-muted/30 overflow-hidden min-h-0">
-      <header className="flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-4 py-3">
-        <div className="flex items-center gap-3">
+      <header className="flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {!sidebarOpen && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onToggleSidebar}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onToggleSidebar}>
               <PanelLeftOpen className="h-4 w-4" />
             </Button>
           )}
-          <div>
-            <h1 className="font-semibold text-foreground">{conversation?.title || "New Conversation"}</h1>
+          <div className="min-w-0">
+            <h1 className="font-semibold text-foreground text-sm sm:text-base truncate">{conversation?.title || "New Conversation"}</h1>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-chart-5"></span>
-              3 documents loaded
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-chart-5 shrink-0"></span>
+              <span className="truncate">3 documents loaded</span>
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           <ThemeToggle />
           <TooltipProvider>
             <Tooltip>
@@ -138,13 +139,13 @@ export function ChatMain({
                   variant="outline"
                   size="sm"
                   className={cn(
-                    "gap-2 shadow-sm",
+                    "gap-1.5 sm:gap-2 shadow-sm",
                     showSources && "bg-primary/10 border-primary/30 text-primary hover:bg-primary/15",
                   )}
                   onClick={onToggleSources}
                 >
                   <FileText className="h-4 w-4" />
-                  Sources
+                  <span className="hidden sm:inline">Sources</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Toggle sources panel</TooltipContent>
@@ -155,11 +156,11 @@ export function ChatMain({
 
       {/* Messages */}
       <ScrollArea ref={scrollRef} className="flex-1 min-h-0 overflow-auto">
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           {conversation?.messages.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="space-y-6 max-w-3xl mx-auto">
+            <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
               {getMessageGroups().map((group) => (
                 <MessageGroup
                   key={group.userMessage.id}
@@ -170,14 +171,14 @@ export function ChatMain({
                 />
               ))}
               {isWaitingForResponse && (
-                <div className="flex gap-4">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80">
-                    <Loader2 className="h-4 w-4 text-primary-foreground animate-spin" />
+                <div className="flex gap-2 sm:gap-4">
+                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80">
+                    <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-foreground animate-spin" />
                   </div>
-                  <div className="flex-1 space-y-3 pt-1">
-                    <div className="h-4 w-3/4 animate-pulse rounded-lg bg-muted/80" />
-                    <div className="h-4 w-1/2 animate-pulse rounded-lg bg-muted/60" />
-                    <div className="h-4 w-2/3 animate-pulse rounded-lg bg-muted/40" />
+                  <div className="flex-1 space-y-2 sm:space-y-3 pt-1">
+                    <div className="h-3 sm:h-4 w-3/4 animate-pulse rounded-lg bg-muted/80" />
+                    <div className="h-3 sm:h-4 w-1/2 animate-pulse rounded-lg bg-muted/60" />
+                    <div className="h-3 sm:h-4 w-2/3 animate-pulse rounded-lg bg-muted/40" />
                   </div>
                 </div>
               )}
@@ -186,23 +187,23 @@ export function ChatMain({
         </div>
       </ScrollArea>
 
-      <div className="bg-background p-4 pb-6">
+      <div className="bg-background p-3 pb-4 sm:p-4 sm:pb-6">
         <div className="mx-auto max-w-3xl">
-          <div className="relative flex items-center gap-2 rounded-2xl bg-muted/50 hover:bg-muted/70 transition-colors focus-within:bg-muted/70 focus-within:ring-1 focus-within:ring-border px-3 py-2">
+          <div className="relative flex items-center gap-1.5 sm:gap-2 rounded-2xl bg-muted/50 hover:bg-muted/70 transition-colors focus-within:bg-muted/70 focus-within:ring-1 focus-within:ring-border px-2 sm:px-3 py-2">
             <Textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask a question about your documents..."
+              placeholder="Ask a question..."
               className="flex-1 min-h-8 max-h-[200px] resize-none border-0 bg-transparent py-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none text-foreground placeholder:text-muted-foreground text-sm leading-8"
               rows={1}
             />
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent hidden sm:flex">
                       <Paperclip className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -219,7 +220,7 @@ export function ChatMain({
               </Button>
             </div>
           </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground">
+          <p className="mt-2 sm:mt-3 text-center text-xs text-muted-foreground hidden sm:block">
             AI responses are generated from your uploaded documents. Always verify critical information.
           </p>
         </div>
@@ -242,23 +243,22 @@ function EmptyState() {
   ]
 
   return (
-    <div className="flex h-full flex-col items-center justify-center text-center max-w-xl mx-auto py-16">
-      <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 mb-6 shadow-sm">
-        <Sparkles className="h-9 w-9 text-primary" />
+    <div className="flex h-full flex-col items-center justify-center text-center max-w-xl mx-auto py-8 sm:py-16 px-2">
+      <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 mb-4 sm:mb-6 shadow-sm">
+        <Sparkles className="h-7 w-7 sm:h-9 sm:w-9 text-primary" />
       </div>
-      <h2 className="text-2xl font-semibold text-foreground mb-2 text-balance">Query Your Private Database</h2>
-      <p className="text-muted-foreground mb-8 max-w-md leading-relaxed">
-        Ask questions about your data and get AI-powered insights with source citations. Your data never leaves your
-        secure environment.
+      <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2 text-balance">Query Your Private Database</h2>
+      <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md leading-relaxed">
+        Ask questions about your data and get AI-powered insights with source citations.
       </p>
-      <div className="grid gap-3 w-full max-w-md">
+      <div className="grid gap-2 sm:gap-3 w-full max-w-md">
         {suggestions.map((suggestion, index) => (
           <button
             key={index}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-md hover:border-primary/20 hover:-translate-y-0.5"
+            className="flex items-center gap-2 sm:gap-3 rounded-xl border border-border bg-card p-3 sm:p-4 text-left transition-all hover:shadow-md hover:border-primary/20 active:scale-[0.98] sm:hover:-translate-y-0.5"
           >
-            <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", suggestion.color)}>
-              {suggestion.icon && <suggestion.icon className="h-5 w-5" />}
+            <div className={cn("flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg shrink-0", suggestion.color)}>
+              {suggestion.icon && <suggestion.icon className="h-4 w-4 sm:h-5 sm:w-5" />}
             </div>
             <span className="text-sm text-foreground">{suggestion.text}</span>
           </button>
@@ -287,22 +287,22 @@ function MessageGroup({ userMessage, responses, onSourceClick, onEditMessage }: 
   const hasMultipleResponses = responses.length > 1
 
   return (
-    <div className="space-y-6">
-      <UserMessageBubble 
-        message={userMessage} 
+    <div className="space-y-4 sm:space-y-6">
+      <UserMessageBubble
+        message={userMessage}
         onEditMessage={onEditMessage}
       />
-      
+
       {currentResponse && (
         <div className="space-y-2">
-          <AssistantMessageBubble 
-            message={currentResponse} 
+          <AssistantMessageBubble
+            message={currentResponse}
             onSourceClick={onSourceClick}
           />
-          
+
           {hasMultipleResponses && (
-            <div className="flex items-center gap-1 ml-12">
-              <History className="h-3.5 w-3.5 text-muted-foreground" />
+            <div className="flex items-center gap-1 ml-9 sm:ml-12">
+              <History className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
               <Button
                 variant="ghost"
                 size="icon"
@@ -324,7 +324,7 @@ function MessageGroup({ userMessage, responses, onSourceClick, onEditMessage }: 
               >
                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
-              <span className="text-xs text-muted-foreground ml-1">
+              <span className="text-xs text-muted-foreground ml-1 hidden sm:inline">
                 {currentResponseIndex === responses.length - 1 ? "Current" : "Previous"}
               </span>
             </div>
@@ -362,15 +362,15 @@ function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleProps) {
   const hasHistory = history.length > 0
 
   return (
-    <div className="flex gap-4 justify-end">
-      <div className="flex-1 max-w-[80%] flex justify-end">
+    <div className="flex gap-2 sm:gap-4 justify-end">
+      <div className="flex-1 max-w-[85%] sm:max-w-[80%] flex justify-end">
         <div className="space-y-2">
           {isEditing ? (
-            <div className="rounded-2xl bg-muted/80 p-4">
+            <div className="rounded-2xl bg-muted/80 p-3 sm:p-4">
               <Textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="min-h-[60px] resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground"
+                className="min-h-[60px] resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none text-foreground text-sm"
                 autoFocus
               />
               <div className="flex justify-end gap-2 mt-3">
@@ -384,7 +384,7 @@ function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleProps) {
             </div>
           ) : (
             <>
-              <div className="rounded-2xl px-4 py-3 bg-primary text-primary-foreground">
+              <div className="rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 bg-primary text-primary-foreground">
                 <div className="text-sm leading-relaxed">
                   {message.content.split("\n").map((paragraph, index) => (
                     <p key={index} className="mb-1.5 last:mb-0">
@@ -393,8 +393,8 @@ function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleProps) {
                   ))}
                 </div>
               </div>
-              
-              <div className="flex items-center justify-end gap-1">
+
+              <div className="flex items-center justify-end gap-0.5 sm:gap-1">
                 {message.isEdited && (
                   <span className="text-xs text-muted-foreground mr-1">(edited)</span>
                 )}
@@ -437,7 +437,7 @@ function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleProps) {
 
               {/* Edit History Panel */}
               {showHistory && hasHistory && (
-                <div className="rounded-xl bg-muted/30 p-3 space-y-2">
+                <div className="rounded-xl bg-muted/30 p-2 sm:p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-muted-foreground">Previous versions</span>
                     <div className="flex items-center gap-1">
@@ -464,7 +464,7 @@ function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleProps) {
                       </Button>
                     </div>
                   </div>
-                  <div className="rounded-lg bg-muted/50 p-3">
+                  <div className="rounded-lg bg-muted/50 p-2 sm:p-3">
                     <p className="text-sm text-foreground">{history[historyIndex].content}</p>
                     <p className="text-xs text-muted-foreground mt-2">
                       {history[historyIndex].timestamp.toLocaleString()}
@@ -476,8 +476,8 @@ function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleProps) {
           )}
         </div>
       </div>
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-        <User className="h-4 w-4 text-muted-foreground" />
+      <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+        <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
       </div>
     </div>
   )
@@ -489,6 +489,19 @@ interface AssistantMessageBubbleProps {
 }
 
 function AssistantMessageBubble({ message, onSourceClick }: AssistantMessageBubbleProps) {
+  const [feedback, setFeedback] = useState<'like' | 'dislike' | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(message.content)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleFeedback = (type: 'like' | 'dislike') => {
+    setFeedback(feedback === type ? null : type)
+  }
+
   // Parse content for code blocks
   const renderContent = (content: string) => {
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
@@ -541,9 +554,9 @@ function AssistantMessageBubble({ message, onSourceClick }: AssistantMessageBubb
   }
 
   return (
-    <div className="flex gap-4">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80">
-        <Bot className="h-4 w-4 text-primary-foreground" />
+    <div className="flex gap-2 sm:gap-4">
+      <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80">
+        <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-foreground" />
       </div>
       <div className="flex-1 min-w-0 pt-0.5">
         <div className="prose prose-sm max-w-none text-foreground prose-p:leading-relaxed prose-p:my-2 prose-strong:text-foreground prose-strong:font-semibold">
@@ -552,9 +565,9 @@ function AssistantMessageBubble({ message, onSourceClick }: AssistantMessageBubb
 
         {/* Sources */}
         {message.sources && message.sources.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-border/50">
+          <div className="mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-border/50">
             <p className="text-xs font-medium text-muted-foreground mb-2">Referenced sources</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {message.sources.map((source) => (
                 <SourceBadge key={source.id} source={source} onClick={() => onSourceClick(source)} />
               ))}
@@ -563,42 +576,86 @@ function AssistantMessageBubble({ message, onSourceClick }: AssistantMessageBubb
         )}
 
         {/* Actions */}
-        <div className="mt-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ opacity: 1 }}>
+        <div className="mt-2 sm:mt-3 flex items-center gap-0.5 sm:gap-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ opacity: 1 }}>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                  <Copy className="h-4 w-4" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-7 w-7 sm:h-8 sm:w-8 transition-all duration-200",
+                    copied
+                      ? "text-green-500 hover:text-green-500 hover:bg-green-500/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  )}
+                  onClick={handleCopy}
+                >
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-in zoom-in-50 duration-200" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Copy</TooltipContent>
+              <TooltipContent>{copied ? "Copied!" : "Copy"}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                  <ThumbsUp className="h-4 w-4" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-7 w-7 sm:h-8 sm:w-8 transition-all duration-200",
+                    feedback === 'like'
+                      ? "text-green-500 hover:text-green-500 hover:bg-green-500/10 scale-110"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  )}
+                  onClick={() => handleFeedback('like')}
+                >
+                  <ThumbsUp className={cn(
+                    "h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-200",
+                    feedback === 'like' && "fill-current animate-in zoom-in-50"
+                  )} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Good response</TooltipContent>
+              <TooltipContent>{feedback === 'like' ? "Thanks for feedback!" : "Good response"}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                  <ThumbsDown className="h-4 w-4" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-7 w-7 sm:h-8 sm:w-8 transition-all duration-200",
+                    feedback === 'dislike'
+                      ? "text-red-500 hover:text-red-500 hover:bg-red-500/10 scale-110"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  )}
+                  onClick={() => handleFeedback('dislike')}
+                >
+                  <ThumbsDown className={cn(
+                    "h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-200",
+                    feedback === 'dislike' && "fill-current animate-in zoom-in-50"
+                  )} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Bad response</TooltipContent>
+              <TooltipContent>{feedback === 'dislike' ? "Thanks for feedback!" : "Bad response"}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                  <RefreshCw className="h-4 w-4" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 active:rotate-180"
+                >
+                  <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Regenerate</TooltipContent>
@@ -620,10 +677,10 @@ function SourceBadge({ source, onClick }: SourceBadgeProps) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 hover:bg-muted text-sm transition-colors cursor-pointer group"
+      className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-muted/50 hover:bg-muted text-sm transition-colors cursor-pointer group active:scale-95"
     >
-      <FileText className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-      <span className="truncate max-w-[150px] text-foreground/80 group-hover:text-foreground transition-colors">{source.title}</span>
+      <FileText className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+      <span className="truncate max-w-[100px] sm:max-w-[150px] text-foreground/80 group-hover:text-foreground transition-colors">{source.title}</span>
       <span className="text-xs text-muted-foreground">{Math.round(source.relevance * 100)}%</span>
     </button>
   )
