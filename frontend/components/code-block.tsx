@@ -1,17 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Check, Copy, Play, Loader2, XCircle, CheckCircle2 } from "lucide-react"
+import { Check, Copy, Play, Loader2, XCircle, CheckCircle2, Square } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { executeCode, isExecutableLanguage, onPyodideLoading, isPyodideLoading } from "@/lib/code-executor"
 
 interface CodeBlockProps {
   code: string
   language?: string
 }
 
-type ExecutionStatus = "idle" | "running" | "success" | "error"
+type ExecutionStatus = "idle" | "loading-runtime" | "running" | "success" | "error"
 
 // Token types for syntax highlighting
 type TokenType = "keyword" | "string" | "number" | "comment" | "function" | "builtin" | "boolean" | "operator" | "punctuation" | "plain"
@@ -189,10 +190,63 @@ function HighlightedCode({ code, language }: { code: string; language: string })
   )
 }
 
+// Component to render output with support for matplotlib plots
+function OutputRenderer({ output }: { output: string }) {
+  // Check for embedded plot data (use [\s\S] instead of . with s flag for compatibility)
+  const plotMatch = output.match(/\[PLOT_DATA\]([\s\S]*?)\[\/PLOT_DATA\]/)
+
+  if (plotMatch) {
+    const base64Data = plotMatch[1]
+    const textOutput = output.replace(/\[PLOT_DATA\][\s\S]*?\[\/PLOT_DATA\]/, "").trim()
+
+    return (
+      <div className="mt-1 space-y-2">
+        {textOutput && (
+          <div className="overflow-x-auto">
+            <pre className="text-xs text-neutral-300 font-mono whitespace-pre">{textOutput}</pre>
+          </div>
+        )}
+        <div className="rounded-lg overflow-hidden bg-white">
+          <img
+            src={`data:image/png;base64,${base64Data}`}
+            alt="Plot output"
+            className="max-w-full h-auto"
+          />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="overflow-x-auto mt-1">
+      <pre className="text-xs text-neutral-300 font-mono whitespace-pre">{output}</pre>
+    </div>
+  )
+}
+
 export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
   const [copied, setCopied] = useState(false)
   const [executionStatus, setExecutionStatus] = useState<ExecutionStatus>("idle")
   const [executionOutput, setExecutionOutput] = useState<string>("")
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
+
+  const canExecute = isExecutableLanguage(language)
+  const isPython = language.toLowerCase() === "python" || language.toLowerCase() === "py"
+
+  // Listen for Pyodide loading status
+  useEffect(() => {
+    if (!isPython) return
+
+    const unsubscribe = onPyodideLoading((status) => {
+      if (status === "loading" && executionStatus === "running") {
+        setExecutionStatus("loading-runtime")
+      } else if (status === "ready" && executionStatus === "loading-runtime") {
+        setExecutionStatus("running")
+      }
+    })
+
+    return unsubscribe
+  }, [isPython, executionStatus])
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code)
@@ -200,33 +254,50 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleRun = async () => {
-    setExecutionStatus("running")
-    setExecutionOutput("")
+  const handleStop = () => {
+    if (abortController) {
+      abortController.abort()
+      setAbortController(null)
+      setExecutionStatus("error")
+      setExecutionOutput("Execution stopped by user")
+    }
+  }
 
-    setTimeout(() => {
-      try {
-        const hasError = code.includes("throw") || code.includes("error") || code.includes("undefined_var")
-        
-        if (hasError) {
-          setExecutionStatus("error")
-          setExecutionOutput("Error: Unexpected token or undefined variable")
-        } else {
-          setExecutionStatus("success")
-          if (code.includes("console.log")) {
-            const match = code.match(/console\.log\(['"](.*)['"]\)/)
-            setExecutionOutput(match ? match[1] : "Code executed successfully")
-          } else if (code.includes("return")) {
-            setExecutionOutput("Returned: [result]")
-          } else {
-            setExecutionOutput("Code executed successfully")
-          }
-        }
-      } catch {
-        setExecutionStatus("error")
-        setExecutionOutput("Execution failed")
-      }
-    }, 1500)
+  const handleRun = async () => {
+    if (!canExecute) {
+      setExecutionStatus("error")
+      setExecutionOutput(`Language "${language}" is not supported for execution`)
+      return
+    }
+
+    // Check if Pyodide is loading for Python
+    if (isPython && isPyodideLoading()) {
+      setExecutionStatus("loading-runtime")
+      setExecutionOutput("")
+    } else {
+      setExecutionStatus("running")
+      setExecutionOutput("")
+    }
+
+    const controller = new AbortController()
+    setAbortController(controller)
+
+    try {
+      const result = await executeCode(code, language)
+
+      // Check if aborted
+      if (controller.signal.aborted) return
+
+      setExecutionStatus(result.status)
+      setExecutionOutput(result.output)
+    } catch (error) {
+      if (controller.signal.aborted) return
+
+      setExecutionStatus("error")
+      setExecutionOutput(error instanceof Error ? error.message : String(error))
+    } finally {
+      setAbortController(null)
+    }
   }
 
   return (
@@ -256,39 +327,50 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
               <TooltipContent>{copied ? "Copied!" : "Copy code"}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "h-7 w-7",
-                    executionStatus === "running" && "text-blue-400",
-                    executionStatus === "success" && "text-emerald-400",
-                    executionStatus === "error" && "text-red-400",
-                    executionStatus === "idle" && "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50"
-                  )}
-                  onClick={handleRun}
-                  disabled={executionStatus === "running"}
-                >
-                  {executionStatus === "running" ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          {canExecute && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {(executionStatus === "running" || executionStatus === "loading-runtime") ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-blue-400 hover:text-red-400 hover:bg-neutral-700/50"
+                      onClick={handleStop}
+                    >
+                      <Square className="h-3 w-3 fill-current" />
+                    </Button>
                   ) : (
-                    <Play className="h-3.5 w-3.5" />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "h-7 w-7",
+                        executionStatus === "success" && "text-emerald-400",
+                        executionStatus === "error" && "text-red-400",
+                        executionStatus === "idle" && "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50"
+                      )}
+                      onClick={handleRun}
+                    >
+                      <Play className="h-3.5 w-3.5" />
+                    </Button>
                   )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Run code</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {(executionStatus === "running" || executionStatus === "loading-runtime") ? "Stop" : "Run code"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       </div>
 
       {/* Code */}
-      <pre className="p-4 overflow-x-auto">
-        <HighlightedCode code={code} language={language} />
-      </pre>
+      <div className="overflow-x-auto">
+        <pre className="p-4 min-w-fit">
+          <HighlightedCode code={code} language={language} />
+        </pre>
+      </div>
 
       {/* Execution Result */}
       {executionStatus !== "idle" && (
@@ -297,9 +379,18 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
             "px-4 py-3 border-t border-neutral-700/50 flex items-start gap-2",
             executionStatus === "success" && "bg-emerald-500/10",
             executionStatus === "error" && "bg-red-500/10",
-            executionStatus === "running" && "bg-blue-500/10"
+            (executionStatus === "running" || executionStatus === "loading-runtime") && "bg-blue-500/10"
           )}
         >
+          {executionStatus === "loading-runtime" && (
+            <>
+              <Loader2 className="h-4 w-4 text-blue-400 animate-spin mt-0.5" />
+              <div className="flex-1">
+                <span className="text-sm text-blue-400">Loading Python runtime...</span>
+                <span className="text-xs text-neutral-500 block mt-0.5">First run loads Pyodide + packages (numpy, pandas, etc.)</span>
+              </div>
+            </>
+          )}
           {executionStatus === "running" && (
             <>
               <Loader2 className="h-4 w-4 text-blue-400 animate-spin mt-0.5" />
@@ -308,19 +399,21 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
           )}
           {executionStatus === "success" && (
             <>
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 mt-0.5" />
-              <div className="flex-1">
-                <span className="text-sm font-medium text-emerald-400">Success</span>
-                <pre className="text-xs text-neutral-400 mt-1 font-mono">{executionOutput}</pre>
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-medium text-emerald-400">Output</span>
+                <OutputRenderer output={executionOutput} />
               </div>
             </>
           )}
           {executionStatus === "error" && (
             <>
               <XCircle className="h-4 w-4 text-red-400 mt-0.5" />
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium text-red-400">Error</span>
-                <pre className="text-xs text-red-400/80 mt-1 font-mono">{executionOutput}</pre>
+                <div className="overflow-x-auto mt-1">
+                  <pre className="text-xs text-red-400/80 font-mono whitespace-pre">{executionOutput}</pre>
+                </div>
               </div>
             </>
           )}
