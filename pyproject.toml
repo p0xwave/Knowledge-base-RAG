@@ -9,6 +9,7 @@ members = [
     "torch-parser",
     "api",
     "tgbot",
+    "backend",
 ]
 
 [tool.uv.sources]
