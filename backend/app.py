@@ -343,3 +343,18 @@ async def delete_source(source_id: int) -> None:
 
 
 app.include_router(sources_router)
+
+
+class CodeExecute(BaseModel):
+    response_id: int
+    code: str
+
+
+class CodeExecuteResult(BaseModel):
+    executed: bool
+    output: str
+
+
+@app.post("/api/code-executor", tags=["Code executor"])
+async def execute_code(code: CodeExecute) -> CodeExecuteResult:
+    return CodeExecuteResult(executed=True, output="")

@@ -881,6 +881,47 @@
                     }
                 }
             }
+        },
+        "/api/code-executor": {
+            "post": {
+                "tags": [
+                    "Code executor"
+                ],
+                "summary": "Execute Code",
+                "operationId": "execute_code_api_code_executor_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CodeExecute"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CodeExecuteResult"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -915,6 +956,42 @@
                 },
                 "type": "object",
                 "title": "ChangeDialogue"
+            },
+            "CodeExecute": {
+                "properties": {
+                    "response_id": {
+                        "type": "integer",
+                        "title": "Response Id"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "response_id",
+                    "code"
+                ],
+                "title": "CodeExecute"
+            },
+            "CodeExecuteResult": {
+                "properties": {
+                    "executed": {
+                        "type": "boolean",
+                        "title": "Executed"
+                    },
+                    "output": {
+                        "type": "string",
+                        "title": "Output"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "executed",
+                    "output"
+                ],
+                "title": "CodeExecuteResult"
             },
             "Dialogue": {
                 "properties": {
