@@ -1,0 +1,641 @@
+"use client"
+
+import type React from "react"
+
+import { useState, useRef, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  PanelLeftOpen,
+  Send,
+  Paperclip,
+  Sparkles,
+  User,
+  Bot,
+  FileText,
+  Database,
+  Globe,
+  Copy,
+  ThumbsUp,
+  ThumbsDown,
+  RefreshCw,
+  Loader2,
+  Pencil,
+  Check,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  History,
+} from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { SourceDetailModal } from "@/components/source-detail-modal"
+import { CodeBlock } from "@/components/code-block"
+import type { Conversation, Message, Source, MessageVersion } from "@/app/page"
+import { cn } from "@/lib/utils"
+
+interface ChatMainProps {
+  conversation: Conversation | null
+  onSendMessage: (content: string) => void
+  onEditMessage: (messageId: string, newContent: string) => void
+  isWaitingForResponse: boolean
+  showSources: boolean
+  onToggleSources: () => void
+  sidebarOpen: boolean
+  onToggleSidebar: () => void
+}
+
+export function ChatMain({
+  conversation,
+  onSendMessage,
+  onEditMessage,
+  isWaitingForResponse,
+  showSources,
+  onToggleSources,
+  sidebarOpen,
+  onToggleSidebar,
+}: ChatMainProps) {
+  const [input, setInput] = useState("")
+  const [selectedSource, setSelectedSource] = useState<Source | null>(null)
+  const [sourceModalOpen, setSourceModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleSourceClick = (source: Source) => {
+    setSelectedSource(source)
+    setSourceModalOpen(true)
+  }
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [conversation?.messages])
+
+  const handleSend = () => {
+    if (!input.trim() || isWaitingForResponse) return
+    onSendMessage(input)
+    setInput("")
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+
+  // Group messages by user message and its responses (including history)
+  const getMessageGroups = () => {
+    if (!conversation) return []
+    
+    const groups: { userMessage: Message; responses: Message[] }[] = []
+    
+    for (let i = 0; i < conversation.messages.length; i++) {
+      const msg = conversation.messages[i]
+      if (msg.role === "user") {
+        const responses: Message[] = []
+        // Collect all assistant responses linked to this user message
+        for (let j = i + 1; j < conversation.messages.length; j++) {
+          const nextMsg = conversation.messages[j]
+          if (nextMsg.role === "assistant" && (nextMsg.parentMessageId === msg.id || (j === i + 1 && !nextMsg.parentMessageId))) {
+            responses.push(nextMsg)
+          }
+          if (nextMsg.role === "user") break
+        }
+        groups.push({ userMessage: msg, responses })
+      }
+    }
+    
+    return groups
+  }
+
+  return (
+    <div className="flex flex-1 flex-col bg-gradient-to-b from-background to-muted/30">
+      <header className="flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-4 py-3">
+        <div className="flex items-center gap-3">
+          {!sidebarOpen && (
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onToggleSidebar}>
+              <PanelLeftOpen className="h-4 w-4" />
+            </Button>
+          )}
+          <div>
+            <h1 className="font-semibold text-foreground">{conversation?.title || "New Conversation"}</h1>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-chart-5"></span>
+              3 documents loaded
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "gap-2 shadow-sm",
+                    showSources && "bg-primary/10 border-primary/30 text-primary hover:bg-primary/15",
+                  )}
+                  onClick={onToggleSources}
+                >
+                  <FileText className="h-4 w-4" />
+                  Sources
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Toggle sources panel</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </header>
+
+      {/* Messages */}
+      <ScrollArea ref={scrollRef} className="flex-1 p-4">
+        {conversation?.messages.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="space-y-6 max-w-3xl mx-auto">
+            {getMessageGroups().map((group) => (
+              <MessageGroup
+                key={group.userMessage.id}
+                userMessage={group.userMessage}
+                responses={group.responses}
+                onSourceClick={handleSourceClick}
+                onEditMessage={onEditMessage}
+              />
+            ))}
+            {isWaitingForResponse && (
+              <div className="flex gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10">
+                  <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                </div>
+                <div className="flex-1 space-y-2 pt-2">
+                  <div className="h-4 w-3/4 animate-pulse rounded-full bg-muted" />
+                  <div className="h-4 w-1/2 animate-pulse rounded-full bg-muted" />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </ScrollArea>
+
+      <div className="border-t border-border bg-background/80 backdrop-blur-sm p-4">
+        <div className="mx-auto max-w-3xl">
+          <div className="relative rounded-2xl border border-border bg-card shadow-sm">
+            <Textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask a question about your data..."
+              className="min-h-[56px] max-h-[200px] resize-none border-0 bg-transparent px-4 py-3.5 pr-24 focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground placeholder:text-muted-foreground"
+              rows={1}
+            />
+            <div className="absolute bottom-2 right-2 flex items-center gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Attach file</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Button
+                onClick={handleSend}
+                disabled={!input.trim() || isWaitingForResponse}
+                size="icon"
+                className="h-8 w-8 bg-primary hover:bg-primary/90 shadow-sm"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            AI responses are generated from your private database. Always verify critical information.
+          </p>
+        </div>
+      </div>
+
+      <SourceDetailModal 
+        source={selectedSource} 
+        open={sourceModalOpen} 
+        onOpenChange={setSourceModalOpen} 
+      />
+    </div>
+  )
+}
+
+function EmptyState() {
+  const suggestions = [
+    { icon: Database, text: "What are the key metrics from Q3?", color: "bg-chart-1/10 text-chart-1" },
+    { icon: FileText, text: "Summarize the latest sales report", color: "bg-chart-5/10 text-chart-5" },
+    { icon: Globe, text: "Compare customer growth across regions", color: "bg-chart-3/10 text-chart-3" },
+  ]
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center text-center max-w-xl mx-auto py-16">
+      <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 mb-6 shadow-sm">
+        <Sparkles className="h-9 w-9 text-primary" />
+      </div>
+      <h2 className="text-2xl font-semibold text-foreground mb-2 text-balance">Query Your Private Database</h2>
+      <p className="text-muted-foreground mb-8 max-w-md leading-relaxed">
+        Ask questions about your data and get AI-powered insights with source citations. Your data never leaves your
+        secure environment.
+      </p>
+      <div className="grid gap-3 w-full max-w-md">
+        {suggestions.map((suggestion, index) => (
+          <button
+            key={index}
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:shadow-md hover:border-primary/20 hover:-translate-y-0.5"
+          >
+            <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", suggestion.color)}>
+              <suggestion.icon className="h-5 w-5" />
+            </div>
+            <span className="text-sm text-foreground">{suggestion.text}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+interface MessageGroupProps {
+  userMessage: Message
+  responses: Message[]
+  onSourceClick: (source: Source) => void
+  onEditMessage: (messageId: string, newContent: string) => void
+}
+
+function MessageGroup({ userMessage, responses, onSourceClick, onEditMessage }: MessageGroupProps) {
+  const [currentResponseIndex, setCurrentResponseIndex] = useState(responses.length - 1)
+  
+  // Update index when responses change
+  useEffect(() => {
+    setCurrentResponseIndex(responses.length - 1)
+  }, [responses.length])
+
+  const currentResponse = responses[currentResponseIndex]
+  const hasMultipleResponses = responses.length > 1
+
+  return (
+    <div className="space-y-6">
+      <UserMessageBubble 
+        message={userMessage} 
+        onEditMessage={onEditMessage}
+      />
+      
+      {currentResponse && (
+        <div className="space-y-2">
+          <AssistantMessageBubble 
+            message={currentResponse} 
+            onSourceClick={onSourceClick}
+          />
+          
+          {hasMultipleResponses && (
+            <div className="flex items-center gap-2 ml-12">
+              <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-muted/50 border border-border">
+                <History className="h-3 w-3 text-muted-foreground" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setCurrentResponseIndex((i) => Math.max(0, i - 1))}
+                  disabled={currentResponseIndex === 0}
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </Button>
+                <span className="text-xs text-muted-foreground min-w-[40px] text-center">
+                  {currentResponseIndex + 1} / {responses.length}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setCurrentResponseIndex((i) => Math.min(responses.length - 1, i + 1))}
+                  disabled={currentResponseIndex === responses.length - 1}
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {currentResponseIndex === responses.length - 1 ? "Current" : "Previous"} response
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface UserMessageBubbleProps {
+  message: Message
+  onEditMessage: (messageId: string, newContent: string) => void
+}
+
+function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editContent, setEditContent] = useState(message.content)
+  const [showHistory, setShowHistory] = useState(false)
+  const [historyIndex, setHistoryIndex] = useState(0)
+
+  const handleSaveEdit = () => {
+    if (editContent.trim() && editContent !== message.content) {
+      onEditMessage(message.id, editContent)
+    }
+    setIsEditing(false)
+  }
+
+  const handleCancelEdit = () => {
+    setEditContent(message.content)
+    setIsEditing(false)
+  }
+
+  const history = message.editHistory || []
+  const hasHistory = history.length > 0
+
+  return (
+    <div className="flex gap-3 justify-end">
+      <div className="flex-1 max-w-[85%] flex justify-end">
+        <div className="space-y-2">
+          {isEditing ? (
+            <div className="rounded-2xl bg-primary/10 border border-primary/30 p-3">
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="min-h-[60px] resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground"
+                autoFocus
+              />
+              <div className="flex justify-end gap-2 mt-2">
+                <Button variant="ghost" size="sm" onClick={handleCancelEdit}>
+                  <X className="h-3.5 w-3.5 mr-1" />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleSaveEdit}>
+                  <Check className="h-3.5 w-3.5 mr-1" />
+                  Save
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="rounded-2xl px-4 py-3 shadow-sm bg-primary text-primary-foreground">
+                <div className="prose prose-sm max-w-none text-inherit">
+                  {message.content.split("\n").map((paragraph, index) => (
+                    <p key={index} className="mb-2 last:mb-0 leading-relaxed">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-end gap-1">
+                {message.isEdited && (
+                  <span className="text-xs text-muted-foreground mr-2">(edited)</span>
+                )}
+                {hasHistory && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={cn(
+                            "h-7 w-7 text-muted-foreground hover:text-foreground",
+                            showHistory && "bg-muted text-foreground"
+                          )}
+                          onClick={() => setShowHistory(!showHistory)}
+                        >
+                          <History className="h-3.5 w-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>View edit history</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                        onClick={() => setIsEditing(true)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit message</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+
+              {/* Edit History Panel */}
+              {showHistory && hasHistory && (
+                <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-muted-foreground">Edit History</span>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => setHistoryIndex((i) => Math.max(0, i - 1))}
+                        disabled={historyIndex === 0}
+                      >
+                        <ChevronLeft className="h-3 w-3" />
+                      </Button>
+                      <span className="text-xs text-muted-foreground min-w-[30px] text-center">
+                        {historyIndex + 1} / {history.length}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => setHistoryIndex((i) => Math.min(history.length - 1, i + 1))}
+                        disabled={historyIndex === history.length - 1}
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-card p-3 border border-border">
+                    <p className="text-sm text-foreground">{history[historyIndex].content}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {history[historyIndex].timestamp.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary shadow-sm">
+        <User className="h-4 w-4 text-muted-foreground" />
+      </div>
+    </div>
+  )
+}
+
+interface AssistantMessageBubbleProps {
+  message: Message
+  onSourceClick: (source: Source) => void
+}
+
+function AssistantMessageBubble({ message, onSourceClick }: AssistantMessageBubbleProps) {
+  // Parse content for code blocks
+  const renderContent = (content: string) => {
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
+    const parts: React.ReactNode[] = []
+    let lastIndex = 0
+    let match
+
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      // Add text before code block
+      if (match.index > lastIndex) {
+        const textBefore = content.slice(lastIndex, match.index)
+        parts.push(
+          <div key={`text-${lastIndex}`}>
+            {textBefore.split("\n").map((paragraph, index) => (
+              <p key={index} className="mb-2 last:mb-0 leading-relaxed">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        )
+      }
+
+      // Add code block
+      const language = match[1] || "javascript"
+      const code = match[2].trim()
+      parts.push(<CodeBlock key={`code-${match.index}`} code={code} language={language} />)
+
+      lastIndex = match.index + match[0].length
+    }
+
+    // Add remaining text after last code block
+    if (lastIndex < content.length) {
+      const remainingText = content.slice(lastIndex)
+      parts.push(
+        <div key={`text-${lastIndex}`}>
+          {remainingText.split("\n").map((paragraph, index) => (
+            <p key={index} className="mb-2 last:mb-0 leading-relaxed">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      )
+    }
+
+    return parts.length > 0 ? parts : content.split("\n").map((paragraph, index) => (
+      <p key={index} className="mb-2 last:mb-0 leading-relaxed">
+        {paragraph}
+      </p>
+    ))
+  }
+
+  return (
+    <div className="flex gap-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">
+        <Bot className="h-4 w-4 text-primary" />
+      </div>
+      <div className="flex-1 max-w-[85%]">
+        <div className="rounded-2xl px-4 py-3 shadow-sm bg-card border border-border">
+          <div className="prose prose-sm max-w-none text-inherit text-foreground">
+            {renderContent(message.content)}
+          </div>
+        </div>
+
+        {/* Sources */}
+        {message.sources && message.sources.length > 0 && (
+          <div className="mt-3 space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">Sources ({message.sources.length})</p>
+            <div className="flex flex-wrap gap-2">
+              {message.sources.map((source) => (
+                <SourceBadge key={source.id} source={source} onClick={() => onSourceClick(source)} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="mt-2 flex items-center gap-0.5">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Copy</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                  <ThumbsUp className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Good response</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                  <ThumbsDown className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Bad response</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                  <RefreshCw className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Regenerate</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface SourceBadgeProps {
+  source: Source
+  onClick: () => void
+}
+
+function SourceBadge({ source, onClick }: SourceBadgeProps) {
+  const icons = {
+    document: FileText,
+    database: Database,
+    api: Globe,
+  }
+  const Icon = icons[source.type]
+
+  return (
+    <Badge
+      variant="outline"
+      className="gap-1.5 px-2.5 py-1 cursor-pointer bg-card hover:bg-muted/50 hover:border-primary/30 hover:shadow-md transition-all border-border shadow-sm"
+      onClick={onClick}
+    >
+      <Icon className="h-3 w-3 text-muted-foreground" />
+      <span className="truncate max-w-[150px] text-foreground">{source.title}</span>
+      <span className="text-primary font-medium text-[10px]">{Math.round(source.relevance * 100)}%</span>
+    </Badge>
+  )
+}
