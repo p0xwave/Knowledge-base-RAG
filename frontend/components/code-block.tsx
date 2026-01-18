@@ -386,8 +386,12 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
             <>
               <Loader2 className="h-4 w-4 text-blue-400 animate-spin mt-0.5" />
               <div className="flex-1">
-                <span className="text-sm text-blue-400">Loading Python runtime...</span>
-                <span className="text-xs text-neutral-500 block mt-0.5">First run loads Pyodide + packages (numpy, pandas, etc.)</span>
+                <span className="text-sm text-blue-400">Loading runtime...</span>
+                <span className="text-xs text-neutral-500 block mt-0.5">
+                  {language.toLowerCase().includes("python")
+                    ? "First run loads Pyodide + packages (numpy, pandas, etc.)"
+                    : "Loading WebGPU/ML runtime (ONNX, Transformers.js)"}
+                </span>
               </div>
             </>
           )}

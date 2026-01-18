@@ -1,4 +1,10 @@
-// Code execution utilities for Python (Pyodide) and JavaScript (sandboxed iframe)
+// Code execution utilities for Python (Pyodide), JavaScript (sandboxed iframe), and WebGPU
+
+import {
+  executeONNXCode,
+  executeTransformersCode,
+  checkWebGPUSupport,
+} from "./webgpu-executor"
 
 export interface ExecutionResult {
   output: string
@@ -322,6 +328,31 @@ async function fetchLibraryCode(url: string): Promise<string> {
   }
 }
 
+// Check if code uses WebGPU/ONNX/Transformers.js (needs native execution, not iframe)
+function requiresNativeExecution(code: string): "onnx" | "transformers" | null {
+  // Check for ONNX Runtime usage
+  if (
+    code.includes("ort.") ||
+    code.includes("onnxruntime") ||
+    code.includes("loadONNXModel") ||
+    code.includes("InferenceSession")
+  ) {
+    return "onnx"
+  }
+
+  // Check for Transformers.js usage
+  if (
+    code.includes("pipeline(") ||
+    code.includes("@huggingface/transformers") ||
+    code.includes("AutoModel") ||
+    code.includes("AutoTokenizer")
+  ) {
+    return "transformers"
+  }
+
+  return null
+}
+
 export async function executeJavaScript(
   code: string,
   timeout: number = 30000 // Increased for library loading
@@ -330,6 +361,30 @@ export async function executeJavaScript(
     return {
       output: "JavaScript execution is only available in browser",
       status: "error"
+    }
+  }
+
+  // Check if code requires native execution (WebGPU/ONNX/Transformers)
+  const nativeType = requiresNativeExecution(code)
+  if (nativeType) {
+    // Check WebGPU support
+    const webgpuStatus = await checkWebGPUSupport()
+    const gpuInfo = webgpuStatus.supported
+      ? "✓ WebGPU available"
+      : `⚠ WebGPU not available (${webgpuStatus.error}), using WASM fallback`
+
+    let result: ExecutionResult
+
+    if (nativeType === "onnx") {
+      result = await executeONNXCode(code)
+    } else {
+      result = await executeTransformersCode(code)
+    }
+
+    // Prepend GPU info to output
+    return {
+      ...result,
+      output: `${gpuInfo}\n\n${result.output}`,
     }
   }
 
@@ -499,3 +554,6 @@ export function isPyodideLoading(): boolean {
 export function isPyodideReady(): boolean {
   return pyodideInstance !== null
 }
+
+// Re-export WebGPU utilities
+export { checkWebGPUSupport, executeONNXCode, executeTransformersCode } from "./webgpu-executor"
