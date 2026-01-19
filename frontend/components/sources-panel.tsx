@@ -1,17 +1,13 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
-import {
-  X,
-  FileText,
-  Search,
-  ExternalLink,
-  File,
-} from "lucide-react"
+import { EmptyState } from "@/components/empty-state"
+import { useSearch } from "@/hooks/useSearch"
+import { X, FileText, Search, ExternalLink, File } from "lucide-react"
 import type { Source } from "@/lib/types"
+import { FILE_EXTENSION_COLORS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 interface SourcesPanelProps {
@@ -20,12 +16,11 @@ interface SourcesPanelProps {
 }
 
 export function SourcesPanel({ sources, onClose }: SourcesPanelProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-
-  const filteredSources = sources.filter(
-    (source) =>
-      source.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      source.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const { searchQuery, setSearchQuery, filteredItems, resultCount } = useSearch(
+    sources,
+    (source, query) =>
+      source.title.toLowerCase().includes(query) ||
+      source.content.toLowerCase().includes(query)
   )
 
   return (
@@ -59,24 +54,19 @@ export function SourcesPanel({ sources, onClose }: SourcesPanelProps) {
 
         {/* Retrieved Sources */}
         <ScrollArea className="flex-1 px-4 pb-4">
-          {filteredSources.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 mb-3">
-                <FileText className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <p className="text-sm font-medium text-foreground">
-                {searchQuery ? "No matching sources" : "No sources yet"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">
-                {searchQuery ? "Try a different search term" : "Ask a question to see relevant documents"}
-              </p>
-            </div>
+          {filteredItems.length === 0 ? (
+            <EmptyState
+              icon={FileText}
+              title={searchQuery ? "No matching sources" : "No sources yet"}
+              description={searchQuery ? "Try a different search term" : "Ask a question to see relevant documents"}
+              className="py-12"
+            />
           ) : (
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground mb-3">
-                {filteredSources.length} document{filteredSources.length !== 1 ? "s" : ""} found
+                {resultCount} document{resultCount !== 1 ? "s" : ""} found
               </p>
-              {filteredSources.map((source) => (
+              {filteredItems.map((source) => (
                 <SourceCard key={source.id} source={source} />
               ))}
             </div>
@@ -100,17 +90,12 @@ function SourceCard({ source }: SourceCardProps) {
 
   const extension = getFileExtension(source.title)
   const Icon = source.title.endsWith(".md") ? FileText : File
-
-  const extensionColors: Record<string, string> = {
-    MD: "bg-blue-500/10 text-blue-500",
-    TXT: "bg-emerald-500/10 text-emerald-500",
-    DOC: "bg-amber-500/10 text-amber-500",
-  }
+  const colorClass = FILE_EXTENSION_COLORS[extension] || FILE_EXTENSION_COLORS.DOC
 
   return (
     <div className="group rounded-xl p-3 hover:bg-muted/50 transition-colors cursor-pointer">
       <div className="flex items-start gap-3">
-        <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", extensionColors[extension] || extensionColors.DOC)}>
+        <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", colorClass)}>
           <Icon className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0">

@@ -1,47 +1,11 @@
 // WebGPU executor for running ML models in the browser
 import * as ort from "onnxruntime-web"
+import { validateJavaScriptCode } from "@/lib/security/validators"
 
 export interface WebGPUExecutionResult {
   output: string
   status: "success" | "error"
   data?: unknown
-}
-
-// Security: Patterns that are not allowed in executed code
-const DANGEROUS_JS_PATTERNS = [
-  /\beval\s*\(/,
-  /\bFunction\s*\(/,
-  /\bsetTimeout\s*\(\s*["'`]/,  // setTimeout with string
-  /\bsetInterval\s*\(\s*["'`]/, // setInterval with string
-  /\bfetch\s*\(/,
-  /\bXMLHttpRequest\b/,
-  /\bimport\s*\(/,              // dynamic import
-  /\brequire\s*\(/,
-  /\bprocess\b/,
-  /\b__proto__\b/,
-  /\bconstructor\s*\[/,
-  /\bwindow\b/,
-  /\bdocument\b/,
-  /\bglobalThis\b/,
-  /\blocalStorage\b/,
-  /\bsessionStorage\b/,
-  /\bcookie\b/,
-]
-
-const MAX_CODE_LENGTH = 50000
-
-function validateJSCode(code: string): { valid: boolean; error?: string } {
-  if (code.length > MAX_CODE_LENGTH) {
-    return { valid: false, error: `Code exceeds ${MAX_CODE_LENGTH} characters` }
-  }
-
-  for (const pattern of DANGEROUS_JS_PATTERNS) {
-    if (pattern.test(code)) {
-      return { valid: false, error: "Potentially unsafe operation detected in code" }
-    }
-  }
-
-  return { valid: true }
 }
 
 // Check if WebGPU is available
@@ -151,7 +115,7 @@ export function createTensor(
 // Execute ONNX-related code in browser with security validation
 export async function executeONNXCode(code: string): Promise<WebGPUExecutionResult> {
   // Validate code before execution
-  const validation = validateJSCode(code)
+  const validation = validateJavaScriptCode(code)
   if (!validation.valid) {
     return {
       output: validation.error || "Code validation failed",
@@ -246,7 +210,7 @@ async function loadTransformers(): Promise<TransformersModule> {
 // Execute Transformers.js code with security validation
 export async function executeTransformersCode(code: string): Promise<WebGPUExecutionResult> {
   // Validate code before execution
-  const validation = validateJSCode(code)
+  const validation = validateJavaScriptCode(code)
   if (!validation.valid) {
     return {
       output: validation.error || "Code validation failed",

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { useCopyFeedback } from "@/hooks/useCopyFeedback"
 import {
   FileText,
   Database,
@@ -27,7 +27,7 @@ import {
 } from "lucide-react"
 import type { Source } from "@/lib/types"
 import { extendedSourceData } from "@/lib/mock-data"
-import { COPY_FEEDBACK_TIMEOUT } from "@/lib/constants"
+import { SOURCE_TYPE_COLORS, SOURCE_TYPE_LABELS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 interface SourceDetailModalProps {
@@ -36,8 +36,14 @@ interface SourceDetailModalProps {
   onOpenChange: (open: boolean) => void
 }
 
+const SOURCE_TYPE_ICONS = {
+  document: FileText,
+  database: Database,
+  api: Globe,
+}
+
 export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailModalProps) {
-  const [copied, setCopied] = useState(false)
+  const { copied, copy } = useCopyFeedback()
 
   if (!source) return null
 
@@ -52,37 +58,18 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
     metadata: [],
   }
 
-  const icons = {
-    document: FileText,
-    database: Database,
-    api: Globe,
-  }
-  const Icon = icons[source.type]
+  const Icon = SOURCE_TYPE_ICONS[source.type]
+  const typeLabel = SOURCE_TYPE_LABELS[source.type]
+  const colorClass = SOURCE_TYPE_COLORS[source.type]
 
-  const typeLabels = {
-    document: "Document",
-    database: "Database",
-    api: "API",
-  }
-
-  const colors = {
-    document: "bg-chart-1/10 text-chart-1 border-chart-1/20",
-    database: "bg-chart-5/10 text-chart-5 border-chart-5/20",
-    api: "bg-chart-3/10 text-chart-3 border-chart-3/20",
-  }
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(extendedData.fullContent)
-    setCopied(true)
-    setTimeout(() => setCopied(false), COPY_FEEDBACK_TIMEOUT)
-  }
+  const handleCopy = () => copy(extendedData.fullContent)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 overflow-hidden">
         <DialogHeader className="p-6 pb-4 border-b border-border bg-card/50">
           <div className="flex items-start gap-4">
-            <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border", colors[source.type])}>
+            <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border", colorClass)}>
               <Icon className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
@@ -92,7 +79,7 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
                     {source.title}
                   </DialogTitle>
                   <p className="text-sm text-muted-foreground mt-0.5">
-                    {typeLabels[source.type]} Source
+                    {typeLabel} Source
                   </p>
                 </div>
                 <Badge className="shrink-0 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15">
@@ -146,9 +133,9 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
                   <Layers className="h-4 w-4 text-muted-foreground" />
                   Retrieved Content
                 </h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="h-7 text-xs gap-1.5"
                   onClick={handleCopy}
                 >
@@ -201,13 +188,14 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
                   <h3 className="text-sm font-semibold text-foreground mb-3">Related Sources</h3>
                   <div className="space-y-2">
                     {extendedData.relatedSources.map((related) => {
-                      const RelatedIcon = icons[related.type]
+                      const RelatedIcon = SOURCE_TYPE_ICONS[related.type]
+                      const relatedColorClass = SOURCE_TYPE_COLORS[related.type]
                       return (
                         <button
                           key={related.id}
                           className="w-full flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-muted/50 hover:border-primary/20 transition-all text-left group"
                         >
-                          <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", colors[related.type])}>
+                          <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", relatedColorClass)}>
                             <RelatedIcon className="h-3.5 w-3.5" />
                           </div>
                           <span className="flex-1 text-sm font-medium text-foreground">{related.title}</span>

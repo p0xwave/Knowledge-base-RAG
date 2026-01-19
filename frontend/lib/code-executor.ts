@@ -6,42 +6,19 @@ import {
   checkWebGPUSupport,
 } from "./webgpu-executor"
 import { logger } from "./logger"
+import {
+  PYODIDE_INDEX_URL,
+  PYODIDE_PACKAGE_MAP,
+  JS_LIBRARY_CDN,
+  PYTHON_EXECUTION_TIMEOUT,
+  JS_EXECUTION_TIMEOUT,
+  SERVER_ONLY_PACKAGES,
+  type CDNResource,
+} from "./constants"
 
 export interface ExecutionResult {
   output: string
   status: "success" | "error"
-}
-
-const PYODIDE_VERSION = "0.24.1"
-
-interface CDNResource {
-  url: string
-  integrity: string
-  crossOrigin: "anonymous" | "use-credentials"
-}
-
-// JavaScript library CDN resources with SRI
-const JS_LIBRARY_CDN: Record<string, CDNResource> = {
-  tensorflow: {
-    url: "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js",
-    integrity: "sha384-zLzaFRPy3kJ7q9ozL1VLfRb9bJE6Q0c/YQlf9l0GBlQ9xaKQAIWLSCnJ4oNqaU1Z",
-    crossOrigin: "anonymous",
-  },
-  chartjs: {
-    url: "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
-    integrity: "sha384-gVKIPfR0rZ2BKPBX9JmIJGTwxQ2eIqaKG2g9S2yMqYXZ6ZfMGbB7M8+PqE+jR8M8",
-    crossOrigin: "anonymous",
-  },
-  d3: {
-    url: "https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js",
-    integrity: "sha384-8VzJe/C8eH3mTfRZ/kSqCMVmBsMJrOm8UdC6f3v3G/5C3F5p3L0tQ5e8u3s/BO2K",
-    crossOrigin: "anonymous",
-  },
-  onnxruntime: {
-    url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.0/dist/ort.min.js",
-    integrity: "sha384-oF0WnLxmFNnKQ2aS5g3GpZMfUZ8v3Q8Z/a0a4a0a4a0a4a0a4a0a4a0a4a0a4a0",
-    crossOrigin: "anonymous",
-  },
 }
 
 // Pyodide types
@@ -132,21 +109,16 @@ async function loadPyodideRuntime(): Promise<PyodideInterface> {
     throw new Error("Pyodide can only run in browser environment")
   }
 
-  const indexURL = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`
-
   if (!window.loadPyodide) {
-    await loadScript(`${indexURL}pyodide.js`)
+    await loadScript(`${PYODIDE_INDEX_URL}pyodide.js`)
   }
 
   if (!window.loadPyodide) {
     throw new Error("loadPyodide not available after script load")
   }
 
-  return window.loadPyodide({ indexURL })
+  return window.loadPyodide({ indexURL: PYODIDE_INDEX_URL })
 }
-
-// Packages that require server-side execution (not available in Pyodide)
-const SERVER_ONLY_PACKAGES = ["torch", "tensorflow", "keras", "transformers", "diffusers"]
 
 // Check if code requires server-side execution
 function requiresServerExecution(code: string): string | null {
@@ -162,15 +134,7 @@ function requiresServerExecution(code: string): string | null {
 function detectPackages(code: string): string[] {
   const packages: Set<string> = new Set()
 
-  const packageMap: Record<string, string> = {
-    numpy: "numpy",
-    pandas: "pandas",
-    matplotlib: "matplotlib",
-    scipy: "scipy",
-    sklearn: "scikit-learn",
-  }
-
-  for (const [pkg, pipName] of Object.entries(packageMap)) {
+  for (const [pkg, pipName] of Object.entries(PYODIDE_PACKAGE_MAP)) {
     if (code.includes(pkg)) {
       packages.add(pipName)
     }
@@ -218,7 +182,7 @@ async function executeOnBackend(code: string, detectedPackage: string): Promise<
 
 export async function executePython(
   code: string,
-  timeout: number = 60000 // Increased timeout for package installation
+  timeout: number = PYTHON_EXECUTION_TIMEOUT
 ): Promise<ExecutionResult> {
   // Check if code requires server-side execution (PyTorch, TensorFlow, etc.)
   const serverOnlyPkg = requiresServerExecution(code)
@@ -443,7 +407,7 @@ function requiresNativeExecution(code: string): "onnx" | "transformers" | null {
 
 export async function executeJavaScript(
   code: string,
-  timeout: number = 30000 // Increased for library loading
+  timeout: number = JS_EXECUTION_TIMEOUT
 ): Promise<ExecutionResult> {
   if (typeof window === "undefined") {
     return {
@@ -566,7 +530,7 @@ export function isExecutableLanguage(language: string): boolean {
 export async function executeCode(
   code: string,
   language: string,
-  timeout: number = 60000
+  timeout: number = PYTHON_EXECUTION_TIMEOUT
 ): Promise<ExecutionResult> {
   const normalizedLang = language.toLowerCase()
 

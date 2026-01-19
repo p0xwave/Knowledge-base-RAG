@@ -7,7 +7,7 @@ import { Check, Copy, Play, Loader2, XCircle, CheckCircle2, Square } from "lucid
 import { cn } from "@/lib/utils"
 import { executeCode, isExecutableLanguage, onPyodideLoading, isPyodideLoading } from "@/lib/code-executor"
 import { tokenize, TOKEN_COLORS, PLOT_DATA_REGEX } from "@/lib/syntax-highlighting"
-import { COPY_FEEDBACK_TIMEOUT } from "@/lib/constants"
+import { useCopyFeedback } from "@/hooks/useCopyFeedback"
 
 interface CodeBlockProps {
   code: string
@@ -66,7 +66,7 @@ function OutputRenderer({ output }: { output: string }) {
 }
 
 export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
-  const [copied, setCopied] = useState(false)
+  const { copied, copy } = useCopyFeedback()
   const [executionStatus, setExecutionStatus] = useState<ExecutionStatus>("idle")
   const [executionOutput, setExecutionOutput] = useState<string>("")
   const [abortController, setAbortController] = useState<AbortController | null>(null)
@@ -89,11 +89,7 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
     return unsubscribe
   }, [isPython, executionStatus])
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), COPY_FEEDBACK_TIMEOUT)
-  }
+  const handleCopy = () => copy(code)
 
   const handleStop = () => {
     if (abortController) {

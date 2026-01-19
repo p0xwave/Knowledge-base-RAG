@@ -1,12 +1,40 @@
-// Message constraints
-export const MAX_MESSAGE_LENGTH = 10000
+// This file re-exports from the new constants folder structure
+// for backward compatibility with existing imports
 
-// Time constants (in milliseconds)
-export const ONE_DAY_MS = 86400000
-export const TWO_DAYS_MS = 172800000
-export const THREE_DAYS_MS = 259200000
+export {
+  // UI constants
+  MAX_MESSAGE_LENGTH,
+  COPY_FEEDBACK_TIMEOUT,
+  SIMULATED_RESPONSE_DELAY,
+  EDIT_RESPONSE_DELAY,
+  ONE_DAY_MS,
+  TWO_DAYS_MS,
+  THREE_DAYS_MS,
+  FILE_EXTENSION_COLORS,
+  SOURCE_TYPE_COLORS,
+  SOURCE_TYPE_LABELS,
+  PYTHON_EXECUTION_TIMEOUT,
+  JS_EXECUTION_TIMEOUT,
+  SANDBOX_EXECUTION_TIMEOUT,
 
-// UI timeouts (in milliseconds)
-export const COPY_FEEDBACK_TIMEOUT = 2000
-export const SIMULATED_RESPONSE_DELAY = 2000
-export const EDIT_RESPONSE_DELAY = 1000
+  // Security constants
+  MAX_CODE_LENGTH,
+  MAX_FILE_SIZE,
+  ALLOWED_EXTENSIONS,
+  ALLOWED_MIME_TYPES,
+  BACKEND_EXECUTION_TIMEOUT,
+  DANGEROUS_PYTHON_MODULES,
+  DANGEROUS_PYTHON_MODULE_PATTERNS,
+  DANGEROUS_PYTHON_PATTERNS,
+  DANGEROUS_JS_PATTERNS,
+  SERVER_ONLY_PACKAGES,
+
+  // Feature constants
+  PYODIDE_VERSION,
+  PYODIDE_INDEX_URL,
+  PYODIDE_PACKAGE_MAP,
+  JS_LIBRARY_CDN,
+  EXECUTABLE_LANGUAGES,
+  FEATURES,
+  type CDNResource,
+} from "./constants/index"
