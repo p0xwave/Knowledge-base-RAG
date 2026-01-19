@@ -29,17 +29,15 @@ export function EmptyState({
     <div className={cn("flex flex-col items-center justify-center text-center", className)}>
       <div
         className={cn(
-          "flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 mb-3",
+          "bg-muted/50 mb-3 flex h-12 w-12 items-center justify-center rounded-full",
           iconClassName
         )}
       >
-        <Icon className="h-5 w-5 text-muted-foreground" />
+        <Icon className="text-muted-foreground h-5 w-5" />
       </div>
-      <p className="text-sm font-medium text-foreground">{title}</p>
+      <p className="text-foreground text-sm font-medium">{title}</p>
       {description && (
-        <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">
-          {description}
-        </p>
+        <p className="text-muted-foreground mt-1 max-w-[200px] text-xs">{description}</p>
       )}
       {children}
     </div>

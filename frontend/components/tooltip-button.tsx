@@ -2,12 +2,7 @@
 
 import type React from "react"
 import { Button, type ButtonProps } from "@/components/ui/button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface TooltipButtonProps extends ButtonProps {
   tooltip: string
@@ -18,11 +13,7 @@ interface TooltipButtonProps extends ButtonProps {
  * Button wrapped with Tooltip - reduces boilerplate
  * Used across: chat-main, code-block, and other components
  */
-export function TooltipButton({
-  tooltip,
-  children,
-  ...buttonProps
-}: TooltipButtonProps) {
+export function TooltipButton({ tooltip, children, ...buttonProps }: TooltipButtonProps) {
   return (
     <TooltipProvider>
       <Tooltip>

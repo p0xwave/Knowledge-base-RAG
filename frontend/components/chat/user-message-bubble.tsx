@@ -36,19 +36,24 @@ export function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleP
   const hasHistory = history.length > 0
 
   return (
-    <div className="flex gap-2 sm:gap-4 justify-end">
-      <div className="flex-1 max-w-[85%] sm:max-w-[80%] flex justify-end">
+    <div className="flex justify-end gap-2 sm:gap-4">
+      <div className="flex max-w-[85%] flex-1 justify-end sm:max-w-[80%]">
         <div className="space-y-2">
           {isEditing ? (
-            <div className="rounded-2xl bg-muted/80 p-3 sm:p-4">
+            <div className="bg-muted/80 rounded-2xl p-3 sm:p-4">
               <Textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="min-h-[60px] resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none text-foreground text-sm"
+                className="text-foreground min-h-[60px] resize-none border-0 bg-transparent text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 autoFocus
               />
-              <div className="flex justify-end gap-2 mt-3">
-                <Button variant="ghost" size="sm" onClick={handleCancelEdit} className="text-muted-foreground">
+              <div className="mt-3 flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancelEdit}
+                  className="text-muted-foreground"
+                >
                   Cancel
                 </Button>
                 <Button size="sm" onClick={handleSaveEdit}>
@@ -58,7 +63,7 @@ export function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleP
             </div>
           ) : (
             <>
-              <div className="rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 bg-primary text-primary-foreground">
+              <div className="bg-primary text-primary-foreground rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3">
                 <ParagraphRenderer
                   content={message.content}
                   className="text-sm leading-relaxed"
@@ -68,7 +73,7 @@ export function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleP
 
               <div className="flex items-center justify-end gap-0.5 sm:gap-1">
                 {message.isEdited && (
-                  <span className="text-xs text-muted-foreground mr-1">(edited)</span>
+                  <span className="text-muted-foreground mr-1 text-xs">(edited)</span>
                 )}
                 {hasHistory && (
                   <TooltipButton
@@ -76,7 +81,7 @@ export function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleP
                     variant="ghost"
                     size="icon"
                     className={cn(
-                      "h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                      "text-muted-foreground hover:text-foreground hover:bg-muted/50 h-7 w-7",
                       showHistory && "bg-muted text-foreground"
                     )}
                     onClick={() => setShowHistory(!showHistory)}
@@ -88,7 +93,7 @@ export function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleP
                   tooltip="Edit message"
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-7 w-7"
                   onClick={() => setIsEditing(true)}
                 >
                   <Pencil className="h-3.5 w-3.5" />
@@ -97,26 +102,28 @@ export function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleP
 
               {/* Edit History Panel */}
               {showHistory && hasHistory && (
-                <div className="rounded-xl bg-muted/30 p-2 sm:p-3 space-y-2">
+                <div className="bg-muted/30 space-y-2 rounded-xl p-2 sm:p-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted-foreground">Previous versions</span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      Previous versions
+                    </span>
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-muted"
+                        className="hover:bg-muted h-6 w-6"
                         onClick={() => setHistoryIndex((i) => Math.max(0, i - 1))}
                         disabled={historyIndex === 0}
                       >
                         <ChevronLeft className="h-3 w-3" />
                       </Button>
-                      <span className="text-xs text-muted-foreground min-w-[30px] text-center">
+                      <span className="text-muted-foreground min-w-[30px] text-center text-xs">
                         {historyIndex + 1} / {history.length}
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 hover:bg-muted"
+                        className="hover:bg-muted h-6 w-6"
                         onClick={() => setHistoryIndex((i) => Math.min(history.length - 1, i + 1))}
                         disabled={historyIndex === history.length - 1}
                       >
@@ -124,9 +131,9 @@ export function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleP
                       </Button>
                     </div>
                   </div>
-                  <div className="rounded-lg bg-muted/50 p-2 sm:p-3">
-                    <p className="text-sm text-foreground">{history[historyIndex].content}</p>
-                    <p className="text-xs text-muted-foreground mt-2">
+                  <div className="bg-muted/50 rounded-lg p-2 sm:p-3">
+                    <p className="text-foreground text-sm">{history[historyIndex].content}</p>
+                    <p className="text-muted-foreground mt-2 text-xs">
                       {history[historyIndex].timestamp.toLocaleString()}
                     </p>
                   </div>
@@ -136,8 +143,8 @@ export function UserMessageBubble({ message, onEditMessage }: UserMessageBubbleP
           )}
         </div>
       </div>
-      <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-        <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+      <div className="bg-muted flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8">
+        <User className="text-muted-foreground h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </div>
     </div>
   )

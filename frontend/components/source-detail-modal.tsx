@@ -1,11 +1,6 @@
 "use client"
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -66,23 +61,26 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-4 border-b border-border bg-card/50">
+      <DialogContent className="max-h-[85vh] max-w-2xl gap-0 overflow-hidden p-0">
+        <DialogHeader className="border-border bg-card/50 border-b p-6 pb-4">
           <div className="flex items-start gap-4">
-            <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border", colorClass)}>
+            <div
+              className={cn(
+                "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border",
+                colorClass
+              )}
+            >
               <Icon className="h-5 w-5" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <DialogTitle className="text-lg font-semibold text-foreground">
+                  <DialogTitle className="text-foreground text-lg font-semibold">
                     {source.title}
                   </DialogTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    {typeLabel} Source
-                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-sm">{typeLabel} Source</p>
                 </div>
-                <Badge className="shrink-0 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15">
+                <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 shrink-0">
                   {Math.round(source.relevance * 100)}% Relevance
                 </Badge>
               </div>
@@ -90,24 +88,24 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 max-h-[calc(85vh-180px)]">
-          <div className="p-6 space-y-6">
+        <ScrollArea className="max-h-[calc(85vh-180px)] flex-1">
+          <div className="space-y-6 p-6">
             {/* Meta info */}
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4 text-muted-foreground" />
+                <User className="text-muted-foreground h-4 w-4" />
                 <span className="text-muted-foreground">Author:</span>
                 <span className="text-foreground font-medium">{extendedData.author}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar className="text-muted-foreground h-4 w-4" />
                 <span className="text-muted-foreground">Updated:</span>
                 <span className="text-foreground font-medium">{extendedData.updatedAt}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm col-span-2">
-                <Hash className="h-4 w-4 text-muted-foreground" />
+              <div className="col-span-2 flex items-center gap-2 text-sm">
+                <Hash className="text-muted-foreground h-4 w-4" />
                 <span className="text-muted-foreground">Path:</span>
-                <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-foreground truncate">
+                <code className="bg-muted text-foreground truncate rounded px-2 py-0.5 font-mono text-xs">
                   {extendedData.path}
                 </code>
               </div>
@@ -117,7 +115,11 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
             {extendedData.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {extendedData.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="text-xs bg-muted/50 hover:bg-muted">
+                  <Badge
+                    key={tag}
+                    variant="secondary"
+                    className="bg-muted/50 hover:bg-muted text-xs"
+                  >
                     {tag}
                   </Badge>
                 ))}
@@ -128,20 +130,20 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
 
             {/* Content */}
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Layers className="h-4 w-4 text-muted-foreground" />
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-foreground flex items-center gap-2 text-sm font-semibold">
+                  <Layers className="text-muted-foreground h-4 w-4" />
                   Retrieved Content
                 </h3>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 text-xs gap-1.5"
+                  className="h-7 gap-1.5 text-xs"
                   onClick={handleCopy}
                 >
                   {copied ? (
                     <>
-                      <CheckCircle2 className="h-3 w-3 text-chart-5" />
+                      <CheckCircle2 className="text-chart-5 h-3 w-3" />
                       Copied
                     </>
                   ) : (
@@ -152,8 +154,8 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
                   )}
                 </Button>
               </div>
-              <div className="rounded-xl border border-border bg-muted/30 p-4">
-                <pre className="text-sm text-foreground whitespace-pre-wrap font-sans leading-relaxed">
+              <div className="border-border bg-muted/30 rounded-xl border p-4">
+                <pre className="text-foreground font-sans text-sm leading-relaxed whitespace-pre-wrap">
                   {extendedData.fullContent}
                 </pre>
               </div>
@@ -164,15 +166,15 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
               <>
                 <Separator />
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="text-foreground mb-3 flex items-center gap-2 text-sm font-semibold">
+                    <Clock className="text-muted-foreground h-4 w-4" />
                     Metadata
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     {extendedData.metadata.map((item) => (
-                      <div key={item.label} className="rounded-lg border border-border bg-card p-3">
-                        <p className="text-xs text-muted-foreground">{item.label}</p>
-                        <p className="text-sm font-medium text-foreground mt-0.5">{item.value}</p>
+                      <div key={item.label} className="border-border bg-card rounded-lg border p-3">
+                        <p className="text-muted-foreground text-xs">{item.label}</p>
+                        <p className="text-foreground mt-0.5 text-sm font-medium">{item.value}</p>
                       </div>
                     ))}
                   </div>
@@ -185,7 +187,7 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
               <>
                 <Separator />
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground mb-3">Related Sources</h3>
+                  <h3 className="text-foreground mb-3 text-sm font-semibold">Related Sources</h3>
                   <div className="space-y-2">
                     {extendedData.relatedSources.map((related) => {
                       const RelatedIcon = SOURCE_TYPE_ICONS[related.type]
@@ -193,13 +195,20 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
                       return (
                         <button
                           key={related.id}
-                          className="w-full flex items-center gap-3 p-3 rounded-lg border border-border bg-card hover:bg-muted/50 hover:border-primary/20 transition-all text-left group"
+                          className="border-border bg-card hover:bg-muted/50 hover:border-primary/20 group flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all"
                         >
-                          <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", relatedColorClass)}>
+                          <div
+                            className={cn(
+                              "flex h-8 w-8 items-center justify-center rounded-lg",
+                              relatedColorClass
+                            )}
+                          >
                             <RelatedIcon className="h-3.5 w-3.5" />
                           </div>
-                          <span className="flex-1 text-sm font-medium text-foreground">{related.title}</span>
-                          <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                          <span className="text-foreground flex-1 text-sm font-medium">
+                            {related.title}
+                          </span>
+                          <ArrowRight className="text-muted-foreground group-hover:text-primary h-4 w-4 transition-colors" />
                         </button>
                       )
                     })}
@@ -211,8 +220,8 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
         </ScrollArea>
 
         {/* Footer */}
-        <div className="border-t border-border p-4 bg-card/50 flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
+        <div className="border-border bg-card/50 flex items-center justify-between border-t p-4">
+          <p className="text-muted-foreground text-xs">
             Source retrieved from your private database
           </p>
           <Button variant="outline" size="sm" className="gap-2 bg-transparent">

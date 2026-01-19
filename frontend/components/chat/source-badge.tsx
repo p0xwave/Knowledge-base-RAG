@@ -13,15 +13,13 @@ export function SourceBadge({ source, onClick }: SourceBadgeProps) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-muted/50 hover:bg-muted text-sm transition-colors cursor-pointer group active:scale-95"
+      className="bg-muted/50 hover:bg-muted group inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 text-sm transition-colors active:scale-95 sm:gap-2 sm:px-3 sm:py-1.5"
     >
-      <FileText className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
-      <span className="truncate max-w-[100px] sm:max-w-[150px] text-foreground/80 group-hover:text-foreground transition-colors">
+      <FileText className="text-muted-foreground group-hover:text-foreground h-3 w-3 shrink-0 transition-colors sm:h-3.5 sm:w-3.5" />
+      <span className="text-foreground/80 group-hover:text-foreground max-w-[100px] truncate transition-colors sm:max-w-[150px]">
         {source.title}
       </span>
-      <span className="text-xs text-muted-foreground">
-        {Math.round(source.relevance * 100)}%
-      </span>
+      <span className="text-muted-foreground text-xs">{Math.round(source.relevance * 100)}%</span>
     </button>
   )
 }

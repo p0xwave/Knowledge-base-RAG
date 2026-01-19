@@ -21,7 +21,10 @@ function validateFile(file: File): { valid: boolean; error?: string } {
 
   // Extension check
   const extension = file.name.split(".").pop()?.toLowerCase()
-  if (!extension || !ALLOWED_EXTENSIONS.includes(extension as typeof ALLOWED_EXTENSIONS[number])) {
+  if (
+    !extension ||
+    !ALLOWED_EXTENSIONS.includes(extension as (typeof ALLOWED_EXTENSIONS)[number])
+  ) {
     return { valid: false, error: "Only .md and .txt files are supported" }
   }
 
@@ -34,11 +37,13 @@ function validateFile(file: File): { valid: boolean; error?: string } {
 }
 
 function sanitizeFilename(filename: string): string {
-  return filename
-    .replace(/\.\.[\/\\]/g, "")  // path traversal
-    .replace(/[\/\\]/g, "")       // slashes
-    .replace(/[\x00-\x1f\x7f]/g, "") // control chars
-    .slice(0, 255) || "download"
+  return (
+    filename
+      .replace(/\.\.[\/\\]/g, "") // path traversal
+      .replace(/[\/\\]/g, "") // slashes
+      .replace(/[\x00-\x1f\x7f]/g, "") // control chars
+      .slice(0, 255) || "download"
+  )
 }
 
 function readFileAsText(file: File): Promise<string> {
@@ -192,11 +197,14 @@ export function useDocuments() {
     setIsDragging(false)
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-    uploadFiles(e.dataTransfer.files)
-  }, [uploadFiles])
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      setIsDragging(false)
+      uploadFiles(e.dataTransfer.files)
+    },
+    [uploadFiles]
+  )
 
   return {
     // State

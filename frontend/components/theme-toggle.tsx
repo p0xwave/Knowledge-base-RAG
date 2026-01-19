@@ -32,7 +32,7 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 relative">
+        <Button variant="ghost" size="icon" className="relative h-8 w-8">
           {theme === "dark" ? (
             <Moon className="h-4 w-4" />
           ) : theme === "system" ? (

@@ -66,9 +66,7 @@ export const useChatStore = create<ChatStore>()(
         set({
           conversations: newConversations,
           activeConversation:
-            activeConversation?.id === id
-              ? newConversations[0] || null
-              : activeConversation,
+            activeConversation?.id === id ? newConversations[0] || null : activeConversation,
         })
       },
 

@@ -14,8 +14,7 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   error: 3,
 }
 
-const currentLevel: LogLevel =
-  (process.env.NEXT_PUBLIC_LOG_LEVEL as LogLevel) || "info"
+const currentLevel: LogLevel = (process.env.NEXT_PUBLIC_LOG_LEVEL as LogLevel) || "info"
 
 function shouldLog(level: LogLevel): boolean {
   return LOG_LEVELS[level] >= LOG_LEVELS[currentLevel]
@@ -60,9 +59,10 @@ export const logger = {
 
   error(message: string, error?: Error | unknown, context?: Record<string, unknown>) {
     if (!shouldLog("error")) return
-    const errorContext = error instanceof Error
-      ? { errorName: error.name, errorMessage: error.message, stack: error.stack }
-      : { error: String(error) }
+    const errorContext =
+      error instanceof Error
+        ? { errorName: error.name, errorMessage: error.message, stack: error.stack }
+        : { error: String(error) }
     const entry = createEntry("error", message, { ...errorContext, ...context })
     console.error(formatMessage(entry))
   },

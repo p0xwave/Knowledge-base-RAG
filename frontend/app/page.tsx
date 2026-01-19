@@ -25,7 +25,7 @@ export default function Home() {
   const toggleSidebar = useChatStore((s) => s.toggleSidebar)
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="bg-background flex h-screen overflow-hidden">
       <ChatSidebar
         conversations={conversations}
         activeConversation={activeConversation}

@@ -30,11 +30,11 @@ export function MessageList({
   useEffect(() => {
     const scrollToBottom = () => {
       if (scrollRef.current) {
-        const scrollArea = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]')
+        const scrollArea = scrollRef.current.querySelector("[data-radix-scroll-area-viewport]")
         if (scrollArea) {
           scrollArea.scrollTo({
             top: scrollArea.scrollHeight,
-            behavior: 'smooth'
+            behavior: "smooth",
           })
         }
       }
@@ -43,12 +43,18 @@ export function MessageList({
   }, [conversation?.messages, isWaitingForResponse])
 
   return (
-    <ScrollArea ref={scrollRef} className="flex-1 min-h-0 overflow-auto" role="log" aria-label="Chat messages" aria-live="polite">
+    <ScrollArea
+      ref={scrollRef}
+      className="min-h-0 flex-1 overflow-auto"
+      role="log"
+      aria-label="Chat messages"
+      aria-live="polite"
+    >
       <div className="p-3 sm:p-4">
         {conversation?.messages.length === 0 ? (
           <ChatEmptyState onSuggestionClick={onSuggestionClick} />
         ) : (
-          <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
+          <div className="mx-auto max-w-3xl space-y-4 sm:space-y-6">
             {messageGroups.map((group) => (
               <MessageGroup
                 key={group.userMessage.id}
@@ -60,13 +66,13 @@ export function MessageList({
             ))}
             {isWaitingForResponse && (
               <div className="flex gap-2 sm:gap-4">
-                <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80">
-                  <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-foreground animate-spin" />
+                <div className="from-primary to-primary/80 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br sm:h-8 sm:w-8">
+                  <Loader2 className="text-primary-foreground h-3.5 w-3.5 animate-spin sm:h-4 sm:w-4" />
                 </div>
-                <div className="flex-1 space-y-2 sm:space-y-3 pt-1">
-                  <div className="h-3 sm:h-4 w-3/4 animate-pulse rounded-lg bg-muted/80" />
-                  <div className="h-3 sm:h-4 w-1/2 animate-pulse rounded-lg bg-muted/60" />
-                  <div className="h-3 sm:h-4 w-2/3 animate-pulse rounded-lg bg-muted/40" />
+                <div className="flex-1 space-y-2 pt-1 sm:space-y-3">
+                  <div className="bg-muted/80 h-3 w-3/4 animate-pulse rounded-lg sm:h-4" />
+                  <div className="bg-muted/60 h-3 w-1/2 animate-pulse rounded-lg sm:h-4" />
+                  <div className="bg-muted/40 h-3 w-2/3 animate-pulse rounded-lg sm:h-4" />
                 </div>
               </div>
             )}

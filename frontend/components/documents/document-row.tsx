@@ -34,20 +34,17 @@ export function DocumentRow({
   const colorClass = FILE_EXTENSION_COLORS[document.type] || FILE_EXTENSION_COLORS.md
 
   return (
-    <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/30 transition-colors group">
+    <div className="hover:bg-muted/30 group flex items-center gap-4 rounded-xl p-3 transition-colors">
       <div
-        className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-          colorClass
-        )}
+        className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", colorClass)}
       >
         <Icon className="h-5 w-5" />
       </div>
 
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm text-foreground truncate">{document.name}</p>
-        <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-muted/50 border-0">
+      <div className="min-w-0 flex-1">
+        <p className="text-foreground truncate text-sm font-medium">{document.name}</p>
+        <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs">
+          <Badge variant="secondary" className="bg-muted/50 border-0 px-1.5 py-0 text-[10px]">
             {document.type.toUpperCase()}
           </Badge>
           <span>{formatFileSize(document.size)}</span>
@@ -56,11 +53,11 @@ export function DocumentRow({
         </div>
       </div>
 
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-8 w-8"
           onClick={() => onPreview(document)}
           aria-label={`Preview ${document.name}`}
         >
@@ -69,7 +66,7 @@ export function DocumentRow({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-8 w-8"
           onClick={() => onDownload(document)}
           aria-label={`Download ${document.name}`}
         >
@@ -80,7 +77,7 @@ export function DocumentRow({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-8 w-8"
               aria-label={`More actions for ${document.name}`}
             >
               <MoreVertical className="h-4 w-4" aria-hidden="true" />
@@ -88,18 +85,18 @@ export function DocumentRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onPreview(document)}>
-              <Eye className="h-4 w-4 mr-2" />
+              <Eye className="mr-2 h-4 w-4" />
               Preview
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDownload(document)}>
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="mr-2 h-4 w-4" />
               Download
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
               onClick={() => onDelete(document)}
             >
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

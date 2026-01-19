@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Check, Copy, Play, Loader2, XCircle, CheckCircle2, Square } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { executeCode, isExecutableLanguage, onPyodideLoading, isPyodideLoading } from "@/lib/code-executor"
+import {
+  executeCode,
+  isExecutableLanguage,
+  onPyodideLoading,
+  isPyodideLoading,
+} from "@/lib/code-executor"
 import { tokenize, TOKEN_COLORS, PLOT_DATA_REGEX } from "@/lib/syntax-highlighting"
 import { useCopyFeedback } from "@/hooks/useCopyFeedback"
 
@@ -21,7 +26,7 @@ function HighlightedCode({ code, language }: { code: string; language: string })
   const tokens = tokenize(code, language)
 
   return (
-    <code className="text-sm font-mono">
+    <code className="font-mono text-sm">
       {tokens.map((token, i) => (
         <span key={i} className={TOKEN_COLORS[token.type]}>
           {token.value}
@@ -44,14 +49,15 @@ function OutputRenderer({ output }: { output: string }) {
       <div className="mt-1 space-y-2">
         {textOutput && (
           <div className="overflow-x-auto">
-            <pre className="text-xs text-neutral-300 font-mono whitespace-pre">{textOutput}</pre>
+            <pre className="font-mono text-xs whitespace-pre text-neutral-300">{textOutput}</pre>
           </div>
         )}
-        <div className="rounded-lg overflow-hidden bg-white">
+        <div className="overflow-hidden rounded-lg bg-white">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`data:image/png;base64,${base64Data}`}
             alt="Plot output"
-            className="max-w-full h-auto"
+            className="h-auto max-w-full"
           />
         </div>
       </div>
@@ -59,8 +65,8 @@ function OutputRenderer({ output }: { output: string }) {
   }
 
   return (
-    <div className="overflow-x-auto mt-1">
-      <pre className="text-xs text-neutral-300 font-mono whitespace-pre">{output}</pre>
+    <div className="mt-1 overflow-x-auto">
+      <pre className="font-mono text-xs whitespace-pre text-neutral-300">{output}</pre>
     </div>
   )
 }
@@ -138,12 +144,10 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
   }
 
   return (
-    <div className="my-4 rounded-xl overflow-hidden border border-border/50 bg-neutral-900 dark:bg-neutral-950">
+    <div className="border-border/50 my-4 overflow-hidden rounded-xl border bg-neutral-900 dark:bg-neutral-950">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-neutral-800 dark:bg-neutral-900 border-b border-neutral-700/50">
-        <span className="text-xs font-medium text-neutral-400 tracking-wide">
-          {language}
-        </span>
+      <div className="flex items-center justify-between border-b border-neutral-700/50 bg-neutral-800 px-4 py-2 dark:bg-neutral-900">
+        <span className="text-xs font-medium tracking-wide text-neutral-400">{language}</span>
         <div className="flex items-center gap-0.5">
           <TooltipProvider>
             <Tooltip>
@@ -151,7 +155,7 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50"
+                  className="h-7 w-7 text-neutral-400 hover:bg-neutral-700/50 hover:text-neutral-200"
                   onClick={handleCopy}
                 >
                   {copied ? (
@@ -168,11 +172,11 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  {(executionStatus === "running" || executionStatus === "loading-runtime") ? (
+                  {executionStatus === "running" || executionStatus === "loading-runtime" ? (
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-blue-400 hover:text-red-400 hover:bg-neutral-700/50"
+                      className="h-7 w-7 text-blue-400 hover:bg-neutral-700/50 hover:text-red-400"
                       onClick={handleStop}
                     >
                       <Square className="h-3 w-3 fill-current" />
@@ -185,7 +189,8 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
                         "h-7 w-7",
                         executionStatus === "success" && "text-emerald-400",
                         executionStatus === "error" && "text-red-400",
-                        executionStatus === "idle" && "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50"
+                        executionStatus === "idle" &&
+                          "text-neutral-400 hover:bg-neutral-700/50 hover:text-neutral-200"
                       )}
                       onClick={handleRun}
                     >
@@ -194,7 +199,9 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
                   )}
                 </TooltipTrigger>
                 <TooltipContent>
-                  {(executionStatus === "running" || executionStatus === "loading-runtime") ? "Stop" : "Run code"}
+                  {executionStatus === "running" || executionStatus === "loading-runtime"
+                    ? "Stop"
+                    : "Run code"}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -204,7 +211,7 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
 
       {/* Code */}
       <div className="overflow-x-auto">
-        <pre className="p-4 min-w-fit">
+        <pre className="min-w-fit p-4">
           <HighlightedCode code={code} language={language} />
         </pre>
       </div>
@@ -213,18 +220,19 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
       {executionStatus !== "idle" && (
         <div
           className={cn(
-            "px-4 py-3 border-t border-neutral-700/50 flex items-start gap-2",
+            "flex items-start gap-2 border-t border-neutral-700/50 px-4 py-3",
             executionStatus === "success" && "bg-emerald-500/10",
             executionStatus === "error" && "bg-red-500/10",
-            (executionStatus === "running" || executionStatus === "loading-runtime") && "bg-blue-500/10"
+            (executionStatus === "running" || executionStatus === "loading-runtime") &&
+              "bg-blue-500/10"
           )}
         >
           {executionStatus === "loading-runtime" && (
             <>
-              <Loader2 className="h-4 w-4 text-blue-400 animate-spin mt-0.5" />
+              <Loader2 className="mt-0.5 h-4 w-4 animate-spin text-blue-400" />
               <div className="flex-1">
                 <span className="text-sm text-blue-400">Loading runtime...</span>
-                <span className="text-xs text-neutral-500 block mt-0.5">
+                <span className="mt-0.5 block text-xs text-neutral-500">
                   {language.toLowerCase().includes("python")
                     ? "First run loads Pyodide + packages (numpy, pandas, etc.)"
                     : "Loading WebGPU/ML runtime (ONNX, Transformers.js)"}
@@ -234,14 +242,14 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
           )}
           {executionStatus === "running" && (
             <>
-              <Loader2 className="h-4 w-4 text-blue-400 animate-spin mt-0.5" />
+              <Loader2 className="mt-0.5 h-4 w-4 animate-spin text-blue-400" />
               <span className="text-sm text-blue-400">Running...</span>
             </>
           )}
           {executionStatus === "success" && (
             <>
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 mt-0.5 shrink-0" />
-              <div className="flex-1 min-w-0">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+              <div className="min-w-0 flex-1">
                 <span className="text-sm font-medium text-emerald-400">Output</span>
                 <OutputRenderer output={executionOutput} />
               </div>
@@ -249,11 +257,13 @@ export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
           )}
           {executionStatus === "error" && (
             <>
-              <XCircle className="h-4 w-4 text-red-400 mt-0.5" />
-              <div className="flex-1 min-w-0">
+              <XCircle className="mt-0.5 h-4 w-4 text-red-400" />
+              <div className="min-w-0 flex-1">
                 <span className="text-sm font-medium text-red-400">Error</span>
-                <div className="overflow-x-auto mt-1">
-                  <pre className="text-xs text-red-400/80 font-mono whitespace-pre">{executionOutput}</pre>
+                <div className="mt-1 overflow-x-auto">
+                  <pre className="font-mono text-xs whitespace-pre text-red-400/80">
+                    {executionOutput}
+                  </pre>
                 </div>
               </div>
             </>

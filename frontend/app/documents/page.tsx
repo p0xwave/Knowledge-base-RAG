@@ -45,34 +45,31 @@ export default function DocumentsPage() {
     handleDrop,
   } = useDocuments()
 
-  const { searchQuery, setSearchQuery, filteredItems } = useSearch(
-    documents,
-    (doc, query) => doc.name.toLowerCase().includes(query)
+  const { searchQuery, setSearchQuery, filteredItems } = useSearch(documents, (doc, query) =>
+    doc.name.toLowerCase().includes(query)
   )
 
   const { formatRelativeDate, formatFileSize } = useDateFormat()
 
   return (
     <Suspense fallback={<Loading />}>
-      <div className="flex h-screen flex-col bg-background">
+      <div className="bg-background flex h-screen flex-col">
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-border/50 px-6 py-4">
+        <header className="border-border/50 flex items-center justify-between border-b px-6 py-4">
           <div className="flex items-center gap-4">
             <Link href="/" aria-label="Go back to chat">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 hover:bg-muted/50"
+                className="hover:bg-muted/50 h-8 w-8"
                 aria-label="Back to chat"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               </Button>
             </Link>
             <div>
-              <h1 className="text-xl font-semibold text-foreground">Documents</h1>
-              <p className="text-sm text-muted-foreground">
-                Upload and manage your knowledge base
-              </p>
+              <h1 className="text-foreground text-xl font-semibold">Documents</h1>
+              <p className="text-muted-foreground text-sm">Upload and manage your knowledge base</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -93,13 +90,15 @@ export default function DocumentsPage() {
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 p-6 overflow-hidden">
-          <div className="max-w-5xl mx-auto h-full flex flex-col">
+        <div className="flex-1 overflow-hidden p-6">
+          <div className="mx-auto flex h-full max-w-5xl flex-col">
             {/* Stats */}
             <DocumentStats
               documentCount={documents.length}
               totalSize={formatFileSize(totalSize)}
-              lastUpload={documents.length > 0 ? formatRelativeDate(documents[0].uploadedAt) : "N/A"}
+              lastUpload={
+                documents.length > 0 ? formatRelativeDate(documents[0].uploadedAt) : "N/A"
+              }
             />
 
             {/* Upload Area */}
@@ -115,14 +114,14 @@ export default function DocumentsPage() {
             <div className="mb-4" role="search">
               <div className="relative">
                 <Search
-                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
                   aria-hidden="true"
                 />
                 <Input
                   placeholder="Search documents..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 bg-muted/30 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
+                  className="bg-muted/30 focus-visible:ring-primary/30 border-0 pl-9 focus-visible:ring-1"
                   aria-label="Search documents"
                 />
               </div>
@@ -163,7 +162,7 @@ export default function DocumentsPage() {
 
         {/* Preview Dialog */}
         <Dialog open={previewOpen} onOpenChange={closePreview}>
-          <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogContent className="max-h-[80vh] max-w-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
@@ -174,8 +173,8 @@ export default function DocumentsPage() {
                 {selectedDocument && formatRelativeDate(selectedDocument.uploadedAt)}
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="max-h-[50vh] mt-4">
-              <pre className="whitespace-pre-wrap text-sm text-foreground font-mono bg-muted/30 rounded-xl p-4">
+            <ScrollArea className="mt-4 max-h-[50vh]">
+              <pre className="text-foreground bg-muted/30 rounded-xl p-4 font-mono text-sm whitespace-pre-wrap">
                 {selectedDocument?.content}
               </pre>
             </ScrollArea>
@@ -185,7 +184,7 @@ export default function DocumentsPage() {
               </Button>
               {selectedDocument && (
                 <Button onClick={() => downloadDocument(selectedDocument)}>
-                  <Download className="h-4 w-4 mr-2" />
+                  <Download className="mr-2 h-4 w-4" />
                   Download
                 </Button>
               )}
@@ -199,8 +198,8 @@ export default function DocumentsPage() {
             <DialogHeader>
               <DialogTitle>Delete document</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete "{documentToDelete?.name}"? This action cannot be
-                undone.
+                Are you sure you want to delete &quot;{documentToDelete?.name}&quot;? This action
+                cannot be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

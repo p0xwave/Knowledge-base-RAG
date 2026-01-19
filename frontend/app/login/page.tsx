@@ -22,57 +22,58 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
+
     // Simulate login - replace with actual auth logic
     await new Promise((resolve) => setTimeout(resolve, 1500))
-    
+
     setIsLoading(false)
     router.push("/")
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex min-h-screen">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
-        
+      <div className="bg-primary relative hidden overflow-hidden lg:flex lg:w-1/2">
+        <div className="from-primary via-primary to-primary/80 absolute inset-0 bg-gradient-to-br" />
+
         {/* Decorative elements */}
-        <div className="absolute top-20 left-20 w-72 h-72 bg-primary-foreground/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl" />
-        
-        <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
+        <div className="bg-primary-foreground/10 absolute top-20 left-20 h-72 w-72 rounded-full blur-3xl" />
+        <div className="bg-primary-foreground/5 absolute right-20 bottom-20 h-96 w-96 rounded-full blur-3xl" />
+
+        <div className="text-primary-foreground relative z-10 flex flex-col justify-between p-12">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
+            <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-xl">
               <Database className="h-5 w-5" />
             </div>
             <span className="text-xl font-semibold">DataMind AI</span>
           </div>
-          
+
           <div className="max-w-md">
-            <h1 className="text-4xl font-bold mb-6 leading-tight text-balance">
+            <h1 className="mb-6 text-4xl leading-tight font-bold text-balance">
               Intelligent insights from your private data
             </h1>
-            <p className="text-lg text-primary-foreground/80 leading-relaxed">
-              Connect your databases, documents, and knowledge bases. Ask questions in natural language and get accurate answers with source citations.
+            <p className="text-primary-foreground/80 text-lg leading-relaxed">
+              Connect your databases, documents, and knowledge bases. Ask questions in natural
+              language and get accurate answers with source citations.
             </p>
-            
+
             <div className="mt-12 grid grid-cols-3 gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold">99.9%</div>
-                <div className="text-sm text-primary-foreground/70 mt-1">Uptime</div>
+                <div className="text-primary-foreground/70 mt-1 text-sm">Uptime</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold">500K+</div>
-                <div className="text-sm text-primary-foreground/70 mt-1">Queries/day</div>
+                <div className="text-primary-foreground/70 mt-1 text-sm">Queries/day</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold">50ms</div>
-                <div className="text-sm text-primary-foreground/70 mt-1">Avg response</div>
+                <div className="text-primary-foreground/70 mt-1 text-sm">Avg response</div>
               </div>
             </div>
           </div>
-          
-          <div className="flex items-center gap-2 text-sm text-primary-foreground/60">
+
+          <div className="text-primary-foreground/60 flex items-center gap-2 text-sm">
             <Lock className="h-4 w-4" />
             <span>Enterprise-grade security with SOC 2 Type II compliance</span>
           </div>
@@ -80,11 +81,11 @@ export default function LoginPage() {
       </div>
 
       {/* Right side - Login form */}
-      <div className="w-full lg:w-1/2 flex flex-col bg-background">
-        <div className="flex justify-between items-center p-6">
+      <div className="bg-background flex w-full flex-col lg:w-1/2">
+        <div className="flex items-center justify-between p-6">
           <div className="flex items-center gap-3 lg:hidden">
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
-              <Database className="h-4 w-4 text-primary-foreground" />
+            <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-xl">
+              <Database className="text-primary-foreground h-4 w-4" />
             </div>
             <span className="text-lg font-semibold">DataMind AI</span>
           </div>
@@ -93,7 +94,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
+        <div className="flex flex-1 items-center justify-center p-6 sm:p-12">
           <div className="w-full max-w-md space-y-8">
             <div className="text-center lg:text-left">
               <h2 className="text-2xl font-bold tracking-tight">Welcome back</h2>
@@ -107,14 +108,14 @@ export default function LoginPage() {
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="name@company.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-11"
+                      className="h-11 pl-10"
                       required
                     />
                   </div>
@@ -125,32 +126,28 @@ export default function LoginPage() {
                     <Label htmlFor="password">Password</Label>
                     <Link
                       href="/forgot-password"
-                      className="text-sm text-primary hover:text-primary/80 transition-colors"
+                      className="text-primary hover:text-primary/80 text-sm transition-colors"
                     >
                       Forgot password?
                     </Link>
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 h-11"
+                      className="h-11 pr-10 pl-10"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
                     >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       <span className="sr-only">
                         {showPassword ? "Hide password" : "Show password"}
                       </span>
@@ -167,17 +164,13 @@ export default function LoginPage() {
                 />
                 <Label
                   htmlFor="remember"
-                  className="text-sm font-normal text-muted-foreground cursor-pointer"
+                  className="text-muted-foreground cursor-pointer text-sm font-normal"
                 >
                   Remember me for 30 days
                 </Label>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full h-11 text-base"
-                disabled={isLoading}
-              >
+              <Button type="submit" className="h-11 w-full text-base" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -194,12 +187,10 @@ export default function LoginPage() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
+                <div className="border-border w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
+                <span className="bg-background text-muted-foreground px-2">Or continue with</span>
               </div>
             </div>
 
@@ -233,7 +224,7 @@ export default function LoginPage() {
               </Button>
             </div>
 
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-center text-sm">
               Don&apos;t have an account?{" "}
               <Link
                 href="/register"
@@ -245,13 +236,13 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="p-6 text-center text-xs text-muted-foreground">
+        <div className="text-muted-foreground p-6 text-center text-xs">
           By signing in, you agree to our{" "}
-          <Link href="/terms" className="underline hover:text-foreground transition-colors">
+          <Link href="/terms" className="hover:text-foreground underline transition-colors">
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="underline hover:text-foreground transition-colors">
+          <Link href="/privacy" className="hover:text-foreground underline transition-colors">
             Privacy Policy
           </Link>
         </div>

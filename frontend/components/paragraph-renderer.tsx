@@ -1,7 +1,5 @@
 "use client"
 
-import { cn } from "@/lib/utils"
-
 interface ParagraphRendererProps {
   content: string
   className?: string

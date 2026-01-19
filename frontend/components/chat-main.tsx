@@ -49,7 +49,10 @@ export function ChatMain({
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-gradient-to-b from-background to-muted/30 overflow-hidden min-h-0" role="main">
+    <div
+      className="from-background to-muted/30 flex min-h-0 flex-1 flex-col overflow-hidden bg-gradient-to-b"
+      role="main"
+    >
       <ChatHeader
         conversation={conversation}
         showSources={showSources}

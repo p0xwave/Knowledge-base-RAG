@@ -64,10 +64,7 @@ export function validateJavaScriptCode(code: string): ValidationResult {
 /**
  * Generic code validator that selects the appropriate validator based on language
  */
-export function validateCode(
-  code: string,
-  language: "python" | "javascript"
-): ValidationResult {
+export function validateCode(code: string, language: "python" | "javascript"): ValidationResult {
   if (language === "python") {
     return validatePythonCode(code)
   }
@@ -79,11 +76,13 @@ export function validateCode(
  * Used in: hooks/useDocuments.ts, app/documents/page.tsx
  */
 export function sanitizeFilename(filename: string): string {
-  return filename
-    .replace(/\.\.[\/\\]/g, "") // path traversal
-    .replace(/[\/\\]/g, "") // slashes
-    .replace(/[\x00-\x1f\x7f]/g, "") // control chars
-    .slice(0, 255) || "download"
+  return (
+    filename
+      .replace(/\.\.[\/\\]/g, "") // path traversal
+      .replace(/[\/\\]/g, "") // slashes
+      .replace(/[\x00-\x1f\x7f]/g, "") // control chars
+      .slice(0, 255) || "download"
+  )
 }
 
 /**

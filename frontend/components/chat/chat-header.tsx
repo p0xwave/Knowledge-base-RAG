@@ -24,10 +24,10 @@ export function ChatHeader({
 }: ChatHeaderProps) {
   return (
     <header
-      className="flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-3"
+      className="border-border bg-background/80 flex items-center justify-between border-b px-3 py-2 backdrop-blur-sm sm:px-4 sm:py-3"
       role="banner"
     >
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         {!sidebarOpen && (
           <Button
             variant="ghost"
@@ -40,23 +40,23 @@ export function ChatHeader({
           </Button>
         )}
         <div className="min-w-0">
-          <h1 className="font-semibold text-foreground text-sm sm:text-base truncate">
+          <h1 className="text-foreground truncate text-sm font-semibold sm:text-base">
             {conversation?.title || "New Conversation"}
           </h1>
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-chart-5 shrink-0"></span>
+          <p className="text-muted-foreground flex items-center gap-1 text-xs">
+            <span className="bg-chart-5 inline-block h-1.5 w-1.5 shrink-0 rounded-full"></span>
             <span className="truncate">3 documents loaded</span>
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-2">
         <ThemeToggle />
         <TooltipButton
           tooltip="Toggle sources panel"
           variant="outline"
           size="sm"
           className={cn(
-            "gap-1.5 sm:gap-2 shadow-sm",
+            "gap-1.5 shadow-sm sm:gap-2",
             showSources && "bg-primary/10 border-primary/30 text-primary hover:bg-primary/15"
           )}
           onClick={onToggleSources}

@@ -1,10 +1,6 @@
 // Code execution utilities for Python (Pyodide), JavaScript (sandboxed iframe), and WebGPU
 
-import {
-  executeONNXCode,
-  executeTransformersCode,
-  checkWebGPUSupport,
-} from "./webgpu-executor"
+import { executeONNXCode, executeTransformersCode, checkWebGPUSupport } from "./webgpu-executor"
 import { logger } from "./logger"
 import {
   PYODIDE_INDEX_URL,
@@ -96,12 +92,12 @@ let loadingCallbacks: LoadingCallback[] = []
 export function onPyodideLoading(callback: LoadingCallback): () => void {
   loadingCallbacks.push(callback)
   return () => {
-    loadingCallbacks = loadingCallbacks.filter(cb => cb !== callback)
+    loadingCallbacks = loadingCallbacks.filter((cb) => cb !== callback)
   }
 }
 
 function notifyLoading(status: "loading" | "ready") {
-  loadingCallbacks.forEach(cb => cb(status))
+  loadingCallbacks.forEach((cb) => cb(status))
 }
 
 async function loadPyodideRuntime(): Promise<PyodideInterface> {
@@ -160,7 +156,7 @@ async function executeOnBackend(code: string, detectedPackage: string): Promise<
       if (response.status === 404) {
         return {
           output: `⚠️ Package "${detectedPackage}" requires server-side execution.\n\nTo run PyTorch/TensorFlow code, a Python backend is required.\n\nStart the backend server:\n  cd ../backend && python server.py`,
-          status: "error"
+          status: "error",
         }
       }
       const error = await response.text()
@@ -170,12 +166,12 @@ async function executeOnBackend(code: string, detectedPackage: string): Promise<
     const result = await response.json()
     return {
       output: result.output || "Code executed successfully",
-      status: result.error ? "error" : "success"
+      status: result.error ? "error" : "success",
     }
   } catch (error) {
     return {
       output: `⚠️ Package "${detectedPackage}" requires server-side execution.\n\nBackend server is unavailable. Start it with:\n  cd ../backend && python server.py\n\nError: ${error instanceof Error ? error.message : String(error)}`,
-      status: "error"
+      status: "error",
     }
   }
 }
@@ -205,7 +201,7 @@ export async function executePython(
       notifyLoading("ready")
       return {
         output: `Failed to load Python runtime: ${error instanceof Error ? error.message : String(error)}`,
-        status: "error"
+        status: "error",
       }
     }
   }
@@ -219,7 +215,7 @@ export async function executePython(
     try {
       // Detect and install required packages
       const requiredPackages = detectPackages(code)
-      const packagesToInstall = requiredPackages.filter(pkg => !installedPackages.has(pkg))
+      const packagesToInstall = requiredPackages.filter((pkg) => !installedPackages.has(pkg))
 
       if (packagesToInstall.length > 0) {
         logger.info("Installing packages", { packages: packagesToInstall })
@@ -261,7 +257,9 @@ _plot_base64 = None
       // If matplotlib is used, setup plot capture
       if (code.includes("plt.show()")) {
         // Replace plt.show() with our capture code
-        code = code.replace(/plt\.show\(\)/g, `
+        code = code.replace(
+          /plt\.show\(\)/g,
+          `
 import base64
 from io import BytesIO
 _buf = BytesIO()
@@ -270,7 +268,8 @@ _buf.seek(0)
 _plot_base64 = base64.b64encode(_buf.read()).decode('utf-8')
 plt.close()
 print(f"[PLOT_DATA]{_plot_base64}[/PLOT_DATA]")
-`)
+`
+        )
       }
 
       // Execute user code
@@ -289,7 +288,7 @@ sys.stderr = sys.__stderr__
 `)
         return {
           output: stderr || errorMessage,
-          status: "error"
+          status: "error",
         }
       }
 
@@ -306,12 +305,12 @@ sys.stderr = sys.__stderr__
       const output = stdout || (result !== undefined && result !== null ? String(result) : "")
       return {
         output: output || "Code executed successfully (no output)",
-        status: "success"
+        status: "success",
       }
     } catch (error) {
       return {
         output: error instanceof Error ? error.message : String(error),
-        status: "error"
+        status: "error",
       }
     }
   })()
@@ -321,7 +320,7 @@ sys.stderr = sys.__stderr__
   } catch (error) {
     return {
       output: error instanceof Error ? error.message : String(error),
-      status: "error"
+      status: "error",
     }
   }
 }
@@ -412,7 +411,7 @@ export async function executeJavaScript(
   if (typeof window === "undefined") {
     return {
       output: "JavaScript execution is only available in browser",
-      status: "error"
+      status: "error",
     }
   }
 
@@ -451,15 +450,16 @@ export async function executeJavaScript(
     } catch (error) {
       return {
         output: `Failed to load libraries: ${error instanceof Error ? error.message : String(error)}`,
-        status: "error"
+        status: "error",
       }
     }
   }
 
   // Build sandbox script with console capture
-  const libLoadLog = libraries.length > 0
-    ? `console.log("Libraries loaded: ${libraries.map(l => l.url.split('/').pop()).join(', ')}");`
-    : ''
+  const libLoadLog =
+    libraries.length > 0
+      ? `console.log("Libraries loaded: ${libraries.map((l) => l.url.split("/").pop()).join(", ")}");`
+      : ""
 
   const script = `
     const logs = [];
@@ -506,8 +506,8 @@ export async function executeJavaScript(
 <html>
 <head><meta charset="utf-8"></head>
 <body>
-<script>${libraryCode.replace(/<\/script>/gi, '<\\/script>')}</script>
-<script>${script.replace(/<\/script>/gi, '<\\/script>')}</script>
+<script>${libraryCode.replace(/<\/script>/gi, "<\\/script>")}</script>
+<script>${script.replace(/<\/script>/gi, "<\\/script>")}</script>
 </body>
 </html>`
 
@@ -544,7 +544,7 @@ export async function executeCode(
 
   return {
     output: `Language "${language}" is not supported for execution. Supported: Python, JavaScript`,
-    status: "error"
+    status: "error",
   }
 }
 

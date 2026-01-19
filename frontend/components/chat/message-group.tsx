@@ -14,7 +14,12 @@ interface MessageGroupProps {
   onEditMessage: (messageId: string, newContent: string) => void
 }
 
-export function MessageGroup({ userMessage, responses, onSourceClick, onEditMessage }: MessageGroupProps) {
+export function MessageGroup({
+  userMessage,
+  responses,
+  onSourceClick,
+  onEditMessage,
+}: MessageGroupProps) {
   const [currentResponseIndex, setCurrentResponseIndex] = useState(responses.length - 1)
 
   // Update index when responses change
@@ -27,43 +32,39 @@ export function MessageGroup({ userMessage, responses, onSourceClick, onEditMess
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <UserMessageBubble
-        message={userMessage}
-        onEditMessage={onEditMessage}
-      />
+      <UserMessageBubble message={userMessage} onEditMessage={onEditMessage} />
 
       {currentResponse && (
         <div className="space-y-2">
-          <AssistantMessageBubble
-            message={currentResponse}
-            onSourceClick={onSourceClick}
-          />
+          <AssistantMessageBubble message={currentResponse} onSourceClick={onSourceClick} />
 
           {hasMultipleResponses && (
-            <div className="flex items-center gap-1 ml-9 sm:ml-12">
-              <History className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
+            <div className="ml-9 flex items-center gap-1 sm:ml-12">
+              <History className="text-muted-foreground hidden h-3.5 w-3.5 sm:block" />
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-7 w-7"
                 onClick={() => setCurrentResponseIndex((i) => Math.max(0, i - 1))}
                 disabled={currentResponseIndex === 0}
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
               </Button>
-              <span className="text-xs text-muted-foreground min-w-[40px] text-center">
+              <span className="text-muted-foreground min-w-[40px] text-center text-xs">
                 {currentResponseIndex + 1} / {responses.length}
               </span>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                onClick={() => setCurrentResponseIndex((i) => Math.min(responses.length - 1, i + 1))}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-7 w-7"
+                onClick={() =>
+                  setCurrentResponseIndex((i) => Math.min(responses.length - 1, i + 1))
+                }
                 disabled={currentResponseIndex === responses.length - 1}
               >
                 <ChevronRight className="h-3.5 w-3.5" />
               </Button>
-              <span className="text-xs text-muted-foreground ml-1 hidden sm:inline">
+              <span className="text-muted-foreground ml-1 hidden text-xs sm:inline">
                 {currentResponseIndex === responses.length - 1 ? "Current" : "Previous"}
               </span>
             </div>

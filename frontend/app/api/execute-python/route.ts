@@ -8,19 +8,13 @@ export async function POST(request: NextRequest) {
     const { code } = await request.json()
 
     if (!code || typeof code !== "string") {
-      return NextResponse.json(
-        { error: "Code is required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Code is required" }, { status: 400 })
     }
 
     // Validate code for security
     const validation = validatePythonCode(code)
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: validation.error, output: "" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: validation.error, output: "" }, { status: 400 })
     }
 
     // Execute Python code
@@ -60,7 +54,10 @@ function executePythonCode(code: string): Promise<{ output: string; error?: stri
       if (!resolved) {
         resolved = true
         python.kill()
-        resolve({ output: "", error: `Execution timed out (${BACKEND_EXECUTION_TIMEOUT / 1000}s limit)` })
+        resolve({
+          output: "",
+          error: `Execution timed out (${BACKEND_EXECUTION_TIMEOUT / 1000}s limit)`,
+        })
       }
     }, BACKEND_EXECUTION_TIMEOUT)
 
@@ -91,7 +88,7 @@ function executePythonCode(code: string): Promise<{ output: string; error?: stri
 
       resolve({
         output: "",
-        error: `Failed to start Python: ${err.message}. Make sure Python is installed.`
+        error: `Failed to start Python: ${err.message}. Make sure Python is installed.`,
       })
     })
   })

@@ -18,16 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import {
-  ArrowLeft,
-  User,
-  Lock,
-  Check,
-  AlertCircle,
-  Eye,
-  EyeOff,
-  Trash2,
-} from "lucide-react"
+import { ArrowLeft, User, Lock, Check, AlertCircle, Eye, EyeOff, Trash2 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 
@@ -106,20 +97,18 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="bg-background flex h-screen flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-border/50 px-6 py-4">
+      <header className="border-border/50 flex items-center justify-between border-b px-6 py-4">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted/50">
+            <Button variant="ghost" size="icon" className="hover:bg-muted/50 h-8 w-8">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Settings</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your account
-            </p>
+            <h1 className="text-foreground text-xl font-semibold">Settings</h1>
+            <p className="text-muted-foreground text-sm">Manage your account</p>
           </div>
         </div>
         <ThemeToggle />
@@ -127,34 +116,36 @@ export default function SettingsPage() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-2xl mx-auto space-y-8">
+        <div className="mx-auto max-w-2xl space-y-8">
           {/* Profile Section */}
           <section>
-            <div className="flex items-center gap-2 mb-4">
-              <User className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-lg font-semibold text-foreground">Profile</h2>
+            <div className="mb-4 flex items-center gap-2">
+              <User className="text-muted-foreground h-5 w-5" />
+              <h2 className="text-foreground text-lg font-semibold">Profile</h2>
             </div>
-            
-            <div className="rounded-2xl bg-muted/30 p-6 space-y-6">
+
+            <div className="bg-muted/30 space-y-6 rounded-2xl p-6">
               {/* Avatar */}
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src="/placeholder.svg" alt={name} />
-                  <AvatarFallback className="text-lg bg-primary/10 text-primary">
+                  <AvatarFallback className="bg-primary/10 text-primary text-lg">
                     {getInitials(name)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium text-foreground">{name}</p>
-                  <p className="text-sm text-muted-foreground">{email}</p>
+                  <p className="text-foreground font-medium">{name}</p>
+                  <p className="text-muted-foreground text-sm">{email}</p>
                 </div>
               </div>
 
-              <div className="h-px bg-border/50" />
+              <div className="bg-border/50 h-px" />
 
               {/* Name Field */}
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm text-muted-foreground">Display Name</Label>
+                <Label htmlFor="name" className="text-muted-foreground text-sm">
+                  Display Name
+                </Label>
                 {isEditingName ? (
                   <div className="flex gap-2">
                     <Input
@@ -162,10 +153,12 @@ export default function SettingsPage() {
                       value={tempName}
                       onChange={(e) => setTempName(e.target.value)}
                       placeholder="Enter your name"
-                      className="flex-1 bg-background/50 border-border/50"
+                      className="bg-background/50 border-border/50 flex-1"
                       autoFocus
                     />
-                    <Button onClick={handleSaveName} size="sm">Save</Button>
+                    <Button onClick={handleSaveName} size="sm">
+                      Save
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={handleCancelNameEdit}>
                       Cancel
                     </Button>
@@ -187,10 +180,12 @@ export default function SettingsPage() {
 
               {/* Email Field (Read-only) */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
+                <Label htmlFor="email" className="text-muted-foreground text-sm">
+                  Email
+                </Label>
                 <div className="flex items-center justify-between">
                   <p className="text-foreground">{email}</p>
-                  <span className="text-xs text-muted-foreground">Cannot be changed</span>
+                  <span className="text-muted-foreground text-xs">Cannot be changed</span>
                 </div>
               </div>
 
@@ -205,15 +200,17 @@ export default function SettingsPage() {
 
           {/* Password Section */}
           <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Lock className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-lg font-semibold text-foreground">Change Password</h2>
+            <div className="mb-4 flex items-center gap-2">
+              <Lock className="text-muted-foreground h-5 w-5" />
+              <h2 className="text-foreground text-lg font-semibold">Change Password</h2>
             </div>
-            
-            <form onSubmit={handleChangePassword} className="rounded-2xl bg-muted/30 p-6 space-y-5">
+
+            <form onSubmit={handleChangePassword} className="bg-muted/30 space-y-5 rounded-2xl p-6">
               {/* Current Password */}
               <div className="space-y-2">
-                <Label htmlFor="current-password" className="text-sm text-muted-foreground">Current Password</Label>
+                <Label htmlFor="current-password" className="text-muted-foreground text-sm">
+                  Current Password
+                </Label>
                 <div className="relative">
                   <Input
                     id="current-password"
@@ -221,13 +218,13 @@ export default function SettingsPage() {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Enter current password"
-                    className="pr-10 bg-background/50 border-border/50"
+                    className="bg-background/50 border-border/50 pr-10"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground"
+                    className="text-muted-foreground absolute top-0 right-0 h-full px-3 hover:bg-transparent"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                   >
                     {showCurrentPassword ? (
@@ -241,7 +238,9 @@ export default function SettingsPage() {
 
               {/* New Password */}
               <div className="space-y-2">
-                <Label htmlFor="new-password" className="text-sm text-muted-foreground">New Password</Label>
+                <Label htmlFor="new-password" className="text-muted-foreground text-sm">
+                  New Password
+                </Label>
                 <div className="relative">
                   <Input
                     id="new-password"
@@ -249,30 +248,26 @@ export default function SettingsPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password"
-                    className="pr-10 bg-background/50 border-border/50"
+                    className="bg-background/50 border-border/50 pr-10"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground"
+                    className="text-muted-foreground absolute top-0 right-0 h-full px-3 hover:bg-transparent"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                   >
-                    {showNewPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Must be at least 8 characters
-                </p>
+                <p className="text-muted-foreground text-xs">Must be at least 8 characters</p>
               </div>
 
               {/* Confirm Password */}
               <div className="space-y-2">
-                <Label htmlFor="confirm-password" className="text-sm text-muted-foreground">Confirm New Password</Label>
+                <Label htmlFor="confirm-password" className="text-muted-foreground text-sm">
+                  Confirm New Password
+                </Label>
                 <div className="relative">
                   <Input
                     id="confirm-password"
@@ -281,7 +276,7 @@ export default function SettingsPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
                     className={cn(
-                      "pr-10 bg-background/50 border-border/50",
+                      "bg-background/50 border-border/50 pr-10",
                       confirmPassword && newPassword !== confirmPassword && "border-destructive"
                     )}
                   />
@@ -289,7 +284,7 @@ export default function SettingsPage() {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-muted-foreground"
+                    className="text-muted-foreground absolute top-0 right-0 h-full px-3 hover:bg-transparent"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
@@ -303,7 +298,7 @@ export default function SettingsPage() {
 
               {/* Error Message */}
               {passwordError && (
-                <div className="flex items-center gap-2 text-sm text-destructive">
+                <div className="text-destructive flex items-center gap-2 text-sm">
                   <AlertCircle className="h-4 w-4" />
                   {passwordError}
                 </div>
@@ -317,10 +312,7 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                disabled={!currentPassword || !newPassword || !confirmPassword}
-              >
+              <Button type="submit" disabled={!currentPassword || !newPassword || !confirmPassword}>
                 Update password
               </Button>
             </form>
@@ -328,16 +320,16 @@ export default function SettingsPage() {
 
           {/* Danger Zone */}
           <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Trash2 className="h-5 w-5 text-destructive" />
-              <h2 className="text-lg font-semibold text-destructive">Danger Zone</h2>
+            <div className="mb-4 flex items-center gap-2">
+              <Trash2 className="text-destructive h-5 w-5" />
+              <h2 className="text-destructive text-lg font-semibold">Danger Zone</h2>
             </div>
-            
-            <div className="rounded-2xl bg-destructive/5 border border-destructive/20 p-6">
+
+            <div className="bg-destructive/5 border-destructive/20 rounded-2xl border p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-foreground">Delete Account</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-foreground font-medium">Delete Account</p>
+                  <p className="text-muted-foreground text-sm">
                     Permanently delete your account and all data
                   </p>
                 </div>
@@ -349,8 +341,8 @@ export default function SettingsPage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete
-                        your account and remove all your data from our servers.
+                        This action cannot be undone. This will permanently delete your account and
+                        remove all your data from our servers.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

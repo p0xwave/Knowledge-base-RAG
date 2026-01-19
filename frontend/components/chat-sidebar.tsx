@@ -5,7 +5,12 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Plus,
   Search,
@@ -44,7 +49,9 @@ export function ChatSidebar({
 }: ChatSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("")
 
-  const filteredConversations = conversations.filter((c) => c.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredConversations = conversations.filter((c) =>
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   const groupedConversations = {
     today: filteredConversations.filter((c) => {
@@ -64,24 +71,24 @@ export function ChatSidebar({
   return (
     <div
       className={cn(
-        "flex flex-col border-r border-border bg-sidebar transition-all duration-300 h-full overflow-hidden shrink-0",
-        isOpen ? "w-72" : "w-0",
+        "border-border bg-sidebar flex h-full shrink-0 flex-col overflow-hidden border-r transition-all duration-300",
+        isOpen ? "w-72" : "w-0"
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+      <div className="border-sidebar-border flex items-center justify-between border-b p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-sm">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
+          <div className="from-primary to-primary/80 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm">
+            <Sparkles className="text-primary-foreground h-4 w-4" />
           </div>
           <div>
-            <span className="font-semibold text-sidebar-foreground">DataMind</span>
-            <p className="text-[10px] text-muted-foreground">RAG Assistant</p>
+            <span className="text-sidebar-foreground font-semibold">DataMind</span>
+            <p className="text-muted-foreground text-[10px]">RAG Assistant</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
+          className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-8 w-8"
           onClick={onToggle}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -91,7 +98,7 @@ export function ChatSidebar({
       <div className="p-3">
         <Button
           onClick={onNewConversation}
-          className="w-full justify-start gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 w-full justify-start gap-2 shadow-sm"
         >
           <Plus className="h-4 w-4" />
           New Chat
@@ -100,12 +107,12 @@ export function ChatSidebar({
 
       <div className="px-3 pb-2">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-background border-border text-foreground placeholder:text-muted-foreground h-9"
+            className="bg-background border-border text-foreground placeholder:text-muted-foreground h-9 pl-9"
           />
         </div>
       </div>
@@ -114,7 +121,9 @@ export function ChatSidebar({
       <ScrollArea className="flex-1 px-3">
         {groupedConversations.today.length > 0 && (
           <div className="mb-4">
-            <p className="mb-2 px-2 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Today</p>
+            <p className="text-muted-foreground mb-2 px-2 text-[11px] font-medium tracking-wider uppercase">
+              Today
+            </p>
             {groupedConversations.today.map((conversation) => (
               <ConversationItem
                 key={conversation.id}
@@ -129,7 +138,7 @@ export function ChatSidebar({
 
         {groupedConversations.yesterday.length > 0 && (
           <div className="mb-4">
-            <p className="mb-2 px-2 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-muted-foreground mb-2 px-2 text-[11px] font-medium tracking-wider uppercase">
               Yesterday
             </p>
             {groupedConversations.yesterday.map((conversation) => (
@@ -146,7 +155,7 @@ export function ChatSidebar({
 
         {groupedConversations.older.length > 0 && (
           <div className="mb-4">
-            <p className="mb-2 px-2 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-muted-foreground mb-2 px-2 text-[11px] font-medium tracking-wider uppercase">
               Previous 7 Days
             </p>
             {groupedConversations.older.map((conversation) => (
@@ -162,11 +171,11 @@ export function ChatSidebar({
         )}
       </ScrollArea>
 
-      <div className="border-t border-sidebar-border p-3 space-y-0.5">
+      <div className="border-sidebar-border space-y-0.5 border-t p-3">
         <Link href="/documents">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9"
+            className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9 w-full justify-start gap-2"
           >
             <Database className="h-4 w-4" />
             Documents
@@ -175,7 +184,7 @@ export function ChatSidebar({
         <Link href="/settings">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9"
+            className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9 w-full justify-start gap-2"
           >
             <Settings className="h-4 w-4" />
             Settings
@@ -183,7 +192,7 @@ export function ChatSidebar({
         </Link>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9"
+          className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9 w-full justify-start gap-2"
         >
           <HelpCircle className="h-4 w-4" />
           Help
@@ -204,10 +213,10 @@ function ConversationItem({ conversation, isActive, onSelect, onDelete }: Conver
   return (
     <div
       className={cn(
-        "group flex items-center gap-2 rounded-lg px-2 py-2 cursor-pointer transition-all",
+        "group flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 transition-all",
         isActive
           ? "bg-primary/10 text-foreground"
-          : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
+          : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
       )}
       onClick={onSelect}
     >
@@ -218,7 +227,7 @@ function ConversationItem({ conversation, isActive, onSelect, onDelete }: Conver
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-background"
+            className="hover:bg-background h-6 w-6 opacity-0 group-hover:opacity-100"
             onClick={(e) => e.stopPropagation()}
           >
             <MoreHorizontal className="h-3 w-3" />

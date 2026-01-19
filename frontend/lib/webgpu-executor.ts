@@ -31,7 +31,7 @@ export async function checkWebGPUSupport(): Promise<{
   } catch (error) {
     return {
       supported: false,
-      error: error instanceof Error ? error.message : "Failed to initialize WebGPU"
+      error: error instanceof Error ? error.message : "Failed to initialize WebGPU",
     }
   }
 }
@@ -175,7 +175,6 @@ export async function executeONNXCode(code: string): Promise<WebGPUExecutionResu
     `
 
     // Create function with restricted context
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
     const fn = new Function(...Object.keys(safeContext), wrappedCode)
     const result = await fn(...Object.values(safeContext))
 
@@ -261,7 +260,6 @@ export async function executeTransformersCode(code: string): Promise<WebGPUExecu
     `
 
     // Create function with restricted context
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
     const fn = new Function(...Object.keys(safeContext), wrappedCode)
     const result = await fn(...Object.values(safeContext))
 

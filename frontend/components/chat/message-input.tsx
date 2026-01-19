@@ -41,23 +41,23 @@ export function MessageInput({ value, onChange, onSend, disabled }: MessageInput
   return (
     <div className="bg-background p-3 pb-4 sm:p-4 sm:pb-6">
       <div className="mx-auto max-w-3xl">
-        <div className="relative flex items-center gap-1.5 sm:gap-2 rounded-2xl bg-muted/50 hover:bg-muted/70 transition-colors focus-within:bg-muted/70 focus-within:ring-1 focus-within:ring-border px-2 sm:px-3 py-2">
+        <div className="bg-muted/50 hover:bg-muted/70 focus-within:bg-muted/70 focus-within:ring-border relative flex items-center gap-1.5 rounded-2xl px-2 py-2 transition-colors focus-within:ring-1 sm:gap-2 sm:px-3">
           <Textarea
             ref={textareaRef}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask a question..."
-            className="flex-1 min-h-8 max-h-[200px] resize-none border-0 bg-transparent py-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none text-foreground placeholder:text-muted-foreground text-sm leading-8"
+            className="text-foreground placeholder:text-muted-foreground max-h-[200px] min-h-8 flex-1 resize-none border-0 bg-transparent py-0 text-sm leading-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             rows={1}
             aria-label="Message input"
           />
-          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <TooltipButton
               tooltip="Attach file"
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent hidden sm:flex"
+              className="text-muted-foreground hover:text-foreground hidden h-8 w-8 hover:bg-transparent sm:flex"
               aria-label="Attach file"
             >
               <Paperclip className="h-4 w-4" aria-hidden="true" />
@@ -73,8 +73,9 @@ export function MessageInput({ value, onChange, onSend, disabled }: MessageInput
             </Button>
           </div>
         </div>
-        <p className="mt-2 sm:mt-3 text-center text-xs text-muted-foreground hidden sm:block">
-          AI responses are generated from your uploaded documents. Always verify critical information.
+        <p className="text-muted-foreground mt-2 hidden text-center text-xs sm:mt-3 sm:block">
+          AI responses are generated from your uploaded documents. Always verify critical
+          information.
         </p>
       </div>
     </div>
