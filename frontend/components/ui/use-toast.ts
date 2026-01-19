@@ -179,13 +179,23 @@ function useToast() {
         listeners.splice(index, 1)
       }
     }
-  }, [state])
+  }, [])
 
   return {
     ...state,
     toast,
     dismiss: (toastId?: string) => dispatch({ type: 'DISMISS_TOAST', toastId }),
   }
+}
+
+// Cleanup function for memory leak prevention
+export function clearToasts() {
+  // Clear all timeouts
+  toastTimeouts.forEach((timeout) => clearTimeout(timeout))
+  toastTimeouts.clear()
+  // Reset state
+  memoryState = { toasts: [] }
+  listeners.forEach((listener) => listener(memoryState))
 }
 
 export { useToast, toast }

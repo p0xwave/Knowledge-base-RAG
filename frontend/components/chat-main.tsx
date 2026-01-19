@@ -33,8 +33,12 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle"
 import { SourceDetailModal } from "@/components/source-detail-modal"
 import { CodeBlock } from "@/components/code-block"
-import type { Conversation, Message, Source, MessageVersion } from "@/app/page"
+import type { Conversation, Message, Source } from "@/lib/types"
+import { useMessageGroups } from "@/hooks/useMessageGroups"
+import { MAX_MESSAGE_LENGTH, COPY_FEEDBACK_TIMEOUT } from "@/lib/constants"
+import { CODE_BLOCK_REGEX } from "@/lib/syntax-highlighting"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface ChatMainProps {
   conversation: Conversation | null
@@ -69,15 +73,32 @@ export function ChatMain({
     setSourceModalOpen(true)
   }
 
+  // Auto-scroll to bottom when messages change or while waiting for response
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    const scrollToBottom = () => {
+      if (scrollRef.current) {
+        const scrollArea = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]')
+        if (scrollArea) {
+          scrollArea.scrollTo({
+            top: scrollArea.scrollHeight,
+            behavior: 'smooth'
+          })
+        }
+      }
     }
-  }, [conversation?.messages])
+    requestAnimationFrame(scrollToBottom)
+  }, [conversation?.messages, isWaitingForResponse])
 
   const handleSend = () => {
-    if (!input.trim() || isWaitingForResponse) return
-    onSendMessage(input)
+    const trimmed = input.trim()
+    if (!trimmed || isWaitingForResponse) return
+
+    if (trimmed.length > MAX_MESSAGE_LENGTH) {
+      toast.error(`Message exceeds ${MAX_MESSAGE_LENGTH} characters`)
+      return
+    }
+
+    onSendMessage(trimmed)
     setInput("")
   }
 
@@ -88,38 +109,15 @@ export function ChatMain({
     }
   }
 
-  // Group messages by user message and its responses (including history)
-  const getMessageGroups = () => {
-    if (!conversation) return []
-    
-    const groups: { userMessage: Message; responses: Message[] }[] = []
-    
-    for (let i = 0; i < conversation.messages.length; i++) {
-      const msg = conversation.messages[i]
-      if (msg.role === "user") {
-        const responses: Message[] = []
-        // Collect all assistant responses linked to this user message
-        for (let j = i + 1; j < conversation.messages.length; j++) {
-          const nextMsg = conversation.messages[j]
-          if (nextMsg.role === "assistant" && (nextMsg.parentMessageId === msg.id || (j === i + 1 && !nextMsg.parentMessageId))) {
-            responses.push(nextMsg)
-          }
-          if (nextMsg.role === "user") break
-        }
-        groups.push({ userMessage: msg, responses })
-      }
-    }
-    
-    return groups
-  }
+  const messageGroups = useMessageGroups(conversation)
 
   return (
-    <div className="flex flex-1 flex-col bg-gradient-to-b from-background to-muted/30 overflow-hidden min-h-0">
-      <header className="flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-3">
+    <div className="flex flex-1 flex-col bg-gradient-to-b from-background to-muted/30 overflow-hidden min-h-0" role="main">
+      <header className="flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-3" role="banner">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {!sidebarOpen && (
-            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onToggleSidebar}>
-              <PanelLeftOpen className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onToggleSidebar} aria-label="Open sidebar">
+              <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
             </Button>
           )}
           <div className="min-w-0">
@@ -143,8 +141,10 @@ export function ChatMain({
                     showSources && "bg-primary/10 border-primary/30 text-primary hover:bg-primary/15",
                   )}
                   onClick={onToggleSources}
+                  aria-label={showSources ? "Hide sources panel" : "Show sources panel"}
+                  aria-pressed={showSources}
                 >
-                  <FileText className="h-4 w-4" />
+                  <FileText className="h-4 w-4" aria-hidden="true" />
                   <span className="hidden sm:inline">Sources</span>
                 </Button>
               </TooltipTrigger>
@@ -155,13 +155,13 @@ export function ChatMain({
       </header>
 
       {/* Messages */}
-      <ScrollArea ref={scrollRef} className="flex-1 min-h-0 overflow-auto">
+      <ScrollArea ref={scrollRef} className="flex-1 min-h-0 overflow-auto" role="log" aria-label="Chat messages" aria-live="polite">
         <div className="p-3 sm:p-4">
           {conversation?.messages.length === 0 ? (
             <EmptyState />
           ) : (
             <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
-              {getMessageGroups().map((group) => (
+              {messageGroups.map((group) => (
                 <MessageGroup
                   key={group.userMessage.id}
                   userMessage={group.userMessage}
@@ -198,13 +198,14 @@ export function ChatMain({
               placeholder="Ask a question..."
               className="flex-1 min-h-8 max-h-[200px] resize-none border-0 bg-transparent py-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none text-foreground placeholder:text-muted-foreground text-sm leading-8"
               rows={1}
+              aria-label="Message input"
             />
             <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent hidden sm:flex">
-                      <Paperclip className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent hidden sm:flex" aria-label="Attach file">
+                      <Paperclip className="h-4 w-4" aria-hidden="true" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Attach file</TooltipContent>
@@ -215,8 +216,9 @@ export function ChatMain({
                 disabled={!input.trim() || isWaitingForResponse}
                 size="icon"
                 className="h-8 w-8 rounded-xl"
+                aria-label="Send message"
               >
-                <Send className="h-4 w-4" />
+                <Send className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
           </div>
@@ -495,7 +497,7 @@ function AssistantMessageBubble({ message, onSourceClick }: AssistantMessageBubb
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message.content)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setTimeout(() => setCopied(false), COPY_FEEDBACK_TIMEOUT)
   }
 
   const handleFeedback = (type: 'like' | 'dislike') => {
@@ -503,13 +505,14 @@ function AssistantMessageBubble({ message, onSourceClick }: AssistantMessageBubb
   }
 
   // Parse content for code blocks
-  const renderContent = (content: string) => {
-    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
+  const renderContent = () => {
+    const content = message.content
+    const regex = new RegExp(CODE_BLOCK_REGEX.source, "g")
     const parts: React.ReactNode[] = []
     let lastIndex = 0
     let match
 
-    while ((match = codeBlockRegex.exec(content)) !== null) {
+    while ((match = regex.exec(content)) !== null) {
       // Add text before code block
       if (match.index > lastIndex) {
         const textBefore = content.slice(lastIndex, match.index)
@@ -560,7 +563,7 @@ function AssistantMessageBubble({ message, onSourceClick }: AssistantMessageBubb
       </div>
       <div className="flex-1 min-w-0 pt-0.5">
         <div className="prose prose-sm max-w-none text-foreground prose-p:leading-relaxed prose-p:my-2 prose-strong:text-foreground prose-strong:font-semibold">
-          {renderContent(message.content)}
+          {renderContent()}
         </div>
 
         {/* Sources */}

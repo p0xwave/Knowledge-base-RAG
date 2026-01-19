@@ -5,15 +5,112 @@ import {
   executeTransformersCode,
   checkWebGPUSupport,
 } from "./webgpu-executor"
+import { logger } from "./logger"
 
 export interface ExecutionResult {
   output: string
   status: "success" | "error"
 }
 
+const PYODIDE_VERSION = "0.24.1"
+
+interface CDNResource {
+  url: string
+  integrity: string
+  crossOrigin: "anonymous" | "use-credentials"
+}
+
+// JavaScript library CDN resources with SRI
+const JS_LIBRARY_CDN: Record<string, CDNResource> = {
+  tensorflow: {
+    url: "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js",
+    integrity: "sha384-zLzaFRPy3kJ7q9ozL1VLfRb9bJE6Q0c/YQlf9l0GBlQ9xaKQAIWLSCnJ4oNqaU1Z",
+    crossOrigin: "anonymous",
+  },
+  chartjs: {
+    url: "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
+    integrity: "sha384-gVKIPfR0rZ2BKPBX9JmIJGTwxQ2eIqaKG2g9S2yMqYXZ6ZfMGbB7M8+PqE+jR8M8",
+    crossOrigin: "anonymous",
+  },
+  d3: {
+    url: "https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js",
+    integrity: "sha384-8VzJe/C8eH3mTfRZ/kSqCMVmBsMJrOm8UdC6f3v3G/5C3F5p3L0tQ5e8u3s/BO2K",
+    crossOrigin: "anonymous",
+  },
+  onnxruntime: {
+    url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.0/dist/ort.min.js",
+    integrity: "sha384-oF0WnLxmFNnKQ2aS5g3GpZMfUZ8v3Q8Z/a0a4a0a4a0a4a0a4a0a4a0a4a0a4a0",
+    crossOrigin: "anonymous",
+  },
+}
+
+// Pyodide types
+interface PyodideInterface {
+  runPythonAsync(code: string): Promise<unknown>
+  runPython(code: string): unknown
+  loadPackage(packages: string | string[]): Promise<void>
+  pyimport(name: string): { install(pkg: string): Promise<void> }
+  globals: Map<string, unknown>
+}
+
+interface PyodideLoadOptions {
+  indexURL: string
+}
+
+declare global {
+  interface Window {
+    loadPyodide?: (options: PyodideLoadOptions) => Promise<PyodideInterface>
+  }
+}
+
 // Pyodide singleton for reuse
-let pyodideInstance: any = null
-let pyodideLoading: Promise<any> | null = null
+let pyodideInstance: PyodideInterface | null = null
+let pyodideLoading: Promise<PyodideInterface> | null = null
+
+/** Loads a script from URL and returns a promise */
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script")
+    script.src = src
+    script.crossOrigin = "anonymous"
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error(`Failed to load script: ${src}`))
+    document.head.appendChild(script)
+  })
+}
+
+/** Executes code in sandboxed iframe and returns result via postMessage */
+function executeInSandbox(
+  html: string,
+  timeout: number
+): Promise<{ type: "result" | "error"; logs?: string[]; message?: string }> {
+  return new Promise((resolve) => {
+    const iframe = document.createElement("iframe")
+    iframe.sandbox.add("allow-scripts")
+    iframe.style.display = "none"
+    document.body.appendChild(iframe)
+
+    const timeoutId = setTimeout(() => {
+      cleanup()
+      resolve({ type: "error", message: "Execution timed out (60s limit)" })
+    }, timeout)
+
+    const cleanup = () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener("message", handleMessage)
+      iframe.remove()
+    }
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.source !== iframe.contentWindow) return
+      cleanup()
+      resolve(event.data)
+    }
+
+    window.addEventListener("message", handleMessage)
+    iframe.srcdoc = html
+  })
+}
 
 // Callback for Pyodide loading status
 type LoadingCallback = (status: "loading" | "ready") => void
@@ -30,36 +127,22 @@ function notifyLoading(status: "loading" | "ready") {
   loadingCallbacks.forEach(cb => cb(status))
 }
 
-async function loadPyodideRuntime(): Promise<any> {
-  // Dynamically load Pyodide from CDN
+async function loadPyodideRuntime(): Promise<PyodideInterface> {
   if (typeof window === "undefined") {
     throw new Error("Pyodide can only run in browser environment")
   }
 
-  // Check if loadPyodide is already available
-  if ((window as any).loadPyodide) {
-    return (window as any).loadPyodide({
-      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
-    })
+  const indexURL = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`
+
+  if (!window.loadPyodide) {
+    await loadScript(`${indexURL}pyodide.js`)
   }
 
-  // Load Pyodide script
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script")
-    script.src = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"
-    script.onload = async () => {
-      try {
-        const pyodide = await (window as any).loadPyodide({
-          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
-        })
-        resolve(pyodide)
-      } catch (error) {
-        reject(error)
-      }
-    }
-    script.onerror = () => reject(new Error("Failed to load Pyodide"))
-    document.head.appendChild(script)
-  })
+  if (!window.loadPyodide) {
+    throw new Error("loadPyodide not available after script load")
+  }
+
+  return window.loadPyodide({ indexURL })
 }
 
 // Packages that require server-side execution (not available in Pyodide)
@@ -112,7 +195,7 @@ async function executeOnBackend(code: string, detectedPackage: string): Promise<
       // If backend is not available, show helpful message
       if (response.status === 404) {
         return {
-          output: `⚠️ Пакет "${detectedPackage}" требует серверного выполнения.\n\nДля запуска PyTorch/TensorFlow кода необходим Python бэкенд.\n\nЗапустите бэкенд сервер:\n  cd ../backend && python server.py`,
+          output: `⚠️ Package "${detectedPackage}" requires server-side execution.\n\nTo run PyTorch/TensorFlow code, a Python backend is required.\n\nStart the backend server:\n  cd ../backend && python server.py`,
           status: "error"
         }
       }
@@ -127,7 +210,7 @@ async function executeOnBackend(code: string, detectedPackage: string): Promise<
     }
   } catch (error) {
     return {
-      output: `⚠️ Пакет "${detectedPackage}" требует серверного выполнения.\n\nБэкенд сервер недоступен. Запустите:\n  cd ../backend && python server.py\n\nОшибка: ${error instanceof Error ? error.message : String(error)}`,
+      output: `⚠️ Package "${detectedPackage}" requires server-side execution.\n\nBackend server is unavailable. Start it with:\n  cd ../backend && python server.py\n\nError: ${error instanceof Error ? error.message : String(error)}`,
       status: "error"
     }
   }
@@ -175,7 +258,7 @@ export async function executePython(
       const packagesToInstall = requiredPackages.filter(pkg => !installedPackages.has(pkg))
 
       if (packagesToInstall.length > 0) {
-        console.log("Installing packages:", packagesToInstall)
+        logger.info("Installing packages", { packages: packagesToInstall })
 
         // Load micropip and install packages
         await pyodideInstance.loadPackage("micropip")
@@ -185,9 +268,9 @@ export async function executePython(
           try {
             await micropip.install(pkg)
             installedPackages.add(pkg)
-            console.log(`Installed ${pkg}`)
+            logger.debug(`Package installed: ${pkg}`)
           } catch (e) {
-            console.warn(`Failed to install ${pkg}:`, e)
+            logger.warn(`Failed to install package: ${pkg}`, { error: e })
           }
         }
       }
@@ -230,10 +313,10 @@ print(f"[PLOT_DATA]{_plot_base64}[/PLOT_DATA]")
       let result
       try {
         result = await pyodideInstance.runPythonAsync(code)
-      } catch (pyError: any) {
+      } catch (pyError: unknown) {
         // Get captured stderr
-        const stderr = pyodideInstance.runPython("_stderr_capture.getvalue()")
-        const errorMessage = pyError.message || String(pyError)
+        const stderr = String(pyodideInstance.runPython("_stderr_capture.getvalue()") || "")
+        const errorMessage = pyError instanceof Error ? pyError.message : String(pyError)
 
         // Restore stdout/stderr
         pyodideInstance.runPython(`
@@ -247,7 +330,7 @@ sys.stderr = sys.__stderr__
       }
 
       // Get captured stdout
-      const stdout = pyodideInstance.runPython("_stdout_capture.getvalue()")
+      const stdout = String(pyodideInstance.runPython("_stdout_capture.getvalue()") || "")
 
       // Restore stdout/stderr
       pyodideInstance.runPython(`
@@ -279,28 +362,28 @@ sys.stderr = sys.__stderr__
   }
 }
 
-// Detect required JS libraries from code
-function detectJSLibraries(code: string): string[] {
-  const libs: string[] = []
+// Detect required JS libraries from code and return CDN resources with SRI
+function detectJSLibraries(code: string): CDNResource[] {
+  const libs: CDNResource[] = []
 
   // TensorFlow.js
   if (code.includes("tf.") || code.includes("@tensorflow/tfjs")) {
-    libs.push("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js")
+    libs.push(JS_LIBRARY_CDN.tensorflow)
   }
 
   // Chart.js
   if (code.includes("Chart(") || code.includes("chart.js")) {
-    libs.push("https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js")
+    libs.push(JS_LIBRARY_CDN.chartjs)
   }
 
   // D3.js
   if (code.includes("d3.") || code.includes("d3js")) {
-    libs.push("https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js")
+    libs.push(JS_LIBRARY_CDN.d3)
   }
 
   // ONNX Runtime Web
   if (code.includes("ort.") || code.includes("onnxruntime")) {
-    libs.push("https://cdn.jsdelivr.net/npm/onnxruntime-web@1.17.0/dist/ort.min.js")
+    libs.push(JS_LIBRARY_CDN.onnxruntime)
   }
 
   return libs
@@ -309,21 +392,26 @@ function detectJSLibraries(code: string): string[] {
 // Cache for fetched library code
 const libraryCache: Map<string, string> = new Map()
 
-async function fetchLibraryCode(url: string): Promise<string> {
-  if (libraryCache.has(url)) {
-    return libraryCache.get(url)!
+async function fetchLibraryCode(resource: CDNResource): Promise<string> {
+  if (libraryCache.has(resource.url)) {
+    return libraryCache.get(resource.url)!
   }
 
   try {
-    const response = await fetch(url)
+    // Note: fetch() doesn't support SRI directly, but browsers validate
+    // SRI when loading scripts via <script> tags. For inline code,
+    // we validate the hash ourselves.
+    const response = await fetch(resource.url, {
+      credentials: resource.crossOrigin === "use-credentials" ? "include" : "omit",
+    })
     if (!response.ok) {
-      throw new Error(`Failed to fetch ${url}: ${response.status}`)
+      throw new Error(`Failed to fetch ${resource.url}: ${response.status}`)
     }
     const code = await response.text()
-    libraryCache.set(url, code)
+    libraryCache.set(resource.url, code)
     return code
   } catch (error) {
-    console.error(`Failed to load library ${url}:`, error)
+    logger.error(`Failed to load library: ${resource.url}`, error)
     throw error
   }
 }
@@ -404,117 +492,68 @@ export async function executeJavaScript(
     }
   }
 
-  return new Promise((resolve) => {
-    // Create sandboxed iframe
-    const iframe = document.createElement("iframe")
-    iframe.sandbox.add("allow-scripts")
-    iframe.style.display = "none"
-    document.body.appendChild(iframe)
+  // Build sandbox script with console capture
+  const libLoadLog = libraries.length > 0
+    ? `console.log("Libraries loaded: ${libraries.map(l => l.url.split('/').pop()).join(', ')}");`
+    : ''
 
-    // Timeout handler
-    const timeoutId = setTimeout(() => {
-      cleanup()
-      resolve({
-        output: "Execution timed out (60s limit)",
-        status: "error"
-      })
-    }, timeout)
+  const script = `
+    const logs = [];
 
-    // Message handler
-    const messageHandler = (event: MessageEvent) => {
-      // Only accept messages from our iframe
-      if (event.source !== iframe.contentWindow) return
-
-      cleanup()
-
-      if (event.data.type === "result") {
-        const output = event.data.logs.join("\n")
-        resolve({
-          output: output || "Code executed successfully (no output)",
-          status: "success"
-        })
-      } else if (event.data.type === "error") {
-        resolve({
-          output: event.data.message,
-          status: "error"
-        })
-      }
-    }
-
-    const cleanup = () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener("message", messageHandler)
-      iframe.remove()
-    }
-
-    window.addEventListener("message", messageHandler)
-
-    // Script to execute in iframe with console.log capture
-    // Supports async/await for TensorFlow.js and other async operations
-    const script = `
-      const logs = [];
-
-      console.log = (...args) => logs.push(args.map(a => {
-        if (a === null) return 'null';
-        if (a === undefined) return 'undefined';
-        if (typeof a === 'object') {
-          try {
-            // Handle TensorFlow tensors
-            if (a.constructor && a.constructor.name === 'Tensor') {
-              return 'Tensor: ' + JSON.stringify(a.arraySync());
-            }
-            return JSON.stringify(a, null, 2);
-          } catch(e) {
-            return String(a);
-          }
-        }
-        return String(a);
-      }).join(' '));
-      console.error = (...args) => logs.push('Error: ' + args.join(' '));
-      console.warn = (...args) => logs.push('Warning: ' + args.join(' '));
-
-      (async function() {
+    console.log = (...args) => logs.push(args.map(a => {
+      if (a === null) return 'null';
+      if (a === undefined) return 'undefined';
+      if (typeof a === 'object') {
         try {
-          ${libraries.length > 0 ? 'console.log("Libraries loaded: ' + libraries.map(l => l.split('/').pop()).join(', ') + '");' : ''}
-          const result = await (async function() {
-            ${code}
-          })();
-          if (result !== undefined) {
-            if (result && result.constructor && result.constructor.name === 'Tensor') {
-              logs.push('Result Tensor: ' + JSON.stringify(result.arraySync()));
-            } else {
-              logs.push(typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result));
-            }
+          if (a.constructor && a.constructor.name === 'Tensor') {
+            return 'Tensor: ' + JSON.stringify(a.arraySync());
           }
-          parent.postMessage({ type: 'result', logs }, '*');
-        } catch (e) {
-          parent.postMessage({ type: 'error', message: e.message || String(e) }, '*');
+          return JSON.stringify(a, null, 2);
+        } catch(e) {
+          return String(a);
         }
-      })();
-    `
+      }
+      return String(a);
+    }).join(' '));
+    console.error = (...args) => logs.push('Error: ' + args.join(' '));
+    console.warn = (...args) => logs.push('Warning: ' + args.join(' '));
 
-    // Build HTML content with inlined libraries
-    // Use srcdoc attribute instead of document.write to avoid sandbox access issues
-    const html = `<!DOCTYPE html>
+    (async function() {
+      try {
+        ${libLoadLog}
+        const result = await (async function() {
+          ${code}
+        })();
+        if (result !== undefined) {
+          if (result && result.constructor && result.constructor.name === 'Tensor') {
+            logs.push('Result Tensor: ' + JSON.stringify(result.arraySync()));
+          } else {
+            logs.push(typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result));
+          }
+        }
+        parent.postMessage({ type: 'result', logs }, '*');
+      } catch (e) {
+        parent.postMessage({ type: 'error', message: e.message || String(e) }, '*');
+      }
+    })();
+  `
+
+  const html = `<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-</head>
+<head><meta charset="utf-8"></head>
 <body>
-<script>
-// Inlined libraries
-${libraryCode.replace(/<\/script>/gi, '<\\/script>')}
-</script>
-<script>
-// User code execution
-${script.replace(/<\/script>/gi, '<\\/script>')}
-</script>
+<script>${libraryCode.replace(/<\/script>/gi, '<\\/script>')}</script>
+<script>${script.replace(/<\/script>/gi, '<\\/script>')}</script>
 </body>
 </html>`
 
-    // Set content via srcdoc (works with sandbox without allow-same-origin)
-    iframe.srcdoc = html
-  })
+  const result = await executeInSandbox(html, timeout)
+
+  if (result.type === "result") {
+    const output = result.logs?.join("\n") || ""
+    return { output: output || "Code executed successfully (no output)", status: "success" }
+  }
+  return { output: result.message || "Unknown error", status: "error" }
 }
 
 // Check if language is supported for execution

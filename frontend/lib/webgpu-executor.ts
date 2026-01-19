@@ -4,7 +4,44 @@ import * as ort from "onnxruntime-web"
 export interface WebGPUExecutionResult {
   output: string
   status: "success" | "error"
-  data?: any
+  data?: unknown
+}
+
+// Security: Patterns that are not allowed in executed code
+const DANGEROUS_JS_PATTERNS = [
+  /\beval\s*\(/,
+  /\bFunction\s*\(/,
+  /\bsetTimeout\s*\(\s*["'`]/,  // setTimeout with string
+  /\bsetInterval\s*\(\s*["'`]/, // setInterval with string
+  /\bfetch\s*\(/,
+  /\bXMLHttpRequest\b/,
+  /\bimport\s*\(/,              // dynamic import
+  /\brequire\s*\(/,
+  /\bprocess\b/,
+  /\b__proto__\b/,
+  /\bconstructor\s*\[/,
+  /\bwindow\b/,
+  /\bdocument\b/,
+  /\bglobalThis\b/,
+  /\blocalStorage\b/,
+  /\bsessionStorage\b/,
+  /\bcookie\b/,
+]
+
+const MAX_CODE_LENGTH = 50000
+
+function validateJSCode(code: string): { valid: boolean; error?: string } {
+  if (code.length > MAX_CODE_LENGTH) {
+    return { valid: false, error: `Code exceeds ${MAX_CODE_LENGTH} characters` }
+  }
+
+  for (const pattern of DANGEROUS_JS_PATTERNS) {
+    if (pattern.test(code)) {
+      return { valid: false, error: "Potentially unsafe operation detected in code" }
+    }
+  }
+
+  return { valid: true }
 }
 
 // Check if WebGPU is available
@@ -111,31 +148,26 @@ export function createTensor(
   return new ort.Tensor(type, data, dims)
 }
 
-// Execute ONNX-related code in browser
+// Execute ONNX-related code in browser with security validation
 export async function executeONNXCode(code: string): Promise<WebGPUExecutionResult> {
-  try {
-    // Create a sandboxed execution context with ONNX Runtime available
-    const context = {
-      ort,
-      loadONNXModel,
-      runONNXInference,
-      createTensor,
-      checkWebGPUSupport,
-      getAvailableProviders,
-      console: {
-        log: (...args: any[]) => logs.push(args.map(formatValue).join(" ")),
-        error: (...args: any[]) => logs.push("Error: " + args.map(formatValue).join(" ")),
-        warn: (...args: any[]) => logs.push("Warning: " + args.map(formatValue).join(" ")),
-      },
+  // Validate code before execution
+  const validation = validateJSCode(code)
+  if (!validation.valid) {
+    return {
+      output: validation.error || "Code validation failed",
+      status: "error",
     }
+  }
 
+  try {
     const logs: string[] = []
 
-    function formatValue(val: any): string {
+    function formatValue(val: unknown): string {
       if (val === null) return "null"
       if (val === undefined) return "undefined"
       if (val instanceof ort.Tensor) {
-        return `Tensor(${val.type}, [${val.dims.join(", ")}]): ${JSON.stringify(Array.from(val.data as any).slice(0, 10))}${val.data.length > 10 ? "..." : ""}`
+        const dataArray = Array.from(val.data as ArrayLike<number>)
+        return `Tensor(${val.type}, [${val.dims.join(", ")}]): ${JSON.stringify(dataArray.slice(0, 10))}${dataArray.length > 10 ? "..." : ""}`
       }
       if (typeof val === "object") {
         try {
@@ -147,16 +179,41 @@ export async function executeONNXCode(code: string): Promise<WebGPUExecutionResu
       return String(val)
     }
 
-    // Wrap code in async function
+    // Create a restricted execution context with only ONNX Runtime APIs
+    // Note: Using Function constructor here is intentional for ML code execution.
+    // Security is enforced via validateJSCode() which blocks dangerous patterns.
+    const safeContext = {
+      ort,
+      loadONNXModel,
+      runONNXInference,
+      createTensor,
+      checkWebGPUSupport,
+      getAvailableProviders,
+      console: {
+        log: (...args: unknown[]) => logs.push(args.map(formatValue).join(" ")),
+        error: (...args: unknown[]) => logs.push("Error: " + args.map(formatValue).join(" ")),
+        warn: (...args: unknown[]) => logs.push("Warning: " + args.map(formatValue).join(" ")),
+      },
+      // Explicitly undefined dangerous globals
+      window: undefined,
+      document: undefined,
+      globalThis: undefined,
+      eval: undefined,
+      Function: undefined,
+    }
+
+    // Wrap code in async IIFE
     const wrappedCode = `
+      "use strict";
       return (async () => {
         ${code}
       })()
     `
 
-    // Create function with context variables
-    const fn = new Function(...Object.keys(context), wrappedCode)
-    const result = await fn(...Object.values(context))
+    // Create function with restricted context
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const fn = new Function(...Object.keys(safeContext), wrappedCode)
+    const result = await fn(...Object.values(safeContext))
 
     if (result !== undefined) {
       logs.push(formatValue(result))
@@ -176,22 +233,32 @@ export async function executeONNXCode(code: string): Promise<WebGPUExecutionResu
 }
 
 // Transformers.js integration for Hugging Face models
-let transformersModule: any = null
+type TransformersModule = typeof import("@huggingface/transformers")
+let transformersModule: TransformersModule | null = null
 
-async function loadTransformers() {
+async function loadTransformers(): Promise<TransformersModule> {
   if (!transformersModule) {
     transformersModule = await import("@huggingface/transformers")
   }
   return transformersModule
 }
 
-// Execute Transformers.js code
+// Execute Transformers.js code with security validation
 export async function executeTransformersCode(code: string): Promise<WebGPUExecutionResult> {
+  // Validate code before execution
+  const validation = validateJSCode(code)
+  if (!validation.valid) {
+    return {
+      output: validation.error || "Code validation failed",
+      status: "error",
+    }
+  }
+
   try {
     const transformers = await loadTransformers()
     const logs: string[] = []
 
-    function formatValue(val: any): string {
+    function formatValue(val: unknown): string {
       if (val === null) return "null"
       if (val === undefined) return "undefined"
       if (typeof val === "object") {
@@ -204,23 +271,35 @@ export async function executeTransformersCode(code: string): Promise<WebGPUExecu
       return String(val)
     }
 
-    const context = {
+    // Create a restricted execution context with only Transformers.js APIs
+    // Note: Using Function constructor here is intentional for ML code execution.
+    // Security is enforced via validateJSCode() which blocks dangerous patterns.
+    const safeContext = {
       ...transformers,
       console: {
-        log: (...args: any[]) => logs.push(args.map(formatValue).join(" ")),
-        error: (...args: any[]) => logs.push("Error: " + args.map(formatValue).join(" ")),
-        warn: (...args: any[]) => logs.push("Warning: " + args.map(formatValue).join(" ")),
+        log: (...args: unknown[]) => logs.push(args.map(formatValue).join(" ")),
+        error: (...args: unknown[]) => logs.push("Error: " + args.map(formatValue).join(" ")),
+        warn: (...args: unknown[]) => logs.push("Warning: " + args.map(formatValue).join(" ")),
       },
+      // Explicitly undefined dangerous globals
+      window: undefined,
+      document: undefined,
+      globalThis: undefined,
+      eval: undefined,
+      Function: undefined,
     }
 
     const wrappedCode = `
+      "use strict";
       return (async () => {
         ${code}
       })()
     `
 
-    const fn = new Function(...Object.keys(context), wrappedCode)
-    const result = await fn(...Object.values(context))
+    // Create function with restricted context
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const fn = new Function(...Object.keys(safeContext), wrappedCode)
+    const result = await fn(...Object.values(safeContext))
 
     if (result !== undefined) {
       logs.push(formatValue(result))

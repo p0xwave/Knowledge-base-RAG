@@ -3,10 +3,18 @@ import type { Metadata } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Providers } from "@/components/providers"
 import "./globals.css"
 
-const _inter = Inter({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+})
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+})
 
 export const metadata: Metadata = {
   title: "DataMind AI - Private Database RAG",
@@ -38,14 +46,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`font-sans antialiased`}>
+      <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <Providers>{children}</Providers>
         </ThemeProvider>
         <Analytics />
       </body>

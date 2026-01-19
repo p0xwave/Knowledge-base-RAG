@@ -41,6 +41,40 @@ import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 import Loading from "./loading"
+import { toast } from "sonner"
+
+// File validation constants
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_EXTENSIONS = ["md", "txt"] as const
+const ALLOWED_MIME_TYPES = ["text/plain", "text/markdown", "text/x-markdown"]
+
+function validateFile(file: File): { valid: boolean; error?: string } {
+  // Size check
+  if (file.size > MAX_FILE_SIZE) {
+    return { valid: false, error: `File "${file.name}" exceeds 5MB limit` }
+  }
+
+  // Extension check
+  const extension = file.name.split(".").pop()?.toLowerCase()
+  if (!extension || !ALLOWED_EXTENSIONS.includes(extension as typeof ALLOWED_EXTENSIONS[number])) {
+    return { valid: false, error: "Only .md and .txt files are supported" }
+  }
+
+  // MIME type check (with fallback for .md files that may have empty type)
+  if (file.type && !ALLOWED_MIME_TYPES.includes(file.type) && file.type !== "") {
+    return { valid: false, error: `Invalid file type: ${file.type}` }
+  }
+
+  return { valid: true }
+}
+
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/\.\.[\/\\]/g, "")  // path traversal
+    .replace(/[\/\\]/g, "")       // slashes
+    .replace(/[\x00-\x1f\x7f]/g, "") // control chars
+    .slice(0, 255) || "download"
+}
 
 interface Document {
   id: string
@@ -128,31 +162,51 @@ export default function DocumentsPage() {
     return date.toLocaleDateString()
   }
 
-  const handleFileUpload = (files: FileList | null) => {
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => resolve(e.target?.result as string)
+      reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`))
+      reader.readAsText(file)
+    })
+  }
+
+  const handleFileUpload = async (files: FileList | null) => {
     if (!files) return
 
-    Array.from(files).forEach((file) => {
-      const extension = file.name.split(".").pop()?.toLowerCase()
-      if (extension !== "md" && extension !== "txt") {
-        alert("Only .md and .txt files are supported")
-        return
+    const uploadPromises = Array.from(files).map(async (file) => {
+      // Validate file
+      const validation = validateFile(file)
+      if (!validation.valid) {
+        toast.error(validation.error)
+        return null
       }
 
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const content = e.target?.result as string
+      try {
+        const extension = file.name.split(".").pop()?.toLowerCase() as "md" | "txt"
+        const content = await readFileAsText(file)
+
         const newDoc: Document = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          name: file.name,
-          type: extension as "md" | "txt",
+          name: sanitizeFilename(file.name),
+          type: extension,
           size: file.size,
           content,
           uploadedAt: new Date(),
         }
-        setDocuments((prev) => [newDoc, ...prev])
+        return newDoc
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Failed to read file")
+        return null
       }
-      reader.readAsText(file)
     })
+
+    const results = await Promise.all(uploadPromises)
+    const validDocs = results.filter((doc): doc is Document => doc !== null)
+
+    if (validDocs.length > 0) {
+      setDocuments((prev) => [...validDocs, ...prev])
+    }
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -189,7 +243,7 @@ export default function DocumentsPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = doc.name
+    a.download = sanitizeFilename(doc.name)
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -200,9 +254,9 @@ export default function DocumentsPage() {
         {/* Header */}
         <header className="flex items-center justify-between border-b border-border/50 px-6 py-4">
           <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted/50">
-                <ArrowLeft className="h-4 w-4" />
+            <Link href="/" aria-label="Go back to chat">
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted/50" aria-label="Back to chat">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               </Button>
             </Link>
             <div>
@@ -217,8 +271,9 @@ export default function DocumentsPage() {
             <Button
               onClick={() => fileInputRef.current?.click()}
               className="gap-2"
+              aria-label="Upload new document"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               Upload
             </Button>
             <input
@@ -285,6 +340,15 @@ export default function DocumentsPage() {
                   ? "border-primary bg-primary/5"
                   : "border-muted-foreground/20 hover:border-muted-foreground/40"
               )}
+              role="region"
+              aria-label="File upload area"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  fileInputRef.current?.click()
+                }
+              }}
             >
               <div className="flex flex-col items-center gap-3">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted/50">
@@ -309,20 +373,21 @@ export default function DocumentsPage() {
             </div>
 
             {/* Search */}
-            <div className="mb-4">
+            <div className="mb-4" role="search">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
                 <Input
                   placeholder="Search documents..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 bg-muted/30 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
+                  aria-label="Search documents"
                 />
               </div>
             </div>
 
             {/* Documents List */}
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1" role="region" aria-label="Documents list">
               {filteredDocuments.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 mb-4">
@@ -463,22 +528,24 @@ function DocumentRow({
         </div>
       </div>
 
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
           onClick={() => onPreview(document)}
+          aria-label={`Preview ${document.name}`}
         >
-          <Eye className="h-4 w-4" />
+          <Eye className="h-4 w-4" aria-hidden="true" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
           onClick={() => onDownload(document)}
+          aria-label={`Download ${document.name}`}
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-4 w-4" aria-hidden="true" />
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -486,8 +553,9 @@ function DocumentRow({
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              aria-label={`More actions for ${document.name}`}
             >
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

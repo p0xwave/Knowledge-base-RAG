@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   Sparkles,
 } from "lucide-react"
-import type { Conversation } from "@/app/page"
+import type { Conversation } from "@/lib/types"
+import { ONE_DAY_MS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 interface ChatSidebarProps {
@@ -51,11 +52,11 @@ export function ChatSidebar({
       return c.updatedAt.toDateString() === today.toDateString()
     }),
     yesterday: filteredConversations.filter((c) => {
-      const yesterday = new Date(Date.now() - 86400000)
+      const yesterday = new Date(Date.now() - ONE_DAY_MS)
       return c.updatedAt.toDateString() === yesterday.toDateString()
     }),
     older: filteredConversations.filter((c) => {
-      const yesterday = new Date(Date.now() - 86400000)
+      const yesterday = new Date(Date.now() - ONE_DAY_MS)
       return c.updatedAt < yesterday
     }),
   }

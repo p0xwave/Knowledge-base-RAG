@@ -11,7 +11,7 @@ import {
   ExternalLink,
   File,
 } from "lucide-react"
-import type { Source } from "@/app/page"
+import type { Source } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 interface SourcesPanelProps {
