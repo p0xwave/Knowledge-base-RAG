@@ -25,48 +25,22 @@ import {
   Sparkles,
 } from "lucide-react"
 import type { Conversation } from "@/lib/types"
-import { ONE_DAY_MS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
+import { useChatStore } from "@/lib/store/chat-store"
+import { useGroupedConversations } from "@/hooks/useGroupedConversations"
 
-interface ChatSidebarProps {
-  conversations: Conversation[]
-  activeConversation: Conversation | null
-  onSelectConversation: (conversation: Conversation) => void
-  onNewConversation: () => void
-  onDeleteConversation: (id: string) => void
-  isOpen: boolean
-  onToggle: () => void
-}
-
-export function ChatSidebar({
-  conversations,
-  activeConversation,
-  onSelectConversation,
-  onNewConversation,
-  onDeleteConversation,
-  isOpen,
-  onToggle,
-}: ChatSidebarProps) {
+export function ChatSidebar() {
   const [searchQuery, setSearchQuery] = useState("")
 
-  const filteredConversations = conversations.filter((c) =>
-    c.title.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const conversations = useChatStore((s) => s.conversations)
+  const activeConversation = useChatStore((s) => s.activeConversation)
+  const isOpen = useChatStore((s) => s.sidebarOpen)
+  const selectConversation = useChatStore((s) => s.selectConversation)
+  const createConversation = useChatStore((s) => s.createConversation)
+  const deleteConversation = useChatStore((s) => s.deleteConversation)
+  const toggleSidebar = useChatStore((s) => s.toggleSidebar)
 
-  const groupedConversations = {
-    today: filteredConversations.filter((c) => {
-      const today = new Date()
-      return c.updatedAt.toDateString() === today.toDateString()
-    }),
-    yesterday: filteredConversations.filter((c) => {
-      const yesterday = new Date(Date.now() - ONE_DAY_MS)
-      return c.updatedAt.toDateString() === yesterday.toDateString()
-    }),
-    older: filteredConversations.filter((c) => {
-      const yesterday = new Date(Date.now() - ONE_DAY_MS)
-      return c.updatedAt < yesterday
-    }),
-  }
+  const groupedConversations = useGroupedConversations(conversations, searchQuery)
 
   return (
     <div
@@ -89,7 +63,7 @@ export function ChatSidebar({
           variant="ghost"
           size="icon"
           className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-8 w-8"
-          onClick={onToggle}
+          onClick={toggleSidebar}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -97,7 +71,7 @@ export function ChatSidebar({
 
       <div className="p-3">
         <Button
-          onClick={onNewConversation}
+          onClick={createConversation}
           className="bg-primary text-primary-foreground hover:bg-primary/90 w-full justify-start gap-2 shadow-sm"
         >
           <Plus className="h-4 w-4" />
@@ -129,8 +103,8 @@ export function ChatSidebar({
                 key={conversation.id}
                 conversation={conversation}
                 isActive={activeConversation?.id === conversation.id}
-                onSelect={() => onSelectConversation(conversation)}
-                onDelete={() => onDeleteConversation(conversation.id)}
+                onSelect={() => selectConversation(conversation)}
+                onDelete={() => deleteConversation(conversation.id)}
               />
             ))}
           </div>
@@ -146,8 +120,8 @@ export function ChatSidebar({
                 key={conversation.id}
                 conversation={conversation}
                 isActive={activeConversation?.id === conversation.id}
-                onSelect={() => onSelectConversation(conversation)}
-                onDelete={() => onDeleteConversation(conversation.id)}
+                onSelect={() => selectConversation(conversation)}
+                onDelete={() => deleteConversation(conversation.id)}
               />
             ))}
           </div>
@@ -163,8 +137,8 @@ export function ChatSidebar({
                 key={conversation.id}
                 conversation={conversation}
                 isActive={activeConversation?.id === conversation.id}
-                onSelect={() => onSelectConversation(conversation)}
-                onDelete={() => onDeleteConversation(conversation.id)}
+                onSelect={() => selectConversation(conversation)}
+                onDelete={() => deleteConversation(conversation.id)}
               />
             ))}
           </div>

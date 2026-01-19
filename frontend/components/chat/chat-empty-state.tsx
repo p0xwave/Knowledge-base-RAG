@@ -28,7 +28,7 @@ interface ChatEmptyStateProps {
 export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
   return (
     <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center px-2 py-8 text-center sm:py-16">
-      <div className="from-primary/20 to-primary/5 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br shadow-sm sm:mb-6 sm:h-20 sm:w-20 sm:rounded-3xl">
+      <div className="from-primary/20 to-primary/5 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br shadow-sm sm:mb-6 sm:h-20 sm:w-20 sm:rounded-3xl">
         <Sparkles className="text-primary h-7 w-7 sm:h-9 sm:w-9" />
       </div>
       <h2 className="text-foreground mb-2 text-xl font-semibold text-balance sm:text-2xl">

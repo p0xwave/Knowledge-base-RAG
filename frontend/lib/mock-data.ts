@@ -1,7 +1,8 @@
 import type { Source, Conversation, ExtendedSourceData } from "./types"
 import { ONE_DAY_MS, TWO_DAYS_MS, THREE_DAYS_MS } from "./constants"
 
-export const mockSources: Source[] = [
+// Using satisfies for better type inference while maintaining strict type checking
+export const mockSources = [
   {
     id: "1",
     title: "Q3_Financial_Report.md",
@@ -30,9 +31,9 @@ export const mockSources: Source[] = [
     fileType: "md",
     uploadedAt: new Date(Date.now() - THREE_DAYS_MS),
   },
-]
+] satisfies Source[]
 
-export const mockConversations: Conversation[] = [
+export const mockConversations = [
   {
     id: "1",
     title: "Q3 Revenue Analysis",
@@ -121,7 +122,7 @@ export const mockConversations: Conversation[] = [
     createdAt: new Date(Date.now() - THREE_DAYS_MS),
     updatedAt: new Date(Date.now() - THREE_DAYS_MS),
   },
-]
+] satisfies Conversation[]
 
 export const extendedSourceData: Record<string, ExtendedSourceData> = {
   "1": {

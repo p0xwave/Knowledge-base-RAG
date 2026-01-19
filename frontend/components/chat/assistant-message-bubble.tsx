@@ -62,7 +62,7 @@ export function AssistantMessageBubble({ message, onSourceClick }: AssistantMess
 
   return (
     <div className="flex gap-2 sm:gap-4">
-      <div className="from-primary to-primary/80 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br sm:h-8 sm:w-8">
+      <div className="from-primary to-primary/80 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-linear-to-br sm:h-8 sm:w-8">
         <Bot className="text-primary-foreground h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </div>
       <div className="min-w-0 flex-1 pt-0.5">

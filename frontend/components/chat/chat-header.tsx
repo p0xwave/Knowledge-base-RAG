@@ -4,24 +4,15 @@ import { Button } from "@/components/ui/button"
 import { TooltipButton } from "@/components/tooltip-button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { PanelLeftOpen, FileText } from "lucide-react"
-import type { Conversation } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useChatStore } from "@/lib/store/chat-store"
 
-interface ChatHeaderProps {
-  conversation: Conversation | null
-  showSources: boolean
-  onToggleSources: () => void
-  sidebarOpen: boolean
-  onToggleSidebar: () => void
-}
-
-export function ChatHeader({
-  conversation,
-  showSources,
-  onToggleSources,
-  sidebarOpen,
-  onToggleSidebar,
-}: ChatHeaderProps) {
+export function ChatHeader() {
+  const conversation = useChatStore((s) => s.activeConversation)
+  const showSources = useChatStore((s) => s.showSources)
+  const sidebarOpen = useChatStore((s) => s.sidebarOpen)
+  const toggleSources = useChatStore((s) => s.toggleSources)
+  const toggleSidebar = useChatStore((s) => s.toggleSidebar)
   return (
     <header
       className="border-border bg-background/80 flex items-center justify-between border-b px-3 py-2 backdrop-blur-sm sm:px-4 sm:py-3"
@@ -33,7 +24,7 @@ export function ChatHeader({
             variant="ghost"
             size="icon"
             className="h-8 w-8 shrink-0"
-            onClick={onToggleSidebar}
+            onClick={toggleSidebar}
             aria-label="Open sidebar"
           >
             <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
@@ -59,7 +50,7 @@ export function ChatHeader({
             "gap-1.5 shadow-sm sm:gap-2",
             showSources && "bg-primary/10 border-primary/30 text-primary hover:bg-primary/15"
           )}
-          onClick={onToggleSources}
+          onClick={toggleSources}
           aria-label={showSources ? "Hide sources panel" : "Show sources panel"}
           aria-pressed={showSources}
         >

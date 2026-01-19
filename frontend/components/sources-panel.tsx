@@ -9,13 +9,12 @@ import { X, FileText, Search, ExternalLink, File } from "lucide-react"
 import type { Source } from "@/lib/types"
 import { FILE_EXTENSION_COLORS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
+import { useChatStore } from "@/lib/store/chat-store"
 
-interface SourcesPanelProps {
-  sources: Source[]
-  onClose: () => void
-}
+export function SourcesPanel() {
+  const sources = useChatStore((s) => s.selectedSources)
+  const closeSources = useChatStore((s) => s.closeSources)
 
-export function SourcesPanel({ sources, onClose }: SourcesPanelProps) {
   const { searchQuery, setSearchQuery, filteredItems, resultCount } = useSearch(
     sources,
     (source, query) =>
@@ -31,7 +30,7 @@ export function SourcesPanel({ sources, onClose }: SourcesPanelProps) {
           variant="ghost"
           size="icon"
           className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-8 w-8"
-          onClick={onClose}
+          onClick={closeSources}
         >
           <X className="h-4 w-4" />
         </Button>

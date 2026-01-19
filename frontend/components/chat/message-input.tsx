@@ -1,34 +1,32 @@
 "use client"
 
 import type React from "react"
-import { useRef } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { TooltipButton } from "@/components/tooltip-button"
 import { Paperclip, Send } from "lucide-react"
 import { MAX_MESSAGE_LENGTH } from "@/lib/constants"
 import { toast } from "sonner"
+import { useChatStore } from "@/lib/store/chat-store"
 
-interface MessageInputProps {
-  value: string
-  onChange: (value: string) => void
-  onSend: () => void
-  disabled?: boolean
-}
-
-export function MessageInput({ value, onChange, onSend, disabled }: MessageInputProps) {
+export function MessageInput() {
+  const [value, setValue] = useState("")
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const isWaitingForResponse = useChatStore((s) => s.isWaitingForResponse)
+  const sendMessage = useChatStore((s) => s.sendMessage)
 
   const handleSend = () => {
     const trimmed = value.trim()
-    if (!trimmed || disabled) return
+    if (!trimmed || isWaitingForResponse) return
 
     if (trimmed.length > MAX_MESSAGE_LENGTH) {
       toast.error(`Message exceeds ${MAX_MESSAGE_LENGTH} characters`)
       return
     }
 
-    onSend()
+    sendMessage(trimmed)
+    setValue("")
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -45,7 +43,7 @@ export function MessageInput({ value, onChange, onSend, disabled }: MessageInput
           <Textarea
             ref={textareaRef}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask a question..."
             className="text-foreground placeholder:text-muted-foreground max-h-[200px] min-h-8 flex-1 resize-none border-0 bg-transparent py-0 text-sm leading-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -64,7 +62,7 @@ export function MessageInput({ value, onChange, onSend, disabled }: MessageInput
             </TooltipButton>
             <Button
               onClick={handleSend}
-              disabled={!value.trim() || disabled}
+              disabled={!value.trim() || isWaitingForResponse}
               size="icon"
               className="h-8 w-8 rounded-xl"
               aria-label="Send message"

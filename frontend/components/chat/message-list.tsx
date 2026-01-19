@@ -6,23 +6,18 @@ import { Loader2 } from "lucide-react"
 import { ChatEmptyState } from "./chat-empty-state"
 import { MessageGroup } from "./message-group"
 import { useMessageGroups } from "@/hooks/useMessageGroups"
-import type { Conversation, Source } from "@/lib/types"
+import { useChatStore } from "@/lib/store/chat-store"
+import type { Source } from "@/lib/types"
 
 interface MessageListProps {
-  conversation: Conversation | null
-  isWaitingForResponse: boolean
   onSourceClick: (source: Source) => void
-  onEditMessage: (messageId: string, newContent: string) => void
   onSuggestionClick?: (suggestion: string) => void
 }
 
-export function MessageList({
-  conversation,
-  isWaitingForResponse,
-  onSourceClick,
-  onEditMessage,
-  onSuggestionClick,
-}: MessageListProps) {
+export function MessageList({ onSourceClick, onSuggestionClick }: MessageListProps) {
+  const conversation = useChatStore((s) => s.activeConversation)
+  const isWaitingForResponse = useChatStore((s) => s.isWaitingForResponse)
+  const editMessage = useChatStore((s) => s.editMessage)
   const scrollRef = useRef<HTMLDivElement>(null)
   const messageGroups = useMessageGroups(conversation)
 
@@ -61,7 +56,7 @@ export function MessageList({
                 userMessage={group.userMessage}
                 responses={group.responses}
                 onSourceClick={onSourceClick}
-                onEditMessage={onEditMessage}
+                onEditMessage={editMessage}
               />
             ))}
             {isWaitingForResponse && (
