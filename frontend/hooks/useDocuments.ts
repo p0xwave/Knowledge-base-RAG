@@ -241,6 +241,16 @@ export function useDocuments(currentFolderId: string | null = "root") {
     }
   }, [documentToDelete])
 
+  const renameDocument = useCallback((documentId: string, newName: string) => {
+    setDocuments((prev) =>
+      prev.map((doc) =>
+        doc.id === documentId
+          ? { ...doc, name: sanitizeFilename(newName) }
+          : doc
+      )
+    )
+  }, [])
+
   const openPreview = useCallback((doc: Document) => {
     setSelectedDocument(doc)
     setPreviewOpen(true)
@@ -325,6 +335,7 @@ export function useDocuments(currentFolderId: string | null = "root") {
     // Actions
     uploadFiles,
     deleteDocument,
+    renameDocument,
     openPreview,
     closePreview,
     confirmDelete,

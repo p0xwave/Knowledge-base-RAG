@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { FileText, File, MoreVertical, Trash2, Eye, Download } from "lucide-react"
+import { FileText, File, MoreVertical, Trash2, Eye, Download, Edit } from "lucide-react"
 import { FILE_EXTENSION_COLORS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Document } from "@/hooks/useDocuments"
@@ -17,6 +17,7 @@ interface DocumentRowProps {
   document: Document
   onPreview: (doc: Document) => void
   onDownload: (doc: Document) => void
+  onRename: (doc: Document) => void
   onDelete: (doc: Document) => void
   formatFileSize: (bytes: number) => string
   formatDate: (date: Date) => string
@@ -26,6 +27,7 @@ export function DocumentRow({
   document,
   onPreview,
   onDownload,
+  onRename,
   onDelete,
   formatFileSize,
   formatDate,
@@ -91,6 +93,10 @@ export function DocumentRow({
             <DropdownMenuItem onClick={() => onDownload(document)}>
               <Download className="mr-2 h-4 w-4" />
               Download
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onRename(document)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Rename
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"

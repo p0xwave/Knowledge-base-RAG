@@ -4,11 +4,7 @@ import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
@@ -23,12 +19,7 @@ interface FolderCheckboxItemProps {
   level?: number
 }
 
-function FolderCheckboxItem({
-  folder,
-  isSelected,
-  onToggle,
-  level = 0,
-}: FolderCheckboxItemProps) {
+function FolderCheckboxItem({ folder, isSelected, onToggle, level = 0 }: FolderCheckboxItemProps) {
   const allFolders = useFolderStore((s) => s.folders)
   const selectedFolderIds = useChatStore((s) => s.selectedFolderIds)
 
@@ -38,13 +29,16 @@ function FolderCheckboxItem({
   )
 
   // Recursively get all descendant folder IDs
-  const getAllDescendantIds = React.useCallback((folderId: string): string[] => {
-    const directChildren = allFolders.filter((f) => f.parentId === folderId)
-    return [
-      ...directChildren.map((c) => c.id),
-      ...directChildren.flatMap((c) => getAllDescendantIds(c.id)),
-    ]
-  }, [allFolders])
+  const getAllDescendantIds = React.useCallback(
+    (folderId: string): string[] => {
+      const directChildren = allFolders.filter((f) => f.parentId === folderId)
+      return [
+        ...directChildren.map((c) => c.id),
+        ...directChildren.flatMap((c) => getAllDescendantIds(c.id)),
+      ]
+    },
+    [allFolders]
+  )
 
   // Check if folder has children and calculate their selection state
   const hasChildren = children.length > 0
@@ -59,16 +53,21 @@ function FolderCheckboxItem({
   )
 
   // Determine checkbox state
-  const isIndeterminate = hasChildren && selectedDescendants.length > 0 && selectedDescendants.length < descendantIds.length
-  const isFullySelected = hasChildren ? selectedDescendants.length === descendantIds.length && descendantIds.length > 0 : isSelected
+  const isIndeterminate =
+    hasChildren &&
+    selectedDescendants.length > 0 &&
+    selectedDescendants.length < descendantIds.length
+  const isFullySelected = hasChildren
+    ? selectedDescendants.length === descendantIds.length && descendantIds.length > 0
+    : isSelected
 
   return (
     <>
       <div
         className={cn(
-          "hover:bg-muted/50 flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors border",
+          "hover:bg-muted/50 flex items-center gap-2 rounded-md border px-2 py-1.5 transition-colors",
           isFullySelected && "bg-primary/10 border-transparent",
-          isIndeterminate && "bg-primary/5 border-dashed border-primary/30",
+          isIndeterminate && "bg-primary/5 border-primary/30 border-dashed",
           !isFullySelected && !isIndeterminate && "border-transparent"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
@@ -80,7 +79,7 @@ function FolderCheckboxItem({
           className="cursor-pointer"
         />
         <div
-          className="flex flex-1 items-center gap-2 cursor-pointer"
+          className="flex flex-1 cursor-pointer items-center gap-2"
           onClick={() => onToggle(folder.id)}
         >
           {isFullySelected ? (
@@ -131,33 +130,40 @@ export function FolderSelector({ variant = "default" }: FolderSelectorProps) {
   const isLarge = variant === "large"
 
   // Recursively get all descendant folder IDs
-  const getAllDescendantIds = React.useCallback((folderId: string): string[] => {
-    const directChildren = folders.filter((f) => f.parentId === folderId)
-    return [
-      ...directChildren.map((c) => c.id),
-      ...directChildren.flatMap((c) => getAllDescendantIds(c.id)),
-    ]
-  }, [folders])
+  const getAllDescendantIds = React.useCallback(
+    (folderId: string): string[] => {
+      const directChildren = folders.filter((f) => f.parentId === folderId)
+      return [
+        ...directChildren.map((c) => c.id),
+        ...directChildren.flatMap((c) => getAllDescendantIds(c.id)),
+      ]
+    },
+    [folders]
+  )
 
   // Handle folder toggle with parent-child synchronization
-  const handleToggle = React.useCallback((folderId: string) => {
-    const descendantIds = getAllDescendantIds(folderId)
-    const allRelatedIds = [folderId, ...descendantIds]
+  const handleToggle = React.useCallback(
+    (folderId: string) => {
+      const descendantIds = getAllDescendantIds(folderId)
+      const allRelatedIds = [folderId, ...descendantIds]
 
-    // Check if folder is currently selected (or partially selected)
-    const selectedDescendants = descendantIds.filter((id) => selectedFolderIds.includes(id))
-    const isFullySelected = selectedDescendants.length === descendantIds.length && descendantIds.length > 0
-    const isFolderSelected = selectedFolderIds.includes(folderId)
+      // Check if folder is currently selected (or partially selected)
+      const selectedDescendants = descendantIds.filter((id) => selectedFolderIds.includes(id))
+      const isFullySelected =
+        selectedDescendants.length === descendantIds.length && descendantIds.length > 0
+      const isFolderSelected = selectedFolderIds.includes(folderId)
 
-    if (isFullySelected || (isFolderSelected && descendantIds.length === 0)) {
-      // If fully selected or is a leaf folder that's selected, deselect all
-      setSelectedFolders(selectedFolderIds.filter((id) => !allRelatedIds.includes(id)))
-    } else {
-      // Otherwise, select all (folder + descendants)
-      const newSelection = new Set([...selectedFolderIds, ...allRelatedIds])
-      setSelectedFolders(Array.from(newSelection))
-    }
-  }, [folders, selectedFolderIds, getAllDescendantIds, setSelectedFolders])
+      if (isFullySelected || (isFolderSelected && descendantIds.length === 0)) {
+        // If fully selected or is a leaf folder that's selected, deselect all
+        setSelectedFolders(selectedFolderIds.filter((id) => !allRelatedIds.includes(id)))
+      } else {
+        // Otherwise, select all (folder + descendants)
+        const newSelection = new Set([...selectedFolderIds, ...allRelatedIds])
+        setSelectedFolders(Array.from(newSelection))
+      }
+    },
+    [folders, selectedFolderIds, getAllDescendantIds, setSelectedFolders]
+  )
 
   const rootFolders = folders.filter((f) => f.id === "root")
   const isAllSelected = selectedFolderIds.length === 0
@@ -170,7 +176,7 @@ export function FolderSelector({ variant = "default" }: FolderSelectorProps) {
 
   const getSearchScopeText = () => {
     if (isAllSelected) {
-      return "All folders"
+      return "All documents"
     }
     if (selectedFolders.length === 1) {
       return selectedFolders[0].name
@@ -186,12 +192,8 @@ export function FolderSelector({ variant = "default" }: FolderSelectorProps) {
           size={isLarge ? "default" : "sm"}
           className={cn(
             "border-dashed transition-colors",
-            isLarge
-              ? "h-10 gap-2.5 px-4"
-              : "h-8 gap-2",
-            isLarge
-              ? "hover:bg-muted/70"
-              : "hover:bg-muted/70",
+            isLarge ? "h-10 gap-2.5 px-4" : "h-8 gap-2",
+            isLarge ? "hover:bg-muted/70" : "hover:bg-muted/70",
             !isAllSelected && "border-primary/50 bg-primary/5"
           )}
         >
@@ -205,17 +207,10 @@ export function FolderSelector({ variant = "default" }: FolderSelectorProps) {
         <div className="flex items-center justify-between p-3">
           <div>
             <h4 className="text-foreground text-sm font-semibold">Search Scope</h4>
-            <p className="text-muted-foreground text-xs">
-              Select folders to search in
-            </p>
+            <p className="text-muted-foreground text-xs">Select folders to search in</p>
           </div>
           {!isAllSelected && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSelectAll}
-              className="h-7 text-xs"
-            >
+            <Button variant="ghost" size="sm" onClick={handleSelectAll} className="h-7 text-xs">
               Clear
             </Button>
           )}
@@ -236,13 +231,11 @@ export function FolderSelector({ variant = "default" }: FolderSelectorProps) {
               className="cursor-pointer"
             />
             <div
-              className="flex flex-1 items-center gap-2 cursor-pointer"
+              className="flex flex-1 cursor-pointer items-center gap-2"
               onClick={handleSelectAll}
             >
               <Database className="text-primary h-4 w-4 shrink-0" />
-              <span className="text-foreground flex-1 text-sm font-medium">
-                All Documents
-              </span>
+              <span className="text-foreground flex-1 text-sm font-medium">All Documents</span>
               {isAllSelected && <Check className="text-primary h-4 w-4" />}
             </div>
           </div>

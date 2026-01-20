@@ -1,7 +1,6 @@
 torch.cpu.stream 
 ====================================================================
 
-torch.cpu. stream ( *stream* ) [source](https://github.com/pytorch/pytorch/blob/v2.8.0/torch/cpu/__init__.py#L167) 
 :   Wrapper around the Context-manager StreamContext that
 selects a given stream. 
 

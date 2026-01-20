@@ -24,7 +24,7 @@ import {
   FolderBreadcrumb,
 } from "@/components/documents"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { useDocuments } from "@/hooks/useDocuments"
+import { useDocuments, type Document } from "@/hooks/useDocuments"
 import { useSearch } from "@/hooks/useSearch"
 import { useDateFormat } from "@/hooks/useDateFormat"
 import {
@@ -60,6 +60,7 @@ export default function DocumentsPage() {
     totalSize,
     uploadFiles,
     deleteDocument,
+    renameDocument,
     openPreview,
     closePreview,
     confirmDelete,
@@ -100,6 +101,11 @@ export default function DocumentsPage() {
   const [deleteFolderDialogOpen, setDeleteFolderDialogOpen] = useState(false)
   const [folderToEdit, setFolderToEdit] = useState<Folder | null>(null)
   const [newFolderName, setNewFolderName] = useState("")
+
+  // Document rename dialog state
+  const [renameDocumentDialogOpen, setRenameDocumentDialogOpen] = useState(false)
+  const [documentToRename, setDocumentToRename] = useState<Document | null>(null)
+  const [newDocumentName, setNewDocumentName] = useState("")
 
   // Get child folders of current folder
   const childFolders = folders.filter((f) => f.parentId === currentFolderId)
@@ -146,6 +152,29 @@ export default function DocumentsPage() {
     setDeleteFolderDialogOpen(false)
     setFolderToEdit(null)
     setNewFolderName("")
+  }
+
+  // Document rename actions
+  const handleRenameDocument = (doc: Document) => {
+    setDocumentToRename(doc)
+    setNewDocumentName(doc.name)
+    setRenameDocumentDialogOpen(true)
+  }
+
+  const confirmRenameDocument = () => {
+    if (documentToRename && newDocumentName.trim() && newDocumentName !== documentToRename.name) {
+      renameDocument(documentToRename.id, newDocumentName.trim())
+      toast.success("Document renamed")
+    }
+    setRenameDocumentDialogOpen(false)
+    setDocumentToRename(null)
+    setNewDocumentName("")
+  }
+
+  const cancelRenameDocument = () => {
+    setRenameDocumentDialogOpen(false)
+    setDocumentToRename(null)
+    setNewDocumentName("")
   }
 
   return (
@@ -277,6 +306,7 @@ export default function DocumentsPage() {
                       document={doc}
                       onPreview={openPreview}
                       onDownload={downloadDocument}
+                      onRename={handleRenameDocument}
                       onDelete={confirmDelete}
                       formatFileSize={formatFileSize}
                       formatDate={formatRelativeDate}
@@ -384,6 +414,32 @@ export default function DocumentsPage() {
               </Button>
               <Button variant="destructive" onClick={confirmDeleteFolder}>
                 Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Rename Document Dialog */}
+        <Dialog open={renameDocumentDialogOpen} onOpenChange={cancelRenameDocument}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Rename document</DialogTitle>
+              <DialogDescription>Enter a new name for the document.</DialogDescription>
+            </DialogHeader>
+            <Input
+              value={newDocumentName}
+              onChange={(e) => setNewDocumentName(e.target.value)}
+              placeholder="Document name"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") confirmRenameDocument()
+              }}
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={cancelRenameDocument} className="bg-transparent">
+                Cancel
+              </Button>
+              <Button onClick={confirmRenameDocument} disabled={!newDocumentName.trim()}>
+                Rename
               </Button>
             </DialogFooter>
           </DialogContent>
