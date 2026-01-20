@@ -75,7 +75,7 @@ function FolderCheckboxItem({
       >
         <Checkbox
           checked={isFullySelected || isIndeterminate}
-          indeterminate={isIndeterminate}
+          indeterminate={isIndeterminate || undefined}
           onCheckedChange={() => onToggle(folder.id)}
           className="cursor-pointer"
         />
