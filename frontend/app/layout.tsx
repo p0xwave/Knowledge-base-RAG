@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Geist_Mono } from "next/font/google"
+import { Inter, Geist_Mono, Caveat } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Providers } from "@/components/providers"
@@ -14,6 +14,11 @@ const inter = Inter({
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
+})
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  variable: "--font-caveat",
 })
 
 export const metadata: Metadata = {
@@ -46,7 +51,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${geistMono.variable} ${caveat.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

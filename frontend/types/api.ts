@@ -42,6 +42,7 @@ export interface SendMessageRequest {
   conversationId?: string
   content: string
   parentMessageId?: string
+  folderIds?: string[] // Specific folders to search, empty/undefined means search all
 }
 
 // Send message response
@@ -155,6 +156,32 @@ export interface MetadataItem {
 }
 
 // ============================================
+// Folders API
+// ============================================
+
+export interface Folder {
+  id: string
+  name: string
+  path: string // e.g., "/", "/projects", "/projects/ai"
+  parentId: string | null
+  createdAt: string
+  documentCount: number
+}
+
+export interface CreateFolderRequest {
+  name: string
+  parentId?: string | null
+}
+
+export interface UpdateFolderRequest {
+  name: string
+}
+
+export interface MoveFolderRequest {
+  targetParentId: string | null
+}
+
+// ============================================
 // Documents API
 // ============================================
 
@@ -165,10 +192,13 @@ export interface DocumentListItem {
   fileType: "md" | "txt"
   uploadedAt: string
   chunksCount?: number
+  folderId: string | null // null for root folder
+  folderPath?: string
 }
 
 export interface UploadDocumentRequest {
   file: File
+  folderId?: string | null
 }
 
 export interface UploadDocumentResponse {
@@ -178,6 +208,8 @@ export interface UploadDocumentResponse {
   fileType: "md" | "txt"
   uploadedAt: string
   chunksCount: number
+  folderId: string | null
+  folderPath?: string
 }
 
 export interface DocumentSearchRequest {

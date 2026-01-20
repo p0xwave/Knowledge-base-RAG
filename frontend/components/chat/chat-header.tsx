@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { TooltipButton } from "@/components/tooltip-button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { FolderSelector } from "@/components/chat/folder-selector"
 import { PanelLeftOpen, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useChatStore } from "@/lib/store/chat-store"
@@ -13,6 +14,9 @@ export function ChatHeader() {
   const sidebarOpen = useChatStore((s) => s.sidebarOpen)
   const toggleSources = useChatStore((s) => s.toggleSources)
   const toggleSidebar = useChatStore((s) => s.toggleSidebar)
+
+  const hasMessages = (conversation?.messages.length ?? 0) > 0
+
   return (
     <header
       className="border-border bg-background/80 flex items-center justify-between border-b px-3 py-2 backdrop-blur-sm sm:px-4 sm:py-3"
@@ -41,6 +45,7 @@ export function ChatHeader() {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+        {hasMessages && <FolderSelector />}
         <ThemeToggle />
         <TooltipButton
           tooltip="Toggle sources panel"

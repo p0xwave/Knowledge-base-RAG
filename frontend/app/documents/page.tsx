@@ -14,15 +14,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/empty-state"
-import { DocumentRow, UploadArea, DocumentStats } from "@/components/documents"
+import { DocumentRow, UploadArea, DocumentStats, FolderTree } from "@/components/documents"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useDocuments } from "@/hooks/useDocuments"
 import { useSearch } from "@/hooks/useSearch"
 import { useDateFormat } from "@/hooks/useDateFormat"
+import { useFolderStore, selectCurrentFolder } from "@/lib/store/folder-store"
 import { ArrowLeft, FileText, Search, Plus, FolderOpen, Download } from "lucide-react"
 import Loading from "./loading"
 
 export default function DocumentsPage() {
+  const currentFolderId = useFolderStore((s) => s.currentFolderId)
+  const currentFolder = useFolderStore(selectCurrentFolder)
+
   const {
     documents,
     selectedDocument,
@@ -43,7 +47,7 @@ export default function DocumentsPage() {
     handleDragOver,
     handleDragLeave,
     handleDrop,
-  } = useDocuments()
+  } = useDocuments(currentFolderId)
 
   const { searchQuery, setSearchQuery, filteredItems } = useSearch(documents, (doc, query) =>
     doc.name.toLowerCase().includes(query)
@@ -69,7 +73,9 @@ export default function DocumentsPage() {
             </Link>
             <div>
               <h1 className="text-foreground text-xl font-semibold">Documents</h1>
-              <p className="text-muted-foreground text-sm">Upload and manage your knowledge base</p>
+              <p className="text-muted-foreground text-sm">
+                {currentFolder?.name || "All Documents"} - {documents.length} documents
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -90,8 +96,17 @@ export default function DocumentsPage() {
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-hidden p-6">
-          <div className="mx-auto flex h-full max-w-5xl flex-col">
+        <div className="flex flex-1 overflow-hidden">
+          {/* Folder Sidebar */}
+          <div className="border-border/50 w-64 shrink-0 border-r">
+            <div className="flex h-full flex-col p-4">
+              <FolderTree />
+            </div>
+          </div>
+
+          {/* Documents Area */}
+          <div className="flex-1 overflow-hidden p-6">
+            <div className="mx-auto flex h-full max-w-4xl flex-col">
             {/* Stats */}
             <DocumentStats
               documentCount={documents.length}
@@ -157,6 +172,7 @@ export default function DocumentsPage() {
                 </div>
               )}
             </ScrollArea>
+            </div>
           </div>
         </div>
 

@@ -2,6 +2,7 @@
 
 import { Database, FileText, Globe, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { FolderSelector } from "@/components/chat/folder-selector"
 
 const suggestions = [
   {
@@ -27,7 +28,7 @@ interface ChatEmptyStateProps {
 
 export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
   return (
-    <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center px-2 py-8 text-center sm:py-16">
+    <div className="relative mx-auto flex h-full max-w-xl flex-col items-center justify-center px-2 py-8 text-center sm:py-16">
       <div className="from-primary/20 to-primary/5 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br shadow-sm sm:mb-6 sm:h-20 sm:w-20 sm:rounded-3xl">
         <Sparkles className="text-primary h-7 w-7 sm:h-9 sm:w-9" />
       </div>
@@ -37,6 +38,11 @@ export function ChatEmptyState({ onSuggestionClick }: ChatEmptyStateProps) {
       <p className="text-muted-foreground mb-6 max-w-md text-sm leading-relaxed sm:mb-8 sm:text-base">
         Ask questions about your data and get AI-powered insights with source citations.
       </p>
+
+      <div className="mb-6 flex justify-center sm:mb-8">
+        <FolderSelector variant="large" />
+      </div>
+
       <div className="grid w-full max-w-md gap-2 sm:gap-3">
         {suggestions.map((suggestion, index) => (
           <button

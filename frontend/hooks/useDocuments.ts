@@ -11,6 +11,8 @@ export interface Document {
   size: number
   content: string
   uploadedAt: Date
+  folderId: string | null
+  folderPath?: string
 }
 
 function validateFile(file: File): { valid: boolean; error?: string } {
@@ -63,6 +65,8 @@ const mockDocuments: Document[] = [
     size: 24500,
     content: "# Q3 Financial Report\n\nRevenue increased by 23% compared to Q2...",
     uploadedAt: new Date(Date.now() - 86400000),
+    folderId: "root",
+    folderPath: "/",
   },
   {
     id: "2",
@@ -71,6 +75,8 @@ const mockDocuments: Document[] = [
     size: 12300,
     content: "Customer Analysis\n\nTotal active customers: 12,450...",
     uploadedAt: new Date(Date.now() - 172800000),
+    folderId: "root",
+    folderPath: "/",
   },
   {
     id: "3",
@@ -79,6 +85,8 @@ const mockDocuments: Document[] = [
     size: 8750,
     content: "# Sales Summary\n\nMonthly recurring revenue: $2.4M...",
     uploadedAt: new Date(Date.now() - 259200000),
+    folderId: "projects",
+    folderPath: "/projects",
   },
   {
     id: "4",
@@ -87,6 +95,8 @@ const mockDocuments: Document[] = [
     size: 45200,
     content: "# Product Roadmap 2024\n\n## Q1 Goals\n- Feature A...",
     uploadedAt: new Date(Date.now() - 345600000),
+    folderId: "ai-project",
+    folderPath: "/projects/ai",
   },
   {
     id: "5",
@@ -95,10 +105,12 @@ const mockDocuments: Document[] = [
     size: 3200,
     content: "Meeting Notes - Jan 15\n\nAttendees: John, Sarah...",
     uploadedAt: new Date(Date.now() - 432000000),
+    folderId: "research",
+    folderPath: "/research",
   },
 ]
 
-export function useDocuments() {
+export function useDocuments(currentFolderId: string | null = "root") {
   const [documents, setDocuments] = useState<Document[]>(mockDocuments)
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -107,44 +119,52 @@ export function useDocuments() {
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const totalSize = documents.reduce((acc, doc) => acc + doc.size, 0)
+  // Filter documents by current folder
+  const filteredDocuments = documents.filter((doc) => doc.folderId === currentFolderId)
 
-  const uploadFiles = useCallback(async (files: FileList | null) => {
-    if (!files) return
+  const totalSize = filteredDocuments.reduce((acc, doc) => acc + doc.size, 0)
 
-    const uploadPromises = Array.from(files).map(async (file) => {
-      const validation = validateFile(file)
-      if (!validation.valid) {
-        toast.error(validation.error)
-        return null
-      }
+  const uploadFiles = useCallback(
+    async (files: FileList | null, folderId: string | null = currentFolderId) => {
+      if (!files) return
 
-      try {
-        const extension = file.name.split(".").pop()?.toLowerCase() as "md" | "txt"
-        const content = await readFileAsText(file)
-
-        const newDoc: Document = {
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          name: sanitizeFilename(file.name),
-          type: extension,
-          size: file.size,
-          content,
-          uploadedAt: new Date(),
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const validation = validateFile(file)
+        if (!validation.valid) {
+          toast.error(validation.error)
+          return null
         }
-        return newDoc
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to read file")
-        return null
+
+        try {
+          const extension = file.name.split(".").pop()?.toLowerCase() as "md" | "txt"
+          const content = await readFileAsText(file)
+
+          const newDoc: Document = {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            name: sanitizeFilename(file.name),
+            type: extension,
+            size: file.size,
+            content,
+            uploadedAt: new Date(),
+            folderId: folderId || "root",
+            folderPath: "/", // This would be populated by the backend
+          }
+          return newDoc
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : "Failed to read file")
+          return null
+        }
+      })
+
+      const results = await Promise.all(uploadPromises)
+      const validDocs = results.filter((doc): doc is Document => doc !== null)
+
+      if (validDocs.length > 0) {
+        setDocuments((prev) => [...validDocs, ...prev])
       }
-    })
-
-    const results = await Promise.all(uploadPromises)
-    const validDocs = results.filter((doc): doc is Document => doc !== null)
-
-    if (validDocs.length > 0) {
-      setDocuments((prev) => [...validDocs, ...prev])
-    }
-  }, [])
+    },
+    [currentFolderId]
+  )
 
   const deleteDocument = useCallback(() => {
     if (documentToDelete) {
@@ -206,9 +226,20 @@ export function useDocuments() {
     [uploadFiles]
   )
 
+  const moveDocument = useCallback((documentId: string, targetFolderId: string | null) => {
+    setDocuments((prev) =>
+      prev.map((doc) =>
+        doc.id === documentId
+          ? { ...doc, folderId: targetFolderId || "root", folderPath: "/" }
+          : doc
+      )
+    )
+  }, [])
+
   return {
     // State
-    documents,
+    documents: filteredDocuments,
+    allDocuments: documents,
     selectedDocument,
     previewOpen,
     deleteDialogOpen,
@@ -229,5 +260,6 @@ export function useDocuments() {
     handleDragOver,
     handleDragLeave,
     handleDrop,
+    moveDocument,
   }
 }

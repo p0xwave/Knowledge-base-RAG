@@ -12,6 +12,7 @@ interface ChatState {
   selectedSources: Source[]
   sidebarOpen: boolean
   isWaitingForResponse: boolean
+  selectedFolderIds: string[] // Empty means search all folders
 }
 
 interface ChatActions {
@@ -25,6 +26,9 @@ interface ChatActions {
   closeSources: () => void
   toggleSidebar: () => void
   setSidebar: (open: boolean) => void
+  setSelectedFolders: (folderIds: string[]) => void
+  toggleFolderSelection: (folderId: string) => void
+  clearFolderSelection: () => void
 }
 
 type ChatStore = ChatState & ChatActions
@@ -39,6 +43,7 @@ export const useChatStore = create<ChatStore>()(
       selectedSources: mockSources,
       sidebarOpen: true,
       isWaitingForResponse: false,
+      selectedFolderIds: [], // Empty array means search all folders
 
       // Actions
       createConversation: () => {
@@ -279,6 +284,25 @@ Would you like me to elaborate on any particular aspect?`,
       setSidebar: (open) => {
         set({ sidebarOpen: open })
       },
+
+      setSelectedFolders: (folderIds) => {
+        set({ selectedFolderIds: folderIds })
+      },
+
+      toggleFolderSelection: (folderId) => {
+        set((state) => {
+          const isSelected = state.selectedFolderIds.includes(folderId)
+          return {
+            selectedFolderIds: isSelected
+              ? state.selectedFolderIds.filter((id) => id !== folderId)
+              : [...state.selectedFolderIds, folderId],
+          }
+        })
+      },
+
+      clearFolderSelection: () => {
+        set({ selectedFolderIds: [] })
+      },
     }),
     { name: "chat-store" }
   )
@@ -291,3 +315,4 @@ export const selectShowSources = (state: ChatStore) => state.showSources
 export const selectSelectedSources = (state: ChatStore) => state.selectedSources
 export const selectSidebarOpen = (state: ChatStore) => state.sidebarOpen
 export const selectIsWaitingForResponse = (state: ChatStore) => state.isWaitingForResponse
+export const selectSelectedFolderIds = (state: ChatStore) => state.selectedFolderIds

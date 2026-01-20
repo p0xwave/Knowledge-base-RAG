@@ -23,6 +23,8 @@ export interface Source {
   type: "document"
   fileType?: "md" | "txt"
   uploadedAt?: Date
+  folderId?: string | null
+  folderPath?: string
 }
 
 export interface Conversation {
