@@ -1,6 +1,7 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense, useState, useEffect, useRef } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -36,11 +37,17 @@ import { toast } from "sonner"
 import Loading from "./loading"
 
 export default function DocumentsPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const documentIdFromUrl = searchParams.get("id")
+  const hasProcessedDocId = useRef(false)
+
   const folders = useFolderStore((s) => s.folders)
   const currentFolderId = useFolderStore((s) => s.currentFolderId)
   const currentFolder = useFolderStore(selectCurrentFolder)
   const updateFolder = useFolderStore((s) => s.updateFolder)
   const deleteFolder = useFolderStore((s) => s.deleteFolder)
+  const setCurrentFolder = useFolderStore((s) => s.setCurrentFolder)
 
   const {
     documents,
@@ -62,7 +69,31 @@ export default function DocumentsPage() {
     handleDragOver,
     handleDragLeave,
     handleDrop,
+    findDocumentById,
   } = useDocuments(currentFolderId)
+
+  // Handle document ID from URL (only once)
+  useEffect(() => {
+    if (documentIdFromUrl && !hasProcessedDocId.current) {
+      hasProcessedDocId.current = true
+      const doc = findDocumentById(documentIdFromUrl)
+      if (doc) {
+        // Set current folder to document's folder
+        if (doc.folderId && doc.folderId !== currentFolderId) {
+          setCurrentFolder(doc.folderId)
+        }
+        // Open preview after a short delay to ensure folder is set
+        setTimeout(() => {
+          openPreview(doc)
+          // Clear the URL parameter after opening
+          router.replace("/documents", { scroll: false })
+        }, 100)
+      } else {
+        // Document not found, clear the parameter
+        router.replace("/documents", { scroll: false })
+      }
+    }
+  }, [documentIdFromUrl, findDocumentById, openPreview, setCurrentFolder, currentFolderId, router])
 
   // Folder dialogs state
   const [renameFolderDialogOpen, setRenameFolderDialogOpen] = useState(false)

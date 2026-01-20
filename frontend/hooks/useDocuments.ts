@@ -59,34 +59,101 @@ function readFileAsText(file: File): Promise<string> {
 
 const mockDocuments: Document[] = [
   {
-    id: "1",
+    id: "doc-q3-financial-2024",
     name: "Q3_Financial_Report.md",
     type: "md",
     size: 24500,
-    content: "# Q3 Financial Report\n\nRevenue increased by 23% compared to Q2...",
+    content: `# Q3 Financial Report
+
+Revenue increased by 23% compared to Q2, driven primarily by enterprise client acquisitions. The quarterly performance exceeded expectations set at the beginning of the fiscal year.
+
+## Key Performance Indicators:
+• Total Revenue: $8.2M (up from $6.7M in Q2)
+• Gross Margin: 72.4% (improvement of 2.1 percentage points)
+• Operating Expenses: $3.1M (controlled growth of 8%)
+• Net Income: $2.8M (34% margin)
+
+## Enterprise Segment Analysis:
+The enterprise segment showed exceptional growth with 47 new contracts signed. Average contract value increased by 18% to $45,000 annually. Customer retention in this segment remained strong at 96%.
+
+## Regional Performance:
+• North America: +28% YoY
+• Europe: +19% YoY
+• Asia Pacific: +34% YoY
+
+The strong performance in Asia Pacific is attributed to our expanded sales presence in Singapore and Australia.`,
     uploadedAt: new Date(Date.now() - 86400000),
-    folderId: "root",
-    folderPath: "/",
+    folderId: "projects",
+    folderPath: "/projects",
   },
   {
-    id: "2",
+    id: "doc-customer-analysis",
     name: "customer_analysis.txt",
     type: "txt",
     size: 12300,
-    content: "Customer Analysis\n\nTotal active customers: 12,450...",
+    content: `Customer Database Query Results:
+
+Total Active Customers: 12,450
+├── Enterprise Tier: 342 accounts
+├── Premium Tier: 2,108 accounts
+└── Standard Tier: 10,000 accounts
+
+Customer Growth Metrics:
+• New customers (Q3): 1,247
+• Churned customers (Q3): 89
+• Net customer growth: +1,158
+• Monthly growth rate: 3.2%
+
+Enterprise Customer Details:
+Average revenue per enterprise account: $45,000/year
+Enterprise segment contribution: 62% of total revenue
+Top industries: Technology (34%), Healthcare (22%), Finance (18%)
+
+Geographic Distribution:
+• United States: 58%
+• United Kingdom: 12%
+• Germany: 8%
+• Canada: 7%
+• Other: 15%`,
     uploadedAt: new Date(Date.now() - 172800000),
-    folderId: "root",
-    folderPath: "/",
+    folderId: "research",
+    folderPath: "/research",
   },
   {
-    id: "3",
+    id: "doc-sales-summary-q3",
     name: "sales_summary.md",
     type: "md",
     size: 8750,
-    content: "# Sales Summary\n\nMonthly recurring revenue: $2.4M...",
+    content: `# Sales API Response - Real-time Metrics
+
+Monthly Recurring Revenue (MRR): $2.4M
+Annual Recurring Revenue (ARR): $28.8M
+Year-over-Year Growth: 47%
+
+## Pipeline Status:
+• Qualified Leads: 423
+• Opportunities: 187
+• Proposals Sent: 89
+• Closed Won (MTD): 34
+• Closed Lost (MTD): 12
+
+## Sales Team Performance:
+• Average deal size: $12,400
+• Sales cycle length: 32 days (down from 41 days)
+• Win rate: 74%
+• Quota attainment: 112%
+
+## Revenue by Product:
+• Core Platform: 68%
+• Analytics Add-on: 18%
+• Enterprise Features: 14%
+
+## Forecast (Q4):
+Expected revenue: $9.1M
+Confidence level: High (based on pipeline coverage of 3.2x)`,
     uploadedAt: new Date(Date.now() - 259200000),
-    folderId: "projects",
-    folderPath: "/projects",
+    folderId: "ai-project",
+    folderPath: "/projects/ai",
   },
   {
     id: "4",
@@ -236,6 +303,13 @@ export function useDocuments(currentFolderId: string | null = "root") {
     )
   }, [])
 
+  const findDocumentById = useCallback(
+    (documentId: string) => {
+      return documents.find((doc) => doc.id === documentId) || null
+    },
+    [documents]
+  )
+
   return {
     // State
     documents: filteredDocuments,
@@ -261,5 +335,6 @@ export function useDocuments(currentFolderId: string | null = "root") {
     handleDragLeave,
     handleDrop,
     moveDocument,
+    findDocumentById,
   }
 }

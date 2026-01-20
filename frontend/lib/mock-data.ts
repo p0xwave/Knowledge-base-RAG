@@ -13,6 +13,8 @@ export const mockSources = [
     fileType: "md",
     uploadedAt: new Date(Date.now() - ONE_DAY_MS),
     documentId: "doc-q3-financial-2024",
+    folderId: "projects",
+    folderPath: "/projects",
   },
   {
     id: "2",
@@ -23,6 +25,8 @@ export const mockSources = [
     fileType: "txt",
     uploadedAt: new Date(Date.now() - TWO_DAYS_MS),
     documentId: "doc-customer-analysis",
+    folderId: "research",
+    folderPath: "/research",
   },
   {
     id: "3",
@@ -33,6 +37,8 @@ export const mockSources = [
     fileType: "md",
     uploadedAt: new Date(Date.now() - THREE_DAYS_MS),
     documentId: "doc-sales-summary-q3",
+    folderId: "ai-project",
+    folderPath: "/projects/ai",
   },
 ] satisfies Source[]
 
