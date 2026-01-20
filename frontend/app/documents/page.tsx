@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,18 +14,33 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/empty-state"
-import { DocumentRow, UploadArea, DocumentStats, FolderTree } from "@/components/documents"
+import {
+  DocumentRow,
+  FolderRow,
+  UploadArea,
+  DocumentStats,
+  FolderTree,
+  FolderBreadcrumb,
+} from "@/components/documents"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useDocuments } from "@/hooks/useDocuments"
 import { useSearch } from "@/hooks/useSearch"
 import { useDateFormat } from "@/hooks/useDateFormat"
-import { useFolderStore, selectCurrentFolder } from "@/lib/store/folder-store"
+import {
+  useFolderStore,
+  selectCurrentFolder,
+  type Folder,
+} from "@/lib/store/folder-store"
 import { ArrowLeft, FileText, Search, Plus, FolderOpen, Download } from "lucide-react"
+import { toast } from "sonner"
 import Loading from "./loading"
 
 export default function DocumentsPage() {
+  const folders = useFolderStore((s) => s.folders)
   const currentFolderId = useFolderStore((s) => s.currentFolderId)
   const currentFolder = useFolderStore(selectCurrentFolder)
+  const updateFolder = useFolderStore((s) => s.updateFolder)
+  const deleteFolder = useFolderStore((s) => s.deleteFolder)
 
   const {
     documents,
@@ -49,11 +64,58 @@ export default function DocumentsPage() {
     handleDrop,
   } = useDocuments(currentFolderId)
 
+  // Folder dialogs state
+  const [renameFolderDialogOpen, setRenameFolderDialogOpen] = useState(false)
+  const [deleteFolderDialogOpen, setDeleteFolderDialogOpen] = useState(false)
+  const [folderToEdit, setFolderToEdit] = useState<Folder | null>(null)
+  const [newFolderName, setNewFolderName] = useState("")
+
+  // Get child folders of current folder
+  const childFolders = folders.filter((f) => f.parentId === currentFolderId)
+
   const { searchQuery, setSearchQuery, filteredItems } = useSearch(documents, (doc, query) =>
     doc.name.toLowerCase().includes(query)
   )
 
   const { formatRelativeDate, formatFileSize } = useDateFormat()
+
+  // Folder actions
+  const handleRenameFolder = (folder: Folder) => {
+    setFolderToEdit(folder)
+    setNewFolderName(folder.name)
+    setRenameFolderDialogOpen(true)
+  }
+
+  const handleDeleteFolder = (folder: Folder) => {
+    setFolderToEdit(folder)
+    setDeleteFolderDialogOpen(true)
+  }
+
+  const confirmRenameFolder = () => {
+    if (folderToEdit && newFolderName.trim() && newFolderName !== folderToEdit.name) {
+      updateFolder(folderToEdit.id, newFolderName.trim())
+      toast.success("Folder renamed")
+    }
+    setRenameFolderDialogOpen(false)
+    setFolderToEdit(null)
+    setNewFolderName("")
+  }
+
+  const confirmDeleteFolder = () => {
+    if (folderToEdit) {
+      deleteFolder(folderToEdit.id)
+      toast.success("Folder deleted")
+    }
+    setDeleteFolderDialogOpen(false)
+    setFolderToEdit(null)
+  }
+
+  const cancelFolderAction = () => {
+    setRenameFolderDialogOpen(false)
+    setDeleteFolderDialogOpen(false)
+    setFolderToEdit(null)
+    setNewFolderName("")
+  }
 
   return (
     <Suspense fallback={<Loading />}>
@@ -116,6 +178,9 @@ export default function DocumentsPage() {
               }
             />
 
+            {/* Breadcrumb */}
+            <FolderBreadcrumb />
+
             {/* Upload Area */}
             <UploadArea
               isDragging={isDragging}
@@ -144,20 +209,37 @@ export default function DocumentsPage() {
 
             {/* Documents List */}
             <ScrollArea className="flex-1" role="region" aria-label="Documents list">
-              {filteredItems.length === 0 ? (
+              {!searchQuery && childFolders.length === 0 && filteredItems.length === 0 ? (
                 <EmptyState
                   icon={FolderOpen}
-                  title={searchQuery ? "No documents found" : "No documents yet"}
-                  description={
-                    searchQuery
-                      ? "Try a different search term"
-                      : "Upload your first document to get started"
-                  }
+                  title="No documents yet"
+                  description="Upload your first document to get started"
+                  className="py-16"
+                  iconClassName="h-16 w-16 rounded-2xl mb-4"
+                />
+              ) : searchQuery && filteredItems.length === 0 ? (
+                <EmptyState
+                  icon={FolderOpen}
+                  title="No documents found"
+                  description="Try a different search term"
                   className="py-16"
                   iconClassName="h-16 w-16 rounded-2xl mb-4"
                 />
               ) : (
                 <div className="space-y-1">
+                  {/* Show folders first (only when not searching) */}
+                  {!searchQuery &&
+                    childFolders.map((folder) => (
+                      <FolderRow
+                        key={folder.id}
+                        folder={folder}
+                        onRename={handleRenameFolder}
+                        onDelete={handleDeleteFolder}
+                        formatDate={formatRelativeDate}
+                      />
+                    ))}
+
+                  {/* Then show documents */}
                   {filteredItems.map((doc) => (
                     <DocumentRow
                       key={doc.id}
@@ -208,7 +290,7 @@ export default function DocumentsPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        {/* Delete Document Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={cancelDelete}>
           <DialogContent>
             <DialogHeader>
@@ -223,6 +305,53 @@ export default function DocumentsPage() {
                 Cancel
               </Button>
               <Button variant="destructive" onClick={deleteDocument}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Rename Folder Dialog */}
+        <Dialog open={renameFolderDialogOpen} onOpenChange={cancelFolderAction}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Rename folder</DialogTitle>
+              <DialogDescription>Enter a new name for the folder.</DialogDescription>
+            </DialogHeader>
+            <Input
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Folder name"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") confirmRenameFolder()
+              }}
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={cancelFolderAction} className="bg-transparent">
+                Cancel
+              </Button>
+              <Button onClick={confirmRenameFolder} disabled={!newFolderName.trim()}>
+                Rename
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Folder Dialog */}
+        <Dialog open={deleteFolderDialogOpen} onOpenChange={cancelFolderAction}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete folder</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete &quot;{folderToEdit?.name}&quot;? This will also
+                delete all subfolders and documents inside. This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={cancelFolderAction} className="bg-transparent">
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteFolder}>
                 Delete
               </Button>
             </DialogFooter>

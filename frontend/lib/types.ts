@@ -25,6 +25,7 @@ export interface Source {
   uploadedAt?: Date
   folderId?: string | null
   folderPath?: string
+  documentId: string
 }
 
 export interface Conversation {

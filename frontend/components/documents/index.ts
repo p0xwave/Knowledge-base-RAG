@@ -1,4 +1,6 @@
 export { DocumentRow } from "./document-row"
+export { FolderRow } from "./folder-row"
 export { UploadArea } from "./upload-area"
 export { DocumentStats } from "./document-stats"
 export { FolderTree } from "./folder-tree"
+export { FolderBreadcrumb } from "./folder-breadcrumb"

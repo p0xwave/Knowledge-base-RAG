@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -38,6 +39,7 @@ const SOURCE_TYPE_ICONS = {
 }
 
 export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailModalProps) {
+  const router = useRouter()
   const { copied, copy } = useCopyFeedback()
 
   if (!source) return null
@@ -58,6 +60,10 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
   const colorClass = SOURCE_TYPE_COLORS[source.type]
 
   const handleCopy = () => copy(extendedData.fullContent)
+
+  const handleOpenOriginal = () => {
+    router.push(`/documents?id=${source.documentId}`)
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -224,7 +230,12 @@ export function SourceDetailModal({ source, open, onOpenChange }: SourceDetailMo
           <p className="text-muted-foreground text-xs">
             Source retrieved from your private database
           </p>
-          <Button variant="outline" size="sm" className="gap-2 bg-transparent">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 bg-transparent"
+            onClick={handleOpenOriginal}
+          >
             <ExternalLink className="h-3.5 w-3.5" />
             Open Original
           </Button>

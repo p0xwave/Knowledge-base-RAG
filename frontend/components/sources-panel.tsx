@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
@@ -84,6 +85,8 @@ interface SourceCardProps {
 }
 
 function SourceCard({ source }: SourceCardProps) {
+  const router = useRouter()
+
   const getFileExtension = (title: string) => {
     if (title.endsWith(".md")) return "MD"
     if (title.endsWith(".txt")) return "TXT"
@@ -93,6 +96,10 @@ function SourceCard({ source }: SourceCardProps) {
   const extension = getFileExtension(source.title)
   const Icon = source.title.endsWith(".md") ? FileText : File
   const colorClass = FILE_EXTENSION_COLORS[extension] || FILE_EXTENSION_COLORS.DOC
+
+  const handleOpen = () => {
+    router.push(`/documents?id=${source.documentId}`)
+  }
 
   return (
     <div className="group hover:bg-muted/50 cursor-pointer rounded-xl p-3 transition-colors">
@@ -119,6 +126,7 @@ function SourceCard({ source }: SourceCardProps) {
           variant="ghost"
           size="sm"
           className="text-muted-foreground hover:text-foreground h-7 gap-1.5 text-xs"
+          onClick={handleOpen}
         >
           <ExternalLink className="h-3 w-3" />
           Open
