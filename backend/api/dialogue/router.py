@@ -1,9 +1,8 @@
-"""FastAPI роутеры для Dialogue API."""
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth import get_current_user_id
 from db import get_db
-from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import controller
 from .models import (
@@ -30,9 +29,8 @@ router = APIRouter(tags=["Dialogue"], prefix="/api/dialogue")
 async def create_dialogue(
     data: CreateDialogue,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> DialogueResponse:
-    """Создание нового диалога."""
     return await controller.create_dialogue(data, user_id, db)
 
 
@@ -49,9 +47,8 @@ async def create_dialogue(
 async def get_dialogue(
     dialogue_id: int,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> DialogueResponse:
-    """Получение диалога по ID."""
     return await controller.get_dialogue(dialogue_id, user_id, db)
 
 
@@ -65,11 +62,12 @@ async def get_dialogue(
     description="Возвращает список всех диалогов пользователя. Поддерживает фильтрацию по имени. Требует JWT токен.",
 )
 async def get_dialogues(
-    query: str | None = Query(None, description="Поисковый запрос для фильтрации по имени"),
+    query: str | None = Query(
+        None, description="Поисковый запрос для фильтрации по имени"
+    ),
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> list[ShortDialogue]:
-    """Получение списка диалогов."""
     return await controller.get_dialogues(user_id, query, db)
 
 
@@ -87,9 +85,8 @@ async def update_dialogue(
     dialogue_id: int,
     changes: UpdateDialogue,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> None:
-    """Обновление диалога."""
     await controller.update_dialogue(dialogue_id, changes, user_id, db)
 
 
@@ -106,7 +103,6 @@ async def update_dialogue(
 async def delete_dialogue(
     dialogue_id: int,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> None:
-    """Удаление диалога."""
     await controller.delete_dialogue(dialogue_id, user_id, db)

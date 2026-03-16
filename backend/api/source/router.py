@@ -1,12 +1,11 @@
-"""FastAPI роутеры для Source API."""
-
 import io
 
-from auth import get_current_user_id
-from db import get_db
 from fastapi import APIRouter, Depends, Query, UploadFile, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from auth import get_current_user_id
+from db import get_db
 
 from . import controller
 from .models import ErrorMessage, SourceContent, SourceForList, SourcesList
@@ -28,9 +27,8 @@ router = APIRouter(tags=["Source"], prefix="/api/source")
 async def upload_source(
     file: UploadFile,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> SourceForList:
-    """Загрузка нового источника."""
     return await controller.upload_source(file, user_id, db)
 
 
@@ -44,13 +42,16 @@ async def upload_source(
     description="Возвращает список всех источников пользователя с пагинацией. Поддерживает фильтрацию по имени. Требует JWT токен.",
 )
 async def get_sources_list(
-    query: str | None = Query(None, description="Поисковый запрос для фильтрации по имени"),
+    query: str | None = Query(
+        None, description="Поисковый запрос для фильтрации по имени"
+    ),
     page: int = Query(1, ge=1, description="Номер страницы"),
-    limit: int = Query(10, ge=1, le=100, description="Количество элементов на странице"),
+    limit: int = Query(
+        10, ge=1, le=100, description="Количество элементов на странице"
+    ),
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> SourcesList:
-    """Получение списка источников с пагинацией."""
     return await controller.get_sources_list(user_id, query, page, limit, db)
 
 
@@ -67,9 +68,8 @@ async def get_sources_list(
 async def get_source(
     source_id: int,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> SourceContent:
-    """Получение содержимого источника."""
     return await controller.get_source(source_id, user_id, db)
 
 
@@ -85,17 +85,16 @@ async def get_source(
 async def download_source(
     source_id: int,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> StreamingResponse:
-    """Скачивание файла источника."""
-    filename, content, media_type = await controller.download_source(source_id, user_id, db)
+    filename, content, media_type = await controller.download_source(
+        source_id, user_id, db
+    )
 
     return StreamingResponse(
         content=io.BytesIO(content.encode("utf-8")),
         media_type=media_type,
-        headers={
-            "Content-Disposition": f'attachment; filename="{filename}"'
-        }
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
@@ -112,7 +111,6 @@ async def download_source(
 async def delete_source(
     source_id: int,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> None:
-    """Удаление источника."""
     await controller.delete_source(source_id, user_id, db)

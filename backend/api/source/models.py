@@ -1,13 +1,9 @@
-"""Pydantic модели для Source API."""
-
 from enum import Enum
 
 from pydantic import BaseModel
 
 
 class SourceType(str, Enum):
-    """Тип источника."""
-
     md = "md"
     txt = "txt"
     pdf = "pdf"
@@ -15,8 +11,6 @@ class SourceType(str, Enum):
 
 
 class SourceForList(BaseModel):
-    """Источник в списке."""
-
     source_id: int
     name: str
     source_type: SourceType
@@ -25,8 +19,6 @@ class SourceForList(BaseModel):
 
 
 class SourcesList(BaseModel):
-    """Список источников с пагинацией."""
-
     total_count: int
     total_size_bytes: int
     page: int
@@ -36,8 +28,6 @@ class SourcesList(BaseModel):
 
 
 class SourceContent(BaseModel):
-    """Содержимое источника."""
-
     source_id: int
     name: str
     source_type: SourceType
@@ -47,6 +37,4 @@ class SourceContent(BaseModel):
 
 
 class ErrorMessage(BaseModel):
-    """Модель ошибки."""
-
     detail: str

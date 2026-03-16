@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-  # PostgreSQL база данных
   postgres:
     image: postgres:16-alpine
     container_name: kb_postgres
@@ -21,7 +20,6 @@ services:
     networks:
       - kb_network
 
-  # Backend API (схемы, пользователи, диалоги)
   backend:
     build:
       context: ./backend
@@ -45,34 +43,30 @@ services:
     volumes:
       - ./backend:/app
     networks:
-      - kb_network        # Доступ к postgres (primary network для DNS)
-      - zz_backend_executor  # Доступ к code-executor
+      - kb_network
+      - zz_backend_executor
     command: uvicorn app:app --host 0.0.0.0 --port 8001 --reload
 
-  # Code Executor сервис (выполнение кода) - HARDENED SECURITY
   code-executor:
     build:
       context: ./code-executor
       dockerfile: Dockerfile
     container_name: kb_code_executor
 
-    # SECURITY: Подключен к двум сетям
     networks:
-      - zz_backend_executor  # Для коммуникации с backend (bridge с DNS)
-      - executor_network  # Дополнительная изоляция (internal)
+      - zz_backend_executor
+      - executor_network
 
-    # SECURITY: Read-only filesystem с tmpfs для временных файлов
     read_only: true
     tmpfs:
       - /tmp:size=100M,mode=1777
       - /run:size=10M,mode=755
 
-    # SECURITY: Ограничения ресурсов (предотвращает DoS)
     deploy:
       resources:
         limits:
-          cpus: "0.5" # Максимум 50% одного ядра
-          memory: 512M # Максимум 512 МБ памяти
+          cpus: "0.5"
+          memory: 512M
         reservations:
           cpus: "0.1"
           memory: 128M
@@ -80,17 +74,14 @@ services:
         condition: on-failure
         max_attempts: 3
 
-    # SECURITY: Дополнительные ограничения
     security_opt:
-      - no-new-privileges:true # Запрет повышения привилегий
+      - no-new-privileges:true
     cap_drop:
-      - ALL # Удаляем ВСЕ capabilities
+      - ALL
 
-    # Expose только для внутренней сети (НЕ публикуем порт наружу!)
     expose:
       - "8002"
 
-    # DEV ONLY: Volumes для разработки (закомментировать в production!)
     volumes:
       - ./code-executor:/app
 
@@ -109,7 +100,6 @@ services:
       retries: 3
       start_period: 5s
 
-  # API сервис (RAG inference)
   api:
     build:
       context: ./api
@@ -141,7 +131,6 @@ services:
       - kb_network
     command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 
-  # Frontend (Next.js)
   frontend:
     build:
       context: ./frontend
@@ -163,7 +152,6 @@ services:
       - kb_network
     command: pnpm dev
 
-  # Telegram bot (опционально)
   tgbot:
     build:
       context: ./tgbot
@@ -183,7 +171,7 @@ services:
       - kb_network
     command: python -m tgbot
     profiles:
-      - with-bot # Запускается только с --profile with-bot
+      - with-bot
 
 volumes:
   postgres_data:
@@ -192,12 +180,9 @@ networks:
   kb_network:
     driver: bridge
 
-  # Сеть для коммуникации backend <-> code-executor (с DNS для резолвинга имен)
-  # Название начинается с 'z' чтобы быть ПОСЛЕДНЕЙ в алфавитном порядке (для DNS resolution через kb_network)
   zz_backend_executor:
     driver: bridge
 
-  # Изолированная сеть для code-executor (БЕЗ доступа к интернету!)
   executor_network:
     driver: bridge
-    internal: true # КРИТИЧНО: нет доступа к внешней сети
+    internal: true

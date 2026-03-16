@@ -1,9 +1,8 @@
-"""FastAPI роутеры для Message API."""
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth import get_current_user_id
 from db import get_db
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import controller
 from .models import ErrorMessage, MessageFeedback, MessageResponse, SendMessage
@@ -27,9 +26,8 @@ router = APIRouter(tags=["Message"], prefix="/api/message")
 async def send_message(
     data: SendMessage,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> MessageResponse:
-    """Отправка сообщения и получение ответа от RAG."""
     return await controller.send_message(data, user_id, db)
 
 
@@ -46,7 +44,6 @@ async def send_message(
 async def set_feedback(
     data: MessageFeedback,
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> None:
-    """Установка обратной связи на сообщение."""
     await controller.set_message_feedback(data, user_id, db)
