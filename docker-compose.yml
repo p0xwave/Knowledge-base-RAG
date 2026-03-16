@@ -1,0 +1,188 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kb_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DATABASE:-knowledge_base_rag}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kb_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kb_backend
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-knowledge_base_rag}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-super-secret-key}
+      - JWT_ALGORITHM=HS256
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      code-executor:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - kb_network
+      - zz_backend_executor
+    command: uvicorn app:app --host 0.0.0.0 --port 8001 --reload
+
+  code-executor:
+    build:
+      context: ./code-executor
+      dockerfile: Dockerfile
+    container_name: kb_code_executor
+
+    networks:
+      - zz_backend_executor
+      - executor_network
+
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,mode=1777
+      - /run:size=10M,mode=755
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+    expose:
+      - "8002"
+
+    volumes:
+      - ./code-executor:/app
+
+    command: uvicorn app:app --host 0.0.0.0 --port 8002 --reload
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8002/health').read()",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: kb_api
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-knowledge_base_rag}
+      - CHROMADB_PATH=/app/data/chromadb
+      - CHROMADB_COLLECTION=docs_fast
+      - MODEL_NAME=BAAI/bge-base-en-v1.5
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-super-secret-key}
+      - ADMIN_LOGIN=${ADMIN_LOGIN:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - ADMIN_DELETE_TOKEN=${ADMIN_DELETE_TOKEN:-admin-token}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./api:/app
+      - ./data:/app/data
+    networks:
+      - kb_network
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kb_frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8001
+      - NEXT_PUBLIC_RAG_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+      - api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - kb_network
+    command: pnpm dev
+
+  tgbot:
+    build:
+      context: ./tgbot
+      dockerfile: Dockerfile
+    container_name: kb_tgbot
+    environment:
+      - API_URL=http://api:8000/forward
+      - API_HISTORY_URL=http://api:8000/history
+      - API_STATS_URL=http://api:8000/stats
+      - TGBOT_TOKEN=${TGBOT_TOKEN}
+      - ALLOWED_USERS=${ALLOWED_USERS:-[]}
+    depends_on:
+      - api
+    volumes:
+      - ./tgbot:/app
+    networks:
+      - kb_network
+    command: python -m tgbot
+    profiles:
+      - with-bot
+
+volumes:
+  postgres_data:
+
+networks:
+  kb_network:
+    driver: bridge
+
+  zz_backend_executor:
+    driver: bridge
+
+  executor_network:
+    driver: bridge
+    internal: true

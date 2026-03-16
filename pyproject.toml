@@ -10,6 +10,7 @@ members = [
     "api",
     "tgbot",
     "backend",
+    "code-executor",
 ]
 
 [tool.uv.sources]
@@ -30,6 +31,7 @@ max-args = 7
 [dependency-groups]
 dev = [
     "black>=25.9.0",
+    "pyright>=1.1.408",
     "ruff>=0.13.3",
 ]
 
