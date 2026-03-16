@@ -45,8 +45,6 @@ async def test_execute_code_with_imports(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_execute_numpy_code(client: AsyncClient):
-    pytest.importorskip("numpy")
-
     response = await client.post(
         "/execute", json={"code": "result = np.array([1, 2, 3]).sum()", "timeout": 5}
     )
@@ -60,8 +58,6 @@ async def test_execute_numpy_code(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_execute_pandas_code(client: AsyncClient):
-    pytest.importorskip("pandas")
-
     response = await client.post(
         "/execute",
         json={
@@ -79,8 +75,6 @@ async def test_execute_pandas_code(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_execute_torch_code(client: AsyncClient):
-    pytest.importorskip("torch")
-
     response = await client.post(
         "/execute",
         json={

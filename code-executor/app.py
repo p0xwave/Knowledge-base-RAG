@@ -1,7 +1,6 @@
 import ast
+import multiprocessing
 import traceback
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import TimeoutError as FuturesTimeoutError
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from typing import Any
@@ -10,6 +9,7 @@ from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import guarded_iter_unpack_sequence, safer_getattr
+from RestrictedPython.PrintCollector import PrintCollector
 
 app = FastAPI(title="Code Executor Service")
 
@@ -145,12 +145,6 @@ def validate_code_ast(code: str) -> list[str]:
 
 
 def create_safe_namespace() -> dict[str, Any]:
-    import sys
-
-    class SimplePrint:
-        def __call__(self, *args, **kwargs):
-            print(*args, **kwargs, file=sys.stdout)
-
     namespace = {
         "int": int,
         "float": float,
@@ -199,7 +193,8 @@ def create_safe_namespace() -> dict[str, Any]:
         "_getiter_": iter,
         "_iter_unpack_sequence_": guarded_iter_unpack_sequence,
         "_getattr_": safer_getattr,
-        "_print_": SimplePrint(),
+        "_print_": PrintCollector,
+        "_getitem_": lambda obj, index: obj[index],
     }
 
     builtin_import = (
@@ -252,30 +247,61 @@ def create_safe_namespace() -> dict[str, Any]:
     return namespace
 
 
-def execute_code_with_timeout(code: str, timeout: int) -> CodeResponse:
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(execute_code_restricted, code)
+def _worker_execute_code(code: str, result_queue):
+    """Worker function that runs in separate process. Must be at module level for pickling."""
+    try:
+        response = execute_code_restricted(code)
+        result_queue.put(("success", response.model_dump()))
+    except Exception as e:
+        result_queue.put(
+            (
+                "error",
+                {
+                    "success": False,
+                    "stdout": "",
+                    "stderr": "",
+                    "result": None,
+                    "error": f"Execution error: {type(e).__name__}: {str(e)}",
+                },
+            )
+        )
 
-        try:
-            result = future.result(timeout=timeout)
-            return result
-        except FuturesTimeoutError:
-            future.cancel()
-            return CodeResponse(
-                success=False,
-                stdout="",
-                stderr="",
-                result=None,
-                error=f"TimeoutError: Code execution exceeded {timeout} seconds",
-            )
-        except Exception as e:
-            return CodeResponse(
-                success=False,
-                stdout="",
-                stderr="",
-                result=None,
-                error=f"Execution error: {type(e).__name__}: {str(e)}",
-            )
+
+def execute_code_with_timeout(code: str, timeout: int) -> CodeResponse:
+    ctx = multiprocessing.get_context("spawn")
+    queue = ctx.Queue()
+
+    process = ctx.Process(target=_worker_execute_code, args=(code, queue))
+    process.start()
+    process.join(timeout=timeout)
+
+    if process.is_alive():
+        process.terminate()
+        process.join(timeout=1)
+
+        if process.is_alive():
+            process.kill()
+            process.join()
+
+        return CodeResponse(
+            success=False,
+            stdout="",
+            stderr="",
+            result=None,
+            error=f"TimeoutError: Code execution exceeded {timeout} seconds",
+        )
+
+    if not queue.empty():
+        _, data = queue.get()
+        return CodeResponse(**data)
+
+    return CodeResponse(
+        success=False,
+        stdout="",
+        stderr="",
+        result=None,
+        error="Process terminated unexpectedly",
+    )
 
 
 def execute_code_restricted(code: str) -> CodeResponse:
@@ -302,7 +328,12 @@ def execute_code_restricted(code: str) -> CodeResponse:
             exec(byte_code, namespace)
             result = namespace.get("result", None)
 
-        stdout_str = stdout_capture.getvalue()
+        print_output = ""
+        _print_instance = namespace.get("_print")
+        if _print_instance and hasattr(_print_instance, "txt"):
+            print_output = "".join(_print_instance.txt)
+
+        stdout_str = print_output + stdout_capture.getvalue()
         stderr_str = stderr_capture.getvalue()
 
         if len(stdout_str) > MAX_OUTPUT_SIZE:
