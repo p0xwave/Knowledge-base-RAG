@@ -13,8 +13,7 @@ async def test_upload_source(client: AsyncClient, create_user):
     await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
@@ -24,9 +23,7 @@ async def test_upload_source(client: AsyncClient, create_user):
 
     # Загрузка файла
     response = await client.post(
-        "/api/source",
-        headers={"Authorization": f"Bearer {token}"},
-        files=files
+        "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
     )
 
     assert response.status_code == 201
@@ -42,18 +39,10 @@ async def test_upload_source(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_upload_source_txt(client: AsyncClient, create_user):
     """Тест загрузки текстового файла."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
@@ -61,9 +50,7 @@ async def test_upload_source_txt(client: AsyncClient, create_user):
     files = {"file": ("notes.txt", io.BytesIO(file_content.encode()), "text/plain")}
 
     response = await client.post(
-        "/api/source",
-        headers={"Authorization": f"Bearer {token}"},
-        files=files
+        "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
     )
 
     assert response.status_code == 201
@@ -73,27 +60,17 @@ async def test_upload_source_txt(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_upload_source_empty_file(client: AsyncClient, create_user):
     """Тест загрузки пустого файла."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
     files = {"file": ("empty.txt", io.BytesIO(b""), "text/plain")}
 
     response = await client.post(
-        "/api/source",
-        headers={"Authorization": f"Bearer {token}"},
-        files=files
+        "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
     )
 
     assert response.status_code == 400
@@ -103,18 +80,10 @@ async def test_upload_source_empty_file(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_upload_source_unsupported_type(client: AsyncClient, create_user):
     """Тест загрузки файла неподдерживаемого типа."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
@@ -122,9 +91,7 @@ async def test_upload_source_unsupported_type(client: AsyncClient, create_user):
     files = {"file": ("file.exe", io.BytesIO(file_content), "application/exe")}
 
     response = await client.post(
-        "/api/source",
-        headers={"Authorization": f"Bearer {token}"},
-        files=files
+        "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
     )
 
     assert response.status_code == 400
@@ -134,34 +101,29 @@ async def test_upload_source_unsupported_type(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_get_sources_list(client: AsyncClient, create_user):
     """Тест получения списка источников."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
     # Загрузка нескольких файлов
     for i in range(3):
-        files = {"file": (f"file{i}.md", io.BytesIO(f"Content {i}".encode()), "text/markdown")}
+        files = {
+            "file": (
+                f"file{i}.md",
+                io.BytesIO(f"Content {i}".encode()),
+                "text/markdown",
+            )
+        }
         await client.post(
-            "/api/source",
-            headers={"Authorization": f"Bearer {token}"},
-            files=files
+            "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
         )
 
     # Получение списка
     response = await client.get(
-        "/api/source",
-        headers={"Authorization": f"Bearer {token}"}
+        "/api/source", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 200
@@ -176,34 +138,25 @@ async def test_get_sources_list(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_get_sources_list_with_pagination(client: AsyncClient, create_user):
     """Тест пагинации списка источников."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
     # Загрузка 5 файлов
     for i in range(5):
-        files = {"file": (f"file{i}.txt", io.BytesIO(f"Content {i}".encode()), "text/plain")}
+        files = {
+            "file": (f"file{i}.txt", io.BytesIO(f"Content {i}".encode()), "text/plain")
+        }
         await client.post(
-            "/api/source",
-            headers={"Authorization": f"Bearer {token}"},
-            files=files
+            "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
         )
 
     # Страница 1, limit=2
     response = await client.get(
-        "/api/source?page=1&limit=2",
-        headers={"Authorization": f"Bearer {token}"}
+        "/api/source?page=1&limit=2", headers={"Authorization": f"Bearer {token}"}
     )
 
     data = response.json()
@@ -215,18 +168,10 @@ async def test_get_sources_list_with_pagination(client: AsyncClient, create_user
 @pytest.mark.asyncio
 async def test_get_sources_list_with_search(client: AsyncClient, create_user):
     """Тест фильтрации списка источников."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
@@ -234,21 +179,18 @@ async def test_get_sources_list_with_search(client: AsyncClient, create_user):
     files_to_upload = [
         ("pytorch_guide.md", "PyTorch guide"),
         ("tensorflow_doc.txt", "TensorFlow doc"),
-        ("pytorch_tutorial.md", "PyTorch tutorial")
+        ("pytorch_tutorial.md", "PyTorch tutorial"),
     ]
 
     for filename, content in files_to_upload:
         files = {"file": (filename, io.BytesIO(content.encode()), "text/plain")}
         await client.post(
-            "/api/source",
-            headers={"Authorization": f"Bearer {token}"},
-            files=files
+            "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
         )
 
     # Поиск по "pytorch"
     response = await client.get(
-        "/api/source?query=pytorch",
-        headers={"Authorization": f"Bearer {token}"}
+        "/api/source?query=pytorch", headers={"Authorization": f"Bearer {token}"}
     )
 
     data = response.json()
@@ -259,36 +201,27 @@ async def test_get_sources_list_with_search(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_get_source_content(client: AsyncClient, create_user):
     """Тест получения содержимого источника."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
     # Загрузка файла
     file_content = "# PyTorch Tutorial\n\nThis is a guide."
-    files = {"file": ("tutorial.md", io.BytesIO(file_content.encode()), "text/markdown")}
+    files = {
+        "file": ("tutorial.md", io.BytesIO(file_content.encode()), "text/markdown")
+    }
 
     upload_response = await client.post(
-        "/api/source",
-        headers={"Authorization": f"Bearer {token}"},
-        files=files
+        "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
     )
     source_id = upload_response.json()["source_id"]
 
     # Получение содержимого
     response = await client.get(
-        f"/api/source/{source_id}",
-        headers={"Authorization": f"Bearer {token}"}
+        f"/api/source/{source_id}", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 200
@@ -302,24 +235,15 @@ async def test_get_source_content(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_get_source_not_found(client: AsyncClient, create_user):
     """Тест получения несуществующего источника."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
     response = await client.get(
-        "/api/source/99999",
-        headers={"Authorization": f"Bearer {token}"}
+        "/api/source/99999", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 404
@@ -328,18 +252,10 @@ async def test_get_source_not_found(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_download_source(client: AsyncClient, create_user):
     """Тест скачивания источника."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
@@ -348,16 +264,14 @@ async def test_download_source(client: AsyncClient, create_user):
     files = {"file": ("download.txt", io.BytesIO(file_content.encode()), "text/plain")}
 
     upload_response = await client.post(
-        "/api/source",
-        headers={"Authorization": f"Bearer {token}"},
-        files=files
+        "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
     )
     source_id = upload_response.json()["source_id"]
 
     # Скачивание
     response = await client.get(
         f"/api/source/{source_id}/download",
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {token}"},
     )
 
     assert response.status_code == 200
@@ -369,42 +283,30 @@ async def test_download_source(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_delete_source(client: AsyncClient, create_user):
     """Тест удаления источника."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
     # Загрузка файла
     files = {"file": ("to_delete.md", io.BytesIO(b"Content"), "text/markdown")}
     upload_response = await client.post(
-        "/api/source",
-        headers={"Authorization": f"Bearer {token}"},
-        files=files
+        "/api/source", headers={"Authorization": f"Bearer {token}"}, files=files
     )
     source_id = upload_response.json()["source_id"]
 
     # Удаление
     response = await client.delete(
-        f"/api/source/{source_id}",
-        headers={"Authorization": f"Bearer {token}"}
+        f"/api/source/{source_id}", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 204
 
     # Проверка, что источник удален
     get_response = await client.get(
-        f"/api/source/{source_id}",
-        headers={"Authorization": f"Bearer {token}"}
+        f"/api/source/{source_id}", headers={"Authorization": f"Bearer {token}"}
     )
     assert get_response.status_code == 404
 
@@ -412,24 +314,15 @@ async def test_delete_source(client: AsyncClient, create_user):
 @pytest.mark.asyncio
 async def test_delete_source_not_found(client: AsyncClient, create_user):
     """Тест удаления несуществующего источника."""
-    await create_user(
-        "test@example.com", "password123", "testuser"
-        json={
-            "email": "test@example.com",
-            "password": "password123",
-            "username": "testuser"
-        }
-    )
+    await create_user("test@example.com", "password123", "testuser")
     # Аутентификация для получения токена
     auth_response = await client.post(
-        "/api/user/auth",
-        json={"email": "test@example.com", "password": "password123"}
+        "/api/user/auth", json={"email": "test@example.com", "password": "password123"}
     )
     token = auth_response.json()["access_token"]
 
     response = await client.delete(
-        "/api/source/99999",
-        headers={"Authorization": f"Bearer {token}"}
+        "/api/source/99999", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 404
