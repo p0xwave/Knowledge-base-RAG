@@ -70,7 +70,7 @@ async def send_message(
     return MessageResponse(
         message_id=new_message.id,
         user_message=new_message.user_message,
-        assistant_response=new_message.assistant_response,
+        assistant_response=assistant_response,  # Use local var instead of db field
         sources=sources,
         code_executions=code_executions,
         created_at=new_message.created_at.isoformat(),

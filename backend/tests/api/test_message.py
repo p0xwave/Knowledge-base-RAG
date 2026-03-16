@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from httpx import AsyncClient
@@ -24,7 +24,7 @@ async def test_send_message_success(client: AsyncClient, create_user):
     with patch("api.message.controller.httpx.AsyncClient") as mock_client:
         mock_response = AsyncMock()
         mock_response.json = AsyncMock(return_value=mock_rag_response)
-        mock_response.raise_for_status = AsyncMock()
+        mock_response.raise_for_status = Mock()
 
         mock_post = AsyncMock(return_value=mock_response)
         mock_client.return_value.__aenter__.return_value.post = mock_post
@@ -123,7 +123,7 @@ async def test_set_feedback_like(client: AsyncClient, create_user):
     with patch("api.message.controller.httpx.AsyncClient") as mock_client:
         mock_response = AsyncMock()
         mock_response.json = AsyncMock(return_value={"response": "Answer"})
-        mock_response.raise_for_status = AsyncMock()
+        mock_response.raise_for_status = Mock()
         mock_client.return_value.__aenter__.return_value.post = AsyncMock(
             return_value=mock_response
         )
@@ -163,7 +163,7 @@ async def test_set_feedback_dislike(client: AsyncClient, create_user):
     with patch("api.message.controller.httpx.AsyncClient") as mock_client:
         mock_response = AsyncMock()
         mock_response.json = AsyncMock(return_value={"response": "Answer"})
-        mock_response.raise_for_status = AsyncMock()
+        mock_response.raise_for_status = Mock()
         mock_client.return_value.__aenter__.return_value.post = AsyncMock(
             return_value=mock_response
         )
@@ -232,11 +232,11 @@ async def test_send_message_with_code_execution(client: AsyncClient, create_user
     with patch("api.message.controller.httpx.AsyncClient") as mock_client:
         mock_rag = AsyncMock()
         mock_rag.json = AsyncMock(return_value=mock_rag_response)
-        mock_rag.raise_for_status = AsyncMock()
+        mock_rag.raise_for_status = Mock()
 
         mock_executor = AsyncMock()
         mock_executor.json = AsyncMock(return_value=mock_executor_response)
-        mock_executor.raise_for_status = AsyncMock()
+        mock_executor.raise_for_status = Mock()
 
         mock_post = AsyncMock(side_effect=[mock_rag, mock_executor])
         mock_client.return_value.__aenter__.return_value.post = mock_post
@@ -295,15 +295,15 @@ async def test_send_message_with_multiple_code_blocks(client: AsyncClient, creat
     with patch("api.message.controller.httpx.AsyncClient") as mock_client:
         mock_rag = AsyncMock()
         mock_rag.json = AsyncMock(return_value=mock_rag_response)
-        mock_rag.raise_for_status = AsyncMock()
+        mock_rag.raise_for_status = Mock()
 
         mock_executor_1 = AsyncMock()
         mock_executor_1.json = AsyncMock(return_value=mock_executor_response_1)
-        mock_executor_1.raise_for_status = AsyncMock()
+        mock_executor_1.raise_for_status = Mock()
 
         mock_executor_2 = AsyncMock()
         mock_executor_2.json = AsyncMock(return_value=mock_executor_response_2)
-        mock_executor_2.raise_for_status = AsyncMock()
+        mock_executor_2.raise_for_status = Mock()
 
         mock_post = AsyncMock(side_effect=[mock_rag, mock_executor_1, mock_executor_2])
         mock_client.return_value.__aenter__.return_value.post = mock_post
@@ -351,11 +351,11 @@ async def test_send_message_with_code_execution_error(client: AsyncClient, creat
     with patch("api.message.controller.httpx.AsyncClient") as mock_client:
         mock_rag = AsyncMock()
         mock_rag.json = AsyncMock(return_value=mock_rag_response)
-        mock_rag.raise_for_status = AsyncMock()
+        mock_rag.raise_for_status = Mock()
 
         mock_executor = AsyncMock()
         mock_executor.json = AsyncMock(return_value=mock_executor_response)
-        mock_executor.raise_for_status = AsyncMock()
+        mock_executor.raise_for_status = Mock()
 
         mock_post = AsyncMock(side_effect=[mock_rag, mock_executor])
         mock_client.return_value.__aenter__.return_value.post = mock_post
@@ -397,7 +397,7 @@ async def test_send_message_code_executor_unavailable(client: AsyncClient, creat
     with patch("api.message.controller.httpx.AsyncClient") as mock_client:
         mock_rag = AsyncMock()
         mock_rag.json = AsyncMock(return_value=mock_rag_response)
-        mock_rag.raise_for_status = AsyncMock()
+        mock_rag.raise_for_status = Mock()
 
         mock_post = AsyncMock(
             side_effect=[mock_rag, httpx.RequestError("Connection failed")]

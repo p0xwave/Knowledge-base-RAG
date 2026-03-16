@@ -26,4 +26,4 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 
 
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]
