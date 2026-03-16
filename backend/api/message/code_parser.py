@@ -1,7 +1,6 @@
 """Парсинг и выполнение кода из ответов RAG."""
 
 import re
-from typing import Optional
 
 import httpx
 

@@ -1,13 +1,12 @@
 """Backend API сервис - определение схем и API контрактов."""
 
-from db import close_db, init_db
-from fastapi import FastAPI
-
 # Импорт роутеров из модульной структуры
 from api.dialogue import router as dialogue_router
 from api.message import router as message_router
 from api.source import router as source_router
 from api.user import router as user_router
+from db import close_db, init_db
+from fastapi import FastAPI
 
 app = FastAPI(docs_url="/api/docs", title="Knowledge Base RAG Backend API")
 

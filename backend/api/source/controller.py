@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import SourceContent, SourceForList, SourcesList, SourceType
 
-
 # Максимальный размер файла (10 MB)
 MAX_FILE_SIZE = 10 * 1024 * 1024
 

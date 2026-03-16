@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import controller
 from .models import AuthResponse, ErrorMessage, User, UserAuth, UserChanges
+
 # UserRegister не используется (регистрация отключена)
 
 router = APIRouter(tags=["User"], prefix="/api/user")

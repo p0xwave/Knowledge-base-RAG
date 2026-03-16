@@ -1,9 +1,8 @@
 """Pytest configuration for code-executor tests."""
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-
 from app import app
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.fixture(scope="function")

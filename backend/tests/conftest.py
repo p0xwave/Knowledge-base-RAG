@@ -4,8 +4,8 @@ import asyncio
 import os
 from typing import AsyncGenerator
 
-import pytest
 import bcrypt as bcrypt_lib
+import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from sqlalchemy import text

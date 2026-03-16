@@ -11,17 +11,16 @@ SECURITY FEATURES:
 
 import ast
 import traceback
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FuturesTimeoutError
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
-from contextlib import redirect_stdout, redirect_stderr
 from typing import Any
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import guarded_iter_unpack_sequence, safer_getattr
-from RestrictedPython.PrintCollector import PrintCollector
-
 
 app = FastAPI(title="Code Executor Service")
 
@@ -99,7 +98,9 @@ DANGEROUS_MODULES = {
 def safe_import(name: str, *args, **kwargs):
     """Безопасный импорт - блокирует опасные модули."""
     if name in DANGEROUS_MODULES or name.split(".")[0] in DANGEROUS_MODULES:
-        raise ImportError(f"Import of module '{name}' is not allowed for security reasons")
+        raise ImportError(
+            f"Import of module '{name}' is not allowed for security reasons"
+        )
     return __import__(name, *args, **kwargs)
 
 
@@ -110,7 +111,19 @@ class CodeValidator(ast.NodeVisitor):
     ALLOWED_MODULES = {"math", "random", "datetime", "json", "numpy", "pandas", "torch"}
 
     # Запрещенные функции (уже блокируются RestrictedPython, но добавим для ясности)
-    BLOCKED_FUNCTIONS = {"open", "eval", "exec", "compile", "input", "__import__", "globals", "locals", "vars", "dir", "help"}
+    BLOCKED_FUNCTIONS = {
+        "open",
+        "eval",
+        "exec",
+        "compile",
+        "input",
+        "__import__",
+        "globals",
+        "locals",
+        "vars",
+        "dir",
+        "help",
+    }
 
     def __init__(self):
         self.errors = []
@@ -250,7 +263,11 @@ def create_safe_namespace() -> dict[str, Any]:
 
     # Добавляем разрешенные модули используя СИСТЕМНЫЙ __import__
     # (не safe_import, так как мы сами контролируем что импортируем)
-    builtin_import = __builtins__["__import__"] if isinstance(__builtins__, dict) else __builtins__.__import__
+    builtin_import = (
+        __builtins__["__import__"]
+        if isinstance(__builtins__, dict)
+        else __builtins__.__import__
+    )
 
     try:
         namespace["math"] = builtin_import("math")
@@ -319,7 +336,7 @@ def execute_code_with_timeout(code: str, timeout: int) -> CodeResponse:
                 stdout="",
                 stderr="",
                 result=None,
-                error=f"TimeoutError: Code execution exceeded {timeout} seconds"
+                error=f"TimeoutError: Code execution exceeded {timeout} seconds",
             )
         except Exception as e:
             return CodeResponse(
@@ -327,7 +344,7 @@ def execute_code_with_timeout(code: str, timeout: int) -> CodeResponse:
                 stdout="",
                 stderr="",
                 result=None,
-                error=f"Execution error: {type(e).__name__}: {str(e)}"
+                error=f"Execution error: {type(e).__name__}: {str(e)}",
             )
 
 
@@ -354,17 +371,13 @@ def execute_code_restricted(code: str) -> CodeResponse:
                 stdout="",
                 stderr="",
                 result=None,
-                error=f"Security validation failed:\n{error_msg}"
+                error=f"Security validation failed:\n{error_msg}",
             )
 
         # ВТОРОЙ УРОВЕНЬ ЗАЩИТЫ: Компиляция с RestrictedPython (AST трансформация)
         # В RestrictedPython 8.x compile_restricted возвращает code object
         # и выбрасывает SyntaxError при ошибках компиляции
-        byte_code = compile_restricted(
-            code,
-            filename="<user_code>",
-            mode="exec"
-        )
+        byte_code = compile_restricted(code, filename="<user_code>", mode="exec")
 
         # Создание безопасного namespace
         namespace = create_safe_namespace()
@@ -391,7 +404,7 @@ def execute_code_restricted(code: str) -> CodeResponse:
             stdout=stdout_str,
             stderr=stderr_str,
             result=str(result) if result is not None else None,
-            error=None
+            error=None,
         )
 
     except ImportError as e:
@@ -400,7 +413,7 @@ def execute_code_restricted(code: str) -> CodeResponse:
             stdout=stdout_capture.getvalue(),
             stderr=stderr_capture.getvalue(),
             result=None,
-            error=f"ImportError: {str(e)}"
+            error=f"ImportError: {str(e)}",
         )
 
     except SyntaxError as e:
@@ -409,7 +422,7 @@ def execute_code_restricted(code: str) -> CodeResponse:
             stdout=stdout_capture.getvalue(),
             stderr=stderr_capture.getvalue(),
             result=None,
-            error=f"SyntaxError: {str(e)}"
+            error=f"SyntaxError: {str(e)}",
         )
 
     except Exception as e:
@@ -421,7 +434,7 @@ def execute_code_restricted(code: str) -> CodeResponse:
             stdout=stdout_capture.getvalue(),
             stderr=stderr_capture.getvalue(),
             result=None,
-            error=f"{type(e).__name__}: {str(e)}\n{tb}"
+            error=f"{type(e).__name__}: {str(e)}\n{tb}",
         )
 
 
@@ -459,15 +472,14 @@ async def execute(request: CodeRequest) -> CodeResponse:
     """Выполнение Python кода."""
     if not request.code.strip():
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Code cannot be empty"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Code cannot be empty"
         )
 
     # Проверка размера кода
     if len(request.code) > MAX_CODE_SIZE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Code size exceeds maximum allowed size of {MAX_CODE_SIZE} bytes"
+            detail=f"Code size exceeds maximum allowed size of {MAX_CODE_SIZE} bytes",
         )
 
     # Выполнение с timeout
