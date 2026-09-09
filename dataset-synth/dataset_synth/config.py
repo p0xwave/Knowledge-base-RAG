@@ -15,8 +15,13 @@ class SynthConfig:
     max_chunks: int = 0  # 0 = all; set small to limit calls and output
 
     # === teacher LLM (any OpenAI-compatible endpoint) ===
+    teacher_system_prompt: str | None = None
+    strict_errors: bool = False
+    split_by_context: bool = False
     teacher_model: str = "gpt-4o-mini"
-    teacher_api_url: str = ""  # OpenAI: https://api.openai.com/v1 ; vLLM: http://host:port/v1
+    teacher_api_url: str = (
+        ""  # OpenAI: https://api.openai.com/v1 ; vLLM: http://host:port/v1
+    )
     teacher_api_key: str = "EMPTY"
     teacher_temperature: float = 0.7  # some diversity in generated questions
     teacher_max_tokens: int = 1200

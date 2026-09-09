@@ -2,9 +2,8 @@
 
 Works against any OpenAI-compatible endpoint (OpenAI cloud or a vLLM
 server). The prompt asks the teacher to answer using only the supplied chunk.
-The parser accepts expected dict entries and filters empty string values, but it
-does not fully validate types or verify that an answer is supported by the chunk;
-quality needs separate evaluation.
+The parser accepts nonempty string question/answer fields. It does not verify
+that an answer is supported by the chunk; quality needs separate evaluation.
 """
 
 from __future__ import annotations
@@ -16,6 +15,7 @@ from dataclasses import dataclass
 
 from loguru import logger
 from openai import OpenAI
+from openai.types.chat import ChatCompletionMessageParam
 
 from dataset_synth.config import SynthConfig
 
@@ -34,7 +34,9 @@ SYSTEM_PROMPT = (
     'Output STRICT JSON only: {"pairs": [{"question": "...", "answer": "..."}]}'
 )
 
-USER_TEMPLATE = "Documentation chunk:\n```\n{chunk}\n```\n\nGenerate up to {n} Q&A pairs."
+USER_TEMPLATE = (
+    "Documentation chunk:\n```\n{chunk}\n```\n\nGenerate up to {n} Q&A pairs."
+)
 
 _JSON_OBJ_RE = re.compile(r"\{.*\}", re.DOTALL)
 
@@ -68,11 +70,16 @@ def _parse_pairs(raw: str) -> list[QAPair]:
         return []
 
     pairs: list[QAPair] = []
-    for item in data.get("pairs", []):
+    items = data.get("pairs")
+    if not isinstance(items, list):
+        return []
+    for item in items:
         if not isinstance(item, dict):
             continue
-        q = str(item.get("question", "")).strip()
-        a = str(item.get("answer", "")).strip()
+        q, a = item.get("question"), item.get("answer")
+        if not isinstance(q, str) or not isinstance(a, str):
+            continue
+        q, a = q.strip(), a.strip()
         if q and a:
             pairs.append(QAPair(question=q, answer=a))
     return pairs
@@ -89,6 +96,8 @@ class Teacher:
             api_key=config.teacher_api_key,
             timeout=config.teacher_timeout,
         )
+        self.system_prompt = config.teacher_system_prompt or SYSTEM_PROMPT
+        self.strict_errors = config.strict_errors
         self.model = config.teacher_model
         self.temperature = config.teacher_temperature
         self.max_tokens = config.teacher_max_tokens
@@ -96,9 +105,12 @@ class Teacher:
 
     def generate(self, chunk_text: str, max_retries: int = 4) -> list[QAPair]:
         """Request Q&A for one chunk; return [] on persistent failure."""
-        messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": USER_TEMPLATE.format(chunk=chunk_text, n=self.n)},
+        messages: list[ChatCompletionMessageParam] = [
+            {"role": "system", "content": self.system_prompt},
+            {
+                "role": "user",
+                "content": USER_TEMPLATE.format(chunk=chunk_text, n=self.n),
+            },
         ]
         for attempt in range(max_retries):
             try:
@@ -108,12 +120,23 @@ class Teacher:
                     temperature=self.temperature,
                     max_tokens=self.max_tokens,
                 )
-                return _parse_pairs(resp.choices[0].message.content or "")
+                return _parse_pairs(resp.choices[0].message.content or "")[: self.n]
             except Exception as exc:  # noqa: BLE001
+                if self.strict_errors:
+                    raise RuntimeError(
+                        "Teacher request failed; check endpoint configuration and availability"
+                    ) from None
                 err = str(exc).lower()
-                if any(k in err for k in ("429", "rate", "overloaded", "timeout", "503")):
+                if any(
+                    k in err for k in ("429", "rate", "overloaded", "timeout", "503")
+                ):
                     wait = 2**attempt + 1
-                    logger.warning("teacher retry in {w}s (attempt {a}): {e}", w=wait, a=attempt + 1, e=exc)
+                    logger.warning(
+                        "teacher retry in {w}s (attempt {a}): {e}",
+                        w=wait,
+                        a=attempt + 1,
+                        e=exc,
+                    )
                     time.sleep(wait)
                 else:
                     logger.error("teacher call failed (non-retryable): {e}", e=exc)

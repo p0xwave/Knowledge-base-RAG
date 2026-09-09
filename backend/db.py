@@ -179,6 +179,49 @@ class DatasetStorageLock(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
 
+class LabRun(Base):
+    """Durable queue and lineage for synthesis and training attempts."""
+
+    __tablename__ = "lab_runs"
+    __table_args__ = (UniqueConstraint("dataset_id", "kind", "version"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    dataset_id: Mapped[int] = mapped_column(
+        ForeignKey("datasets.id", ondelete="CASCADE"), index=True
+    )
+    input_version_id: Mapped[int | None] = mapped_column(
+        ForeignKey("dataset_versions.id", ondelete="SET NULL"), index=True
+    )
+    output_version_id: Mapped[int | None] = mapped_column(
+        ForeignKey("dataset_versions.id", ondelete="SET NULL"), index=True
+    )
+    parent_run_id: Mapped[str | None] = mapped_column(
+        ForeignKey("lab_runs.id", ondelete="CASCADE")
+    )
+    kind: Mapped[str] = mapped_column(String(16))
+    version: Mapped[int] = mapped_column(Integer)
+    model: Mapped[str] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(16), default="queued", index=True)
+    config: Mapped[dict] = mapped_column(JSON)
+    metrics: Mapped[dict] = mapped_column(JSON, default=dict)
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime)
+    heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+
+class LabWorker(Base):
+    __tablename__ = "lab_workers"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    kinds: Mapped[list[str]] = mapped_column(JSON)
+    heartbeat_at: Mapped[datetime] = mapped_column(DateTime)
+
+
 pg_settings = settings.POSTGRES
 DATABASE_URL = f"postgresql+asyncpg://{pg_settings.USER}:{pg_settings.PASSWORD}@{pg_settings.HOST}:{pg_settings.PORT}/{pg_settings.DATABASE}"
 

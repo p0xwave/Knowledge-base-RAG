@@ -24,7 +24,7 @@ import re
 import unicodedata
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from loguru import logger
@@ -38,7 +38,7 @@ from dataset_synth.teacher import Teacher
 # Refusal text is sourced from the versioned prompt-contract package.
 ADVERSARIAL_ANSWERS = DEFAULT_REFUSALS
 
-_NORM_RE = re.compile(r"[^a-z0-9\s]+")
+_NORM_RE = re.compile(r"[^\w\s]+", re.UNICODE)
 _WS_RE = re.compile(r"\s+")
 
 
@@ -70,7 +70,9 @@ def _normalize_q(text: str) -> str:
     return _WS_RE.sub(" ", text).strip()
 
 
-def _generate_all(chunks: list[Chunk], teacher: Teacher, max_workers: int) -> list[Record]:
+def _generate_all(
+    chunks: list[Chunk], teacher: Teacher, max_workers: int
+) -> list[Record]:
     """Concurrent teacher generation over all chunks."""
     records: list[Record] = []
 
@@ -88,11 +90,16 @@ def _generate_all(chunks: list[Chunk], teacher: Teacher, max_workers: int) -> li
         ]
 
     with ThreadPoolExecutor(max_workers=max_workers) as pool:
-        futures = {pool.submit(_work, c): c for c in chunks}
+        futures = {pool.submit(_work, c): i for i, c in enumerate(chunks)}
+        ordered: dict[int, list[Record]] = {}
         for fut in tqdm(as_completed(futures), total=len(futures), desc="teacher gen"):
-            records.extend(fut.result())
+            ordered[futures[fut]] = fut.result()
+        for index in range(len(chunks)):
+            records.extend(ordered[index])
 
-    logger.info("generated {n} raw pairs from {c} chunks", n=len(records), c=len(chunks))
+    logger.info(
+        "generated {n} raw pairs from {c} chunks", n=len(records), c=len(chunks)
+    )
     return records
 
 
@@ -151,7 +158,9 @@ class _DistractorPool:
         return picked
 
 
-def _assemble_contexts(records: list[Record], chunks: list[Chunk], cfg: SynthConfig) -> None:
+def _assemble_contexts(
+    records: list[Record], chunks: list[Chunk], cfg: SynthConfig
+) -> None:
     """Fill each record's `chunks` with the gold chunk plus distractors.
 
     The gold chunk lands at a random position, so the model cannot learn
@@ -179,7 +188,9 @@ def _assemble_contexts(records: list[Record], chunks: list[Chunk], cfg: SynthCon
     )
 
 
-def _add_adversarial(records: list[Record], chunks: list[Chunk], cfg: SynthConfig) -> list[Record]:
+def _add_adversarial(
+    records: list[Record], chunks: list[Chunk], cfg: SynthConfig
+) -> list[Record]:
     rng = random.Random(cfg.seed)  # noqa: S311 - dataset shuffling, not crypto
     n_adv = int(len(records) * cfg.adversarial_fraction)
     if n_adv <= 0 or len(chunks) < 2:
@@ -202,15 +213,20 @@ def _add_adversarial(records: list[Record], chunks: list[Chunk], cfg: SynthConfi
                 is_adversarial=True,
                 source="adversarial",
                 chunks=[
-                    _chunk_dict(i, c.text, c.source) for i, c in enumerate(wrong, start=1)
+                    _chunk_dict(i, c.text, c.source)
+                    for i, c in enumerate(wrong, start=1)
                 ],
             )
         )
 
     combined = records + adversarial
     rng.shuffle(combined)
-    logger.info("added {n} adversarial ({p:.0f}%); total={t}",
-                n=len(adversarial), p=100 * len(adversarial) / len(combined), t=len(combined))
+    logger.info(
+        "added {n} adversarial ({p:.0f}%); total={t}",
+        n=len(adversarial),
+        p=100 * len(adversarial) / len(combined),
+        t=len(combined),
+    )
     return combined
 
 
@@ -272,27 +288,79 @@ def _split_and_write(records: list[Record], cfg: SynthConfig) -> dict[str, int]:
 
 def run_synth(cfg: SynthConfig) -> dict[str, int]:
     """Run the full synthetic-generation pipeline. Returns summary counts."""
-    chunks = load_chunks(cfg)
+    return run_synth_from_chunks(cfg, load_chunks(cfg))
+
+
+def run_synth_from_chunks(cfg: SynthConfig, chunks: list[Chunk]) -> dict[str, int]:
+    """Generate from supplied chunks without opening or mutating Chroma."""
     if not chunks:
         raise RuntimeError("no chunks after filtering — check chroma_path / filters")
 
+    if cfg.max_chunks:
+        chunks = chunks[: cfg.max_chunks]
+    # Exact duplicate contexts must not cross the holdout boundary.
+    if cfg.split_by_context:
+        chunks = list({chunk.text: chunk for chunk in chunks}.values())
     teacher = Teacher(cfg)
     records = _generate_all(chunks, teacher, cfg.max_workers)
     if not records:
         raise RuntimeError("teacher produced 0 pairs — check teacher endpoint / model")
 
     records = _dedup(records)
+    if cfg.split_by_context:
+        return _write_context_holdout(records, chunks, cfg)
     synth_count = len(records)
     _assemble_contexts(records, chunks, cfg)
     records = _add_adversarial(records, chunks, cfg)
     records.extend(_load_mix(cfg, synth_count))
 
     summary = _split_and_write(records, cfg)
-    summary.update({
-        "chunks_used": len(chunks),
-        "synth_pairs": synth_count,
-        "context_chunks": cfg.context_chunks,
-        "total_rows": summary["train"] + summary["val"],
-    })
+    summary.update(
+        {
+            "chunks_used": len(chunks),
+            "synth_pairs": synth_count,
+            "context_chunks": cfg.context_chunks,
+            "total_rows": summary["train"] + summary["val"],
+        }
+    )
     logger.info("synth pipeline done: {s}", s=summary)
     return summary
+
+
+def _write_context_holdout(
+    records: list[Record], chunks: list[Chunk], cfg: SynthConfig
+) -> dict[str, int]:
+    """Split gold contexts BEFORE adding distractors/refusals to prevent leakage.
+
+    Chunk-level holdout: chunks of the same document can be in both splits.
+    The lab records this limitation in the manifest.
+    """
+    contexts = sorted({record.context for record in records})
+    if len(contexts) < 2:
+        raise RuntimeError("Need generated pairs from at least two distinct chunks")
+    rng = random.Random(cfg.seed)  # noqa: S311 - reproducible dataset split
+    rng.shuffle(contexts)
+    n_val = max(1, int(len(contexts) * cfg.val_fraction))
+    holdout = set(contexts[:n_val])
+    out = Path(cfg.output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    counts = {}
+    for split, is_val in (("train", False), ("val", True)):
+        rows = [r for r in records if (r.context in holdout) == is_val]
+        pool = [c for c in chunks if (c.text in holdout) == is_val]
+        _assemble_contexts(rows, pool, cfg)
+        rows = _add_adversarial(
+            rows, pool, replace(cfg, context_chunks=min(cfg.context_chunks, len(pool)))
+        )
+        rng.shuffle(rows)
+        with (out / f"{split}.jsonl").open("w", encoding="utf-8") as handle:
+            for row in rows:
+                handle.write(json.dumps(row.to_json(), ensure_ascii=False) + "\n")
+        counts[split] = len(rows)
+    return {
+        **counts,
+        "chunks_used": len(chunks),
+        "synth_pairs": len(records),
+        "total_rows": sum(counts.values()),
+        "context_chunks": cfg.context_chunks,
+    }

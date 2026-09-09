@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-import chromadb
 from loguru import logger
 
 from dataset_synth.config import SynthConfig
@@ -35,6 +34,8 @@ def load_chunks(config: SynthConfig) -> list[Chunk]:
     Filters out: chunks shorter than `min_chunk_chars`, longer than
     `max_chunk_chars`, and table-heavy chunks (poor Q&A source).
     """
+    import chromadb
+
     client = chromadb.PersistentClient(path=config.chroma_path)
     collection = client.get_collection(config.collection_name)
     total = collection.count()

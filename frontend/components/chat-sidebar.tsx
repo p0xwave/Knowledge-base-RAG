@@ -158,6 +158,15 @@ export function ChatSidebar() {
             Documents
           </Button>
         </Link>
+        <Link href="/lab">
+          <Button
+            variant="ghost"
+            className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent h-9 w-full justify-start gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            DataLab
+          </Button>
+        </Link>
         <Link href="/settings">
           <Button
             variant="ghost"

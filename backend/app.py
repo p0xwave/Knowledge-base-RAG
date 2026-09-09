@@ -10,6 +10,7 @@ from api.code import router as code_router
 from api.dataset import router as dataset_router
 from api.dialogue import router as dialogue_router
 from api.folder import router as folder_router
+from api.lab.router import router as lab_router
 from api.message import router as message_router
 from api.source import router as source_router
 from api.user import router as user_router
@@ -104,3 +105,4 @@ app.include_router(source_router)
 app.include_router(folder_router)
 app.include_router(code_router)
 app.include_router(dataset_router)
+app.include_router(lab_router)

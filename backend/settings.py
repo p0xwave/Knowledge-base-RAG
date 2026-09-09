@@ -59,6 +59,16 @@ class Settings(BaseSettings):
         True  # Set to True to auto-reject off-topic questions
     )
 
+    LAB_CODE_REVISION: str = ""
+    LAB_TEACHER_API_URL: str = ""
+    LAB_TEACHER_API_KEY: str = ""
+    LAB_TEACHER_MODELS: list[str] = ["Qwen/Qwen2.5-Coder-7B-Instruct"]
+    LAB_TRAINING_MODELS: list[str] = [
+        "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+        "Qwen/Qwen2.5-Coder-3B-Instruct",
+        "Qwen/Qwen2.5-Coder-7B-Instruct",
+    ]
+
     # Code Executor Settings
     CODE_EXECUTOR_URL: str = "http://localhost:8002/execute"
     # Лимит исполнения кода в песочнице (сек). Холодный импорт torch ~3с,

@@ -10,11 +10,12 @@ export type { ApiResult }
 // Configuration
 // ============================================
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
 const DEFAULT_TIMEOUT = 600000 // 10 minutes for RAG requests
 
 export interface RequestConfig extends RequestInit {
   timeout?: number
+  responseType?: "blob"
   params?: Record<string, string | number | boolean | undefined>
 }
 
@@ -93,7 +94,14 @@ async function handleResponse<T>(response: Response): Promise<T> {
     if (contentType?.includes("application/json")) {
       try {
         const errorData = await response.json()
-        errorMessage = errorData.error || errorData.message || errorMessage
+        errorMessage =
+          (typeof errorData.detail === "string" ? errorData.detail : undefined) ||
+          (Array.isArray(errorData.detail)
+            ? errorData.detail.map((item: { msg: string }) => item.msg).join("; ")
+            : undefined) ||
+          errorData.error ||
+          errorData.message ||
+          errorMessage
         errorCode = errorData.code || errorCode
       } catch {
         // Ignore JSON parse errors for error responses
@@ -131,7 +139,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 // ============================================
 
 async function request<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
-  const { timeout = DEFAULT_TIMEOUT, params, ...fetchConfig } = config
+  const { timeout = DEFAULT_TIMEOUT, params, responseType, ...fetchConfig } = config
 
   const url = buildUrl(endpoint, params)
 
@@ -143,6 +151,8 @@ async function request<T>(endpoint: string, config: RequestConfig = {}): Promise
     "Content-Type": "application/json",
     ...(fetchConfig.headers as Record<string, string>),
   }
+
+  if (fetchConfig.body instanceof FormData) delete headers["Content-Type"]
 
   // Add JWT token if available
   const authHeader = getAuthHeader()
@@ -157,6 +167,7 @@ async function request<T>(endpoint: string, config: RequestConfig = {}): Promise
       headers,
     })
 
+    if (response.ok && responseType === "blob") return (await response.blob()) as T
     return handleResponse<T>(response)
   } catch (error) {
     if (error instanceof ApiRequestError) {
@@ -181,6 +192,14 @@ async function request<T>(endpoint: string, config: RequestConfig = {}): Promise
 // ============================================
 
 export const api = {
+  upload<T>(endpoint: string, data: FormData): Promise<T> {
+    return request<T>(endpoint, { method: "POST", body: data })
+  },
+
+  download(endpoint: string): Promise<Blob> {
+    return request<Blob>(endpoint, { responseType: "blob" })
+  },
+
   get<T>(
     endpoint: string,
     params?: Record<string, string | number | boolean | undefined>,
@@ -321,11 +340,7 @@ export async function streamRequest<T>(
         // Handle error events from backend
         if (event.type === "error") {
           callbacks.onError?.(
-            new ApiRequestError(
-              event.message || "Stream error",
-              "STREAM_ERROR",
-              event.code || 500
-            )
+            new ApiRequestError(event.message || "Stream error", "STREAM_ERROR", event.code || 500)
           )
           return "done"
         }

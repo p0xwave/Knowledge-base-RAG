@@ -1579,6 +1579,198 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/lab/catalog:
+    get:
+      tags:
+      - Dataset Lab
+      summary: Get Catalog
+      operationId: get_catalog_api_lab_catalog_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Catalog'
+      security:
+      - HTTPBearer: []
+  /api/lab:
+    get:
+      tags:
+      - Dataset Lab
+      summary: Overview
+      operationId: overview_api_lab_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Overview'
+      security:
+      - HTTPBearer: []
+  /api/lab/datasets:
+    post:
+      tags:
+      - Dataset Lab
+      summary: Upload Dataset
+      operationId: upload_dataset_api_lab_datasets_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_dataset_api_lab_datasets_post'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabVersionView'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /api/lab/versions/{version_id}/synthesis:
+    post:
+      tags:
+      - Dataset Lab
+      summary: Synthesize
+      operationId: synthesize_api_lab_versions__version_id__synthesis_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: version_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Version Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SynthesisRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunView'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/lab/runs/{run_id}/training:
+    post:
+      tags:
+      - Dataset Lab
+      summary: Train
+      operationId: train_api_lab_runs__run_id__training_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunView'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/lab/runs/{run_id}/cancel:
+    post:
+      tags:
+      - Dataset Lab
+      summary: Cancel
+      operationId: cancel_api_lab_runs__run_id__cancel_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunView'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/lab/runs/{run_id}/download/{artifact}:
+    get:
+      tags:
+      - Dataset Lab
+      summary: Download
+      operationId: download_api_lab_runs__run_id__download__artifact__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      - name: artifact
+        in: path
+        required: true
+        schema:
+          enum:
+          - train
+          - val
+          - manifest
+          type: string
+          title: Artifact
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     AuthResponse:
@@ -1640,6 +1832,29 @@ components:
             settings
       type: object
       title: Body_create_version_api_dataset__dataset_id__versions_post
+    Body_upload_dataset_api_lab_datasets_post:
+      properties:
+        files:
+          items:
+            type: string
+            format: binary
+          type: array
+          title: Files
+        name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Name
+        dataset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Dataset Id
+      type: object
+      required:
+      - files
+      - name
+      title: Body_upload_dataset_api_lab_datasets_post
     Body_upload_source_api_source_post:
       properties:
         file:
@@ -1650,6 +1865,40 @@ components:
       required:
       - file
       title: Body_upload_source_api_source_post
+    Catalog:
+      properties:
+        teacher_models:
+          items:
+            type: string
+          type: array
+          title: Teacher Models
+        training_models:
+          items:
+            type: string
+          type: array
+          title: Training Models
+        synthesis_configured:
+          type: boolean
+          title: Synthesis Configured
+        synthesis_worker_online:
+          type: boolean
+          title: Synthesis Worker Online
+        training_mode:
+          type: string
+          const: planned
+          title: Training Mode
+          default: planned
+        max_upload_bytes:
+          type: integer
+          title: Max Upload Bytes
+      type: object
+      required:
+      - teacher_models
+      - training_models
+      - synthesis_configured
+      - synthesis_worker_online
+      - max_upload_bytes
+      title: Catalog
     CodeExecution:
       properties:
         code:
@@ -1902,6 +2151,70 @@ components:
       - browser
       title: IconsEnum
     JsonValue: {}
+    LabVersionView:
+      properties:
+        id:
+          type: string
+          title: Id
+        family_id:
+          type: string
+          title: Family Id
+        version:
+          type: integer
+          title: Version
+        name:
+          type: string
+          title: Name
+        filenames:
+          items:
+            type: string
+          type: array
+          title: Filenames
+        file_ids:
+          additionalProperties:
+            type: integer
+          type: object
+          title: File Ids
+        sha256:
+          type: string
+          title: Sha256
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        kind:
+          type: string
+          enum:
+          - source
+          - synthesis
+          - training
+          - snapshot
+          title: Kind
+        base_version_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Base Version Id
+        can_synthesize:
+          type: boolean
+          title: Can Synthesize
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - family_id
+      - version
+      - name
+      - filenames
+      - sha256
+      - size_bytes
+      - kind
+      - base_version_id
+      - can_synthesize
+      - created_at
+      title: LabVersionView
     MessageFeedback:
       properties:
         message_id:
@@ -1954,6 +2267,23 @@ components:
       - role
       - name
       title: ModelArtifact
+    Overview:
+      properties:
+        datasets:
+          items:
+            $ref: '#/components/schemas/LabVersionView'
+          type: array
+          title: Datasets
+        runs:
+          items:
+            $ref: '#/components/schemas/RunView'
+          type: array
+          title: Runs
+      type: object
+      required:
+      - datasets
+      - runs
+      title: Overview
     Page_DatasetView_:
       properties:
         items:
@@ -2067,6 +2397,102 @@ components:
       - index_path
       - collection
       title: RagRuntime
+    RunView:
+      properties:
+        id:
+          type: string
+          title: Id
+        dataset_id:
+          type: integer
+          title: Dataset Id
+        input_version_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Input Version Id
+        output_version_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Output Version Id
+        parent_run_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Parent Run Id
+        kind:
+          type: string
+          enum:
+          - synthesis
+          - training
+          title: Kind
+        version:
+          type: integer
+          title: Version
+        model:
+          type: string
+          title: Model
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - completed
+          - failed
+          - cancelled
+          - planned
+          title: Status
+        config:
+          additionalProperties: true
+          type: object
+          title: Config
+        metrics:
+          additionalProperties:
+            anyOf:
+            - type: number
+            - type: integer
+            - type: string
+          type: object
+          title: Metrics
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+        finished_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Finished At
+      type: object
+      required:
+      - id
+      - dataset_id
+      - input_version_id
+      - output_version_id
+      - parent_run_id
+      - kind
+      - version
+      - model
+      - status
+      - config
+      - metrics
+      - error
+      - created_at
+      - started_at
+      - finished_at
+      title: RunView
     RuntimeManifest:
       properties:
         schema_version:
@@ -2281,6 +2707,97 @@ components:
       - total_pages
       - sources
       title: SourcesList
+    SynthesisRequest:
+      properties:
+        model:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Model
+        seed:
+          type: integer
+          maximum: 2147483647.0
+          minimum: 0.0
+          title: Seed
+          default: 42
+        max_chunks:
+          type: integer
+          maximum: 2000.0
+          minimum: 2.0
+          title: Max Chunks
+          default: 100
+        n_qa_per_chunk:
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: N Qa Per Chunk
+          default: 3
+        context_chunks:
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: Context Chunks
+          default: 3
+        val_fraction:
+          type: number
+          maximum: 0.4
+          minimum: 0.05
+          title: Val Fraction
+          default: 0.2
+        teacher_temperature:
+          type: number
+          maximum: 2.0
+          minimum: 0.0
+          title: Teacher Temperature
+          default: 0.7
+      additionalProperties: false
+      type: object
+      required:
+      - model
+      title: SynthesisRequest
+    TrainingRequest:
+      properties:
+        model:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Model
+        seed:
+          type: integer
+          maximum: 2147483647.0
+          minimum: 0.0
+          title: Seed
+          default: 42
+        epochs:
+          type: number
+          maximum: 20.0
+          minimum: 0.1
+          title: Epochs
+          default: 2
+        learning_rate:
+          type: number
+          maximum: 0.01
+          minimum: 1.0e-06
+          title: Learning Rate
+          default: 0.0002
+        lora_r:
+          type: integer
+          enum:
+          - 8
+          - 16
+          - 32
+          - 64
+          title: Lora R
+          default: 16
+        use_qlora:
+          type: boolean
+          title: Use Qlora
+          default: true
+      additionalProperties: false
+      type: object
+      required:
+      - model
+      title: TrainingRequest
     TrainingRuntime:
       properties:
         parameters:

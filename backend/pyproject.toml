@@ -18,6 +18,7 @@ dependencies = [
     "loguru>=0.7.0",
     "rag",
     "outlier-detection",
+    "dataset-synth",
 ]
 
 [dependency-groups]
@@ -50,3 +51,4 @@ max-args = 7
 [tool.uv.sources]
 rag = { workspace = true }
 outlier-detection = { workspace = true }
+dataset-synth = { workspace = true }
