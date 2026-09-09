@@ -7,6 +7,7 @@ from loguru import logger
 from rag import Settings as RagSettings
 
 from api.code import router as code_router
+from api.dataset import router as dataset_router
 from api.dialogue import router as dialogue_router
 from api.folder import router as folder_router
 from api.message import router as message_router
@@ -102,3 +103,4 @@ app.include_router(message_router)
 app.include_router(source_router)
 app.include_router(folder_router)
 app.include_router(code_router)
+app.include_router(dataset_router)

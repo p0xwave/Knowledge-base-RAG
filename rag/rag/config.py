@@ -24,13 +24,17 @@ class Settings(BaseSettings):
     chunk_overlap: int = 200
 
     embedding_model: str = "BAAI/bge-base-en-v1.5"
+    embedding_revision: str | None = None
     eval_embedding_model: str = "Snowflake/snowflake-arctic-embed-m"
     rerank_model: str = "BAAI/bge-reranker-base"
+    rerank_revision: str | None = None
 
     llm_model_generation: str = "Qwen/Qwen2.5-Coder-7B-Instruct"
     llm_api_url: str = ""
     llm_api_key: str = ""
     llm_timeout: float = 30.0
+    llm_temperature: float = 0.1
+    llm_max_output_tokens: int = 1024
 
     llm_model_judge: str = "Qwen/Qwen2.5-32B-Instruct-AWQ"
     judge_api_url: str = ""

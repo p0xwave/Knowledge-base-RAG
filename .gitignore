@@ -14,3 +14,8 @@ wandb/
 
 # Корневой .env с секретами (HF-токен, JWT) — не коммитим в публичный репозиторий
 /.env
+.env
+.env.*
+!.env.example
+!.env.*.example
+/data/dataset-versions/

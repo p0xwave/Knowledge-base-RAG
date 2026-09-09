@@ -5,8 +5,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+from chromadb.api.models.Collection import Collection
 from loguru import logger
 from outlier_detection import TopicClassifier
+from prompt_contract import PromptContract
 from rag import (
     ChatModel,
     answer,
@@ -50,7 +52,9 @@ class RagService:
         self,
         rag_settings: RagSettings,
         classifier_path: Optional[Path] = None,
-    ):
+        prompt_contract: PromptContract | None = None,
+        collection: Collection | None = None,
+    ) -> None:
         """Initialize RAG service.
 
         Args:
@@ -58,12 +62,13 @@ class RagService:
             classifier_path: Path to saved topic classifier model
         """
         self.settings = rag_settings
+        self.prompt_contract = prompt_contract
 
         # Initialize models
         self.chat_model: Optional[ChatModel] = None
         self.embed_model = None
         self.reranker = None
-        self.collection = None
+        self.collection = collection
         self.topic_classifier: Optional[TopicClassifier] = None
 
         # Load models
@@ -87,13 +92,15 @@ class RagService:
         logger.info(f"✓ Loaded reranker: {self.settings.rerank_model}")
 
         # Create/load ChromaDB collection
-        self.collection = create_collection(
-            self.settings.chroma_path, self.settings.chroma_collection
-        )
+        if self.collection is None:
+            self.collection = create_collection(
+                self.settings.chroma_path, self.settings.chroma_collection
+            )
         logger.info(f"✓ Loaded ChromaDB collection: {self.settings.chroma_collection}")
 
-        self.topic_classifier = TopicClassifier.load(classifier_path)
-        logger.info(f"✓ Loaded topic classifier from: {classifier_path}")
+        if classifier_path is not None:
+            self.topic_classifier = TopicClassifier.load(classifier_path)
+            logger.info(f"✓ Loaded topic classifier from: {classifier_path}")
 
     def check_topic(self, question: str) -> tuple[bool, float]:
         """Check if question is on-topic.
@@ -119,7 +126,7 @@ class RagService:
         self,
         question: str,
         strategy: str = "query_transform",
-        n_results: int = None,
+        n_results: int | None = None,
     ) -> list[RetrievedChunk]:
         """Retrieve relevant document chunks.
 
@@ -131,6 +138,13 @@ class RagService:
         Returns:
             List of retrieved chunks
         """
+        if (
+            self.collection is None
+            or self.embed_model is None
+            or self.reranker is None
+            or self.chat_model is None
+        ):
+            raise RuntimeError("RAG models are not initialized")
         if n_results is None:
             n_results = self.settings.top_k
 
@@ -197,10 +211,18 @@ class RagService:
                 )
 
         # Retrieve relevant chunks
+        if self.chat_model is None:
+            raise RuntimeError("RAG chat model is not initialized")
         chunks = self.retrieve_chunks(question, strategy=strategy)
 
         # Generate answer with history
-        answer_text = answer(self.chat_model, question, chunks, history=history)
+        answer_text = answer(
+            self.chat_model,
+            question,
+            chunks,
+            history=history,
+            contract=self.prompt_contract,
+        )
 
         return RagResponse(
             answer=answer_text,
@@ -237,8 +259,16 @@ class RagService:
                     topic_confidence=topic_confidence,
                 )
 
+        if self.chat_model is None:
+            raise RuntimeError("RAG chat model is not initialized")
         chunks = self.retrieve_chunks(question, strategy=strategy)
-        stream = answer_stream(self.chat_model, question, chunks, history=history)
+        stream = answer_stream(
+            self.chat_model,
+            question,
+            chunks,
+            history=history,
+            contract=self.prompt_contract,
+        )
 
         return RagStreamResponse(
             stream=stream,

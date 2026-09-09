@@ -41,6 +41,7 @@ def load_model_and_tokenizer(
     logger.info("loading tokenizer for {name}", name=config.name)
     tokenizer = AutoTokenizer.from_pretrained(
         config.name,
+        revision=config.revision,
         trust_remote_code=config.trust_remote_code,
     )
     if tokenizer.pad_token is None:
@@ -52,6 +53,7 @@ def load_model_and_tokenizer(
         qlora=config.use_qlora,
     )
     load_kwargs: dict = {
+        "revision": config.revision,
         "dtype": torch.bfloat16,
         "device_map": "auto",
         "trust_remote_code": config.trust_remote_code,

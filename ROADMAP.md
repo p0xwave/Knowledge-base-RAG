@@ -110,6 +110,8 @@ dataset → validate → train LoRA → register/serve
 ### 4. API и интерфейс
 
 - [x] Реализовать reference chat UI и базовый FastAPI backend.
+- [x] Добавить backend CRUD датасетов и неизменяемых файловых снимков, включая Source,
+  с созданием версий из Python. Контракт: `backend/DATASET_VERSIONING.md`.
 - [ ] Добавить сущности для корпусов, benchmarks, RAG-конфигураций, адаптеров,
   запусков и результатов.
 - [ ] Выполнять ingest, generation, training и eval в фоновых workers.

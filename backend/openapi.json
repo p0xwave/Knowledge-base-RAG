@@ -39,7 +39,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -49,7 +49,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -59,7 +59,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -101,7 +101,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -111,7 +111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -151,7 +151,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -161,7 +161,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -171,7 +171,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -209,7 +209,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -219,7 +219,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -271,7 +271,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -340,7 +340,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -398,7 +398,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -408,7 +408,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -467,7 +467,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -477,7 +477,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -526,7 +526,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -536,7 +536,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -614,7 +614,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -624,7 +624,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -634,7 +634,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -644,7 +644,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -699,7 +699,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -709,7 +709,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -719,7 +719,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -729,7 +729,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -779,7 +779,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -789,7 +789,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -851,7 +851,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -861,7 +861,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -984,7 +984,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1042,7 +1042,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1052,7 +1052,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1111,7 +1111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1121,7 +1121,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1170,7 +1170,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1180,7 +1180,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1236,7 +1236,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1246,7 +1246,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1464,7 +1464,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api__code__models__ErrorMessage"
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
                 }
               }
             }
@@ -1485,6 +1485,1074 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/api/dataset": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Create a dataset",
+        "operationId": "create_dataset_api_dataset_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "List owned datasets",
+        "operationId": "list_datasets_api_dataset_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_DatasetView_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dataset/{dataset_id}": {
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Get a dataset",
+        "operationId": "get_dataset_api_dataset__dataset_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Update dataset metadata",
+        "operationId": "update_dataset_api_dataset__dataset_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatasetUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Delete a dataset and all its snapshots",
+        "operationId": "delete_dataset_api_dataset__dataset_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dataset/{dataset_id}/versions": {
+      "post": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Create an immutable dataset snapshot",
+        "description": "Upload files and/or repeat source_ids form fields for existing owned documents. Uploaded filenames are relative snapshot paths. Sources use sources/{id}/{name}. Use base_version_id to inherit files without uploading them; uploads replace matching paths. removed_paths excludes files from the new version. Unchanged content is stored once.",
+        "operationId": "create_version_api_dataset__dataset_id__versions_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_version_api_dataset__dataset_id__versions_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Snapshot size or file count limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "List dataset versions, newest first",
+        "operationId": "list_versions_api_dataset__dataset_id__versions_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_VersionView_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dataset/{dataset_id}/versions/{version_id}": {
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Get version metadata and checksum",
+        "operationId": "get_version_api_dataset__dataset_id__versions__version_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Update version label and description only",
+        "operationId": "update_version_api_dataset__dataset_id__versions__version_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Delete a snapshot permanently",
+        "operationId": "delete_version_api_dataset__dataset_id__versions__version_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dataset/{dataset_id}/versions/{version_id}/files": {
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "List snapshot files without their contents",
+        "operationId": "list_version_files_api_dataset__dataset_id__versions__version_id__files_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Version Id"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_VersionFileView_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dataset/{dataset_id}/versions/{version_id}/files/{file_id}/download": {
+      "get": {
+        "tags": [
+          "Dataset"
+        ],
+        "summary": "Download the original snapshot bytes",
+        "operationId": "download_version_file_api_dataset__dataset_id__versions__version_id__files__file_id__download_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Dataset Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "Version Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or not owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api__common__ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -1511,6 +2579,70 @@
           "user"
         ],
         "title": "AuthResponse"
+      },
+      "Body_create_version_api_dataset__dataset_id__versions_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "type": "array",
+            "title": "Files"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Label",
+            "default": ""
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Description",
+            "default": ""
+          },
+          "source_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Source Ids"
+          },
+          "base_version_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Version Id"
+          },
+          "removed_paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Removed Paths"
+          },
+          "runtime": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime",
+            "description": "RuntimeManifest JSON, with model references and RAG/training settings"
+          }
+        },
+        "type": "object",
+        "title": "Body_create_version_api_dataset__dataset_id__versions_post"
       },
       "Body_upload_source_api_source_post": {
         "properties": {
@@ -1586,6 +2718,99 @@
         },
         "type": "object",
         "title": "CreateDialogue"
+      },
+      "DatasetCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Description",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "DatasetCreate"
+      },
+      "DatasetUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DatasetUpdate"
+      },
+      "DatasetView": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Description",
+            "default": ""
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DatasetView"
       },
       "DialogueResponse": {
         "properties": {
@@ -1805,6 +3030,7 @@
         ],
         "title": "IconsEnum"
       },
+      "JsonValue": {},
       "MessageFeedback": {
         "properties": {
           "message_id": {
@@ -1830,6 +3056,151 @@
         ],
         "title": "MessageFeedbackEnum"
       },
+      "ModelArtifact": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "embedding",
+              "reranker",
+              "generator",
+              "base",
+              "adapter"
+            ],
+            "title": "Role"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "weights_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weights Path"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "role",
+          "name"
+        ],
+        "title": "ModelArtifact"
+      },
+      "Page_DatasetView_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetView"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "Page[DatasetView]"
+      },
+      "Page_VersionFileView_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VersionFileView"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "Page[VersionFileView]"
+      },
+      "Page_VersionView_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VersionView"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "Page[VersionView]"
+      },
       "PreGeneratedQuery": {
         "properties": {
           "query": {
@@ -1846,6 +3217,95 @@
           "icon"
         ],
         "title": "PreGeneratedQuery"
+      },
+      "RagRuntime": {
+        "properties": {
+          "parameters": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Parameters"
+          },
+          "prompt_path": {
+            "type": "string",
+            "title": "Prompt Path"
+          },
+          "index_path": {
+            "type": "string",
+            "title": "Index Path"
+          },
+          "collection": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Collection"
+          },
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "rerank",
+              "query_transform"
+            ],
+            "title": "Strategy",
+            "default": "query_transform"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "prompt_path",
+          "index_path",
+          "collection"
+        ],
+        "title": "RagRuntime"
+      },
+      "RuntimeManifest": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelArtifact"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "rag": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RagRuntime"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "training": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrainingRuntime"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "packages": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Packages"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RuntimeManifest"
       },
       "SendMessage": {
         "properties": {
@@ -2125,6 +3585,37 @@
         ],
         "title": "SourcesList"
       },
+      "TrainingRuntime": {
+        "properties": {
+          "parameters": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Parameters"
+          },
+          "prompt_path": {
+            "type": "string",
+            "title": "Prompt Path"
+          },
+          "train_path": {
+            "type": "string",
+            "title": "Train Path"
+          },
+          "validation_path": {
+            "type": "string",
+            "title": "Validation Path"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "prompt_path",
+          "train_path",
+          "validation_path"
+        ],
+        "title": "TrainingRuntime"
+      },
       "UpdateDialogue": {
         "properties": {
           "name": {
@@ -2269,7 +3760,158 @@
         ],
         "title": "ValidationError"
       },
-      "api__code__models__ErrorMessage": {
+      "VersionFileView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "path",
+          "sha256",
+          "size_bytes",
+          "source_id"
+        ],
+        "title": "VersionFileView"
+      },
+      "VersionUpdate": {
+        "properties": {
+          "label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "VersionUpdate"
+      },
+      "VersionView": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Label",
+            "default": ""
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Description",
+            "default": ""
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "dataset_id": {
+            "type": "integer",
+            "title": "Dataset Id"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "base_version_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Version Id"
+          },
+          "runtime": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RuntimeManifest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "file_count": {
+            "type": "integer",
+            "title": "File Count"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "dataset_id",
+          "number",
+          "base_version_id",
+          "runtime",
+          "sha256",
+          "file_count",
+          "size_bytes",
+          "created_at"
+        ],
+        "title": "VersionView"
+      },
+      "api__common__ErrorMessage": {
         "properties": {
           "detail": {
             "type": "string",

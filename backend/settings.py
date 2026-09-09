@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from pathlib import Path
+
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,6 +26,13 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
+
+    DATASET_STORAGE_PATH: Path = (
+        Path(__file__).resolve().parents[1] / "data/dataset-versions"
+    )
+    DATASET_VERSION_MAX_BYTES: int = Field(default=100 * 1024**3, gt=0)
+    DATASET_VERSION_MAX_FILES: int = Field(default=10000, gt=0)
+    DATASET_FILE_CHUNK_BYTES: int = Field(default=1024 * 1024, gt=0)
 
     # CORS Settings
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]

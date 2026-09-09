@@ -35,6 +35,7 @@ class ModelConfig:
     bnb_4bit_quant_type: str = "nf4"
     bnb_4bit_use_double_quant: bool = True
     trust_remote_code: bool = False
+    revision: str | None = None
 
 
 @dataclass

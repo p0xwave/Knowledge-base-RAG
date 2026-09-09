@@ -379,10 +379,10 @@ docker compose up -d postgres
 и `CODE_EXECUTOR_URL=http://127.0.0.1:8002/execute`. Для CRUD-only smoke допустим
 временный `RAG_ENABLED=false`.
 
-`OUTLIER_DETECTION_ENABLED=false` сейчас не является рабочим способом запустить
-RAG без classifier: `RagService._load_models()` безусловно вызывает
-`TopicClassifier.load(classifier_path)`, даже если передан `None`. Такая ошибка
-оставит backend запущенным, но RAG singleton будет недоступен.
+`OUTLIER_DETECTION_ENABLED=false` запускает RAG без classifier: при пути `None`
+загрузка классификатора пропускается. Для выбранной версии датасета можно передать
+сохранённый prompt contract и восстановленную collection через
+[Python API версионирования](DATASET_VERSIONING.md).
 
 ## Проверки
 
